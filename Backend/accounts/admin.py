@@ -8,15 +8,15 @@ class CustomUserAdmin(UserAdmin):
     model = CustomUser
 
     fieldsets = UserAdmin.fieldsets + (
-        ('Extra', {'fields': ('studentNo',)})
+        ('Extra', {'fields': ('studentNo', 'phoneNo',)}),
     )
 
 
     add_fieldsets = (
         (None, {
-            'classes': ('wide'),
-            'fields': ("username", "email", "first_name", "last_name", "studentNo", "password1", "password2")
-        })
+            'classes': ('wide',),
+            'fields': ("username", "email", "first_name", "last_name", "studentNo", "phoneNo", "password1", "password2")
+        }),
     )
 
 admin.site.register(CustomUser, CustomUserAdmin)

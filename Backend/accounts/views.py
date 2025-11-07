@@ -14,8 +14,8 @@ def signupView(request):
             
             user.save()
             messages.success(request, "Registeration was successful!")
-            # return redirect('')
+            return redirect('signup')
     
     else:
         form = CustomUserCreationForm()
-        return render(request, 'signup.html', {'form' : form})
+    return render(request, 'signup.html', {'form' : form})
