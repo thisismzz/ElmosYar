@@ -8,4 +8,4 @@ class CustomUser(AbstractUser):
     phoneNo = models.CharField(max_length=11, blank=True)
     
     def __str__(self):
-        return self.usernam
+        return self.username
