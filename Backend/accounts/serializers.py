@@ -42,3 +42,9 @@ class SignUpSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True, allow_blank=False)
+    password = serializers.CharField(required=True, allow_blank=False)
+    rememberMe = serializers.BooleanField(default=False)
