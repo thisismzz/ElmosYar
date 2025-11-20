@@ -21,7 +21,7 @@
 
 .login-card {
   background: white;
-  padding: 32px;
+  padding: 28px;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   width: 90%;
@@ -38,7 +38,7 @@
 .tabs-container {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   height: 45.6px;
   background: #ececf0;
   border-radius: 14px;
@@ -76,7 +76,7 @@
   width: 100%;
   height: 36px;
   padding: 12px 16px;
-  border: 2px solid #e5e7eb;
+  border: 1px solid #e5e7eb;
   border-radius: 14px;
   font-size: 14px;
   transition: all 0.3s ease;
@@ -96,27 +96,11 @@
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-.form-select {
-  width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 25px;
-  font-size: 14px;
-  background: #ececf0;
-  cursor: pointer;
-}
-
-.form-select:focus {
-  outline: none;
-  border-color: #16519F;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
-
 .error-message {
   text-align: right;
   color: #ef4444;
   font-size: 12px;
-  margin-top: 5px;
+  margin-top: 4px;
   display: block;
 }
 
@@ -190,12 +174,120 @@
   transform: translateY(0);
 }
 
+.api-error-message {
+  border: none;
+  color: #dc2626;
+  margin-bottom: 24px;
+  font-size: 12px;
+  direction: rtl;
+}
+
+.form-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+}
+
+.tab-button:disabled,
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.submit-button:disabled:hover {
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+.remember-me input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.remember-me input[type="checkbox"]:checked {
+  background-color: #16519F;
+  border-color: #16519F;
+}
+
+.remember-me input[type="checkbox"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tab-button:focus-visible {
+  outline: 2px solid #16519F;
+  outline-offset: 2px;
+}
+
+.form-input:focus-visible {
+  outline: none;
+  border-color: #16519F;
+  box-shadow: 0 0 0 3px rgba(22, 81, 159, 0.1);
+}
+
+.submit-button:focus-visible {
+  outline: 2px solid #16519F;
+  outline-offset: 2px;
+}
+
+.submit-button:disabled {
+  position: relative;
+}
+
+.submit-button:disabled::after {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+.tab-button:not(.active):not(:disabled):hover {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.forgot-password:focus-visible {
+  outline: 2px solid #16519F;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 @media (max-width: 480px) {
-  .login-container {
-    padding: 15px;
+  .login-card {
+    padding: 20px;
+  }  
+  
+  .tabs-container {
+    height: auto;
+    min-height: 45.6px;
   }
   
-  .login-card {
-    padding: 30px 20px;
-  }  
+  .tab-button {
+    height: auto;
+    min-height: 36.6px;
+    padding: 10px 8px;
+  }
+
+  .api-error-message {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .remember-forgot {
+    gap: 12px;
+    align-items: flex-start;
+  }
 }
+
