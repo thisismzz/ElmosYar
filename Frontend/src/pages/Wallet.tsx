@@ -1,5 +1,5 @@
-import { Card, CardContent } from '../UILib';
-import { Button } from '../UILib';
+import { Card, CardContent } from '../components/UILib';
+import { Button } from '../components/UILib';
 import { ArrowLeft, ArrowDownToLine, History, Plus, Wallet } from 'lucide-react';
 
 interface WalletPageProps {

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import type { UserProfile } from '../User';
-import { Avatar, Card, CardContent } from '../UILib';
-import { Button } from '../UILib';
-import { Input } from '../UILib';
-import { Label } from '../UILib';
-import { Textarea } from '../UILib';
+import type { UserProfile } from '../components/User';
+import { Avatar, Card, CardContent } from '../components/UILib';
+import { Button } from '../components/UILib';
+import { Input } from '../components/UILib';
+import { Label } from '../components/UILib';
+import { Textarea } from '../components/UILib';
 import { ArrowLeft, User, Lock, Phone, Mail, Camera, FileText } from 'lucide-react';
 
 interface EditProfilePageProps {
@@ -12,29 +12,34 @@ interface EditProfilePageProps {
 }
 
 export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
-    const [userProfile, setUserProfile] = useState<UserProfile>();
-	// useEffect(() => {
-	//   axios.get('idk') //! TODO
-	//     .then(response => setUserProfile(response.data))
-	//     .catch(error => console.error('Error fetching profile data:', error));
-	// }, []);
-  
-	//mock user for testing
-	const mock_profile: UserProfile = {
-    username: "باقر شمس",
-	  bio: "دوستدار طبیعت",
-	  avatar:
-		"https://preview.redd.it/z4t51ibk1is61.png?auto=webp&s=7a5d0dad617ed52dfe29a65b742bdc39c49b94b7",
-	  info: "انسانیت بساز، نه انسان. تولید مثل را هر حیوانی بلد است.",
-	  mobile: "09123456789",
-	  email: "shamsollah@bagher.com"
-	};
-  
-	useEffect(() => {
-	  setUserProfile(mock_profile);
-	});
+  const [userProfile, setUserProfile] = useState<UserProfile>();
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    bio: "",
+  });
+  // useEffect(() => {
+  //   axios.get('idk') //! TODO
+  //     .then(response => setUserProfile(response.data))
+  //     .catch(error => console.error('Error fetching profile data:', error));
+  // }, []);
 
-	  if (!userProfile) return <div>Loading...</div>;
+  //mock user for testing
+  const mock_profile: UserProfile = {
+    username: "باقر شمس",
+    bio: "دوستدار طبیعت",
+    avatar:
+      "https://preview.redd.it/z4t51ibk1is61.png?auto=webp&s=7a5d0dad617ed52dfe29a65b742bdc39c49b94b7",
+    info: "انسانیت بساز، نه انسان. تولید مثل را هر حیوانی بلد است.",
+    mobile: "09123456789",
+    email: "shamsollah@bagher.com"
+  };
+
+  useEffect(() => {
+    setUserProfile(mock_profile);
+  });
+
+  if (!userProfile) return <div>Loading...</div>;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,8 +51,8 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
     <div className="min-h-screen bg-gray-50 pb-20 lg:pb-8">
       <div className="max-w-2xl mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="flex items-center gap-4 mb-8">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="icon"
             onClick={() => onNavigate('profile')}
             className="rounded-xl hover:bg-cyan-50"
@@ -66,9 +71,9 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                 <div className="flex-1 text-right">
                   <h3 className="mb-1">تغییر عکس پروفایل</h3>
                   <p className="text-gray-500 mb-3">آپلود عکس پروفایل جدید</p>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     size="sm"
                     className="rounded-xl border-2 hover:bg-cyan-50"
                     style={{ borderColor: '#4FCBE9', color: '#4FCBE9' }}
@@ -76,7 +81,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                     انتخاب فایل
                   </Button>
                 </div>
-                <div 
+                <div
                   className="w-20 h-20 rounded-2xl flex items-center justify-center"
                   style={{ backgroundColor: '#F07E7420' }}
                 >
@@ -102,7 +107,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                       className="mt-1.5 rounded-xl text-right"
                     />
                   </div>
-                  <div 
+                  <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                     style={{ backgroundColor: '#16519F20' }}
                   >
@@ -125,7 +130,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                       className="mt-1.5 min-h-[80px] rounded-xl text-right"
                     />
                   </div>
-                  <div 
+                  <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                     style={{ backgroundColor: '#F8DD2E20' }}
                   >
@@ -149,7 +154,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                       className="mt-1.5 rounded-xl text-right"
                     />
                   </div>
-                  <div 
+                  <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                     style={{ backgroundColor: '#4FCBE920' }}
                   >
@@ -174,7 +179,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                       dir="ltr"
                     />
                   </div>
-                  <div 
+                  <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                     style={{ backgroundColor: '#4FCBE920' }}
                   >
@@ -186,8 +191,8 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
           </div>
 
           {/* Submit Button */}
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="w-full mt-8 rounded-xl shadow-lg hover:shadow-xl transition-all"
             style={{ background: 'linear-gradient(135deg, #16519F 0%, #4FCBE9 100%)' }}
           >

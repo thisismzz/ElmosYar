@@ -1,8 +1,8 @@
 import React from "react";
 import { useState } from "react";
-import { ProfilePage } from "./components/pages/Profile";
-import { EditProfilePage } from "./components/pages/EditProfile";
-import { WalletPage } from "./components/pages/Wallet";
+import { ProfilePage } from "./pages/Profile";
+import { EditProfilePage } from "./pages/EditProfile";
+import { WalletPage } from "./pages/Wallet";
 import "./App.css";
 
 type Page = "profile" | "wallet" | "edit-profile";

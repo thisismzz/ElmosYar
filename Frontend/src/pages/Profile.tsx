@@ -1,10 +1,10 @@
-import { Avatar, AvatarFallback, AvatarImage } from "../UILib";
-import { Button } from "../UILib";
-import { Card, CardContent } from "../UILib";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/UILib";
+import { Button } from "../components/UILib";
+import { Card, CardContent } from "../components/UILib";
 import { Wallet, HelpCircle, Edit, ChevronLeft } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import type { UserProfile } from "../User";
+import type { UserProfile } from "../components/User";
 
 interface ProfilePageProps {
   onNavigate: (page: "profile" | "wallet" | "edit-profile") => void;
