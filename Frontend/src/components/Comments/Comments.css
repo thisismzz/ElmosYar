@@ -351,17 +351,68 @@
   margin-bottom: 15px;
 }
 
-.back-button {
-  background: #6c757d;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
+/* استایل‌های هدر پست */
+.post-header {
+  border-bottom: 2px solid #f0f0f0;
+  padding: 20px;
+  margin: -20px -20px 20px -20px;
+  background: #fafafa;
+  border-radius: 12px 12px 0 0;
 }
 
-.back-button:hover {
-  background: #5a6268;
+.post-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.author-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.post-time {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.post-content-wrapper {
+  margin-bottom: 15px;
+}
+
+.post-content-text {
+  line-height: 1.6;
+  color: #444;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.post-stats {
+  display: flex;
+  gap: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.stat-icon {
+  font-size: 1rem;
+}
+
+.stat-count {
+  font-weight: 500;
 }

@@ -4,13 +4,22 @@ export interface Comment {
   time: string;
   text: string;
   likes: number;
-  dislikes: number;
+  dislikes?: number;
 }
 
 export interface CommentsProps {
   initialComments?: Comment[];
   title?: string;
   currentUserName?: string;
-  postId?: number;
-  onBackToPosts?: () => void;
+  post?: {
+    id: number;
+    content: string;
+    timestamp: string;
+    user: {
+      name: string;
+    };
+    likes: number;
+    dislikes: number;
+    comments: number;
+  };
 }

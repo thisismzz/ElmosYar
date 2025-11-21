@@ -2,17 +2,6 @@ import React, { useState } from 'react';
 import { Comment, CommentsProps } from '../../types/comments';
 import './Comments.css';
 
-interface ExtendedCommentsProps extends CommentsProps {
-  postId?: number;
-  onBackToPosts?: () => void;
-}
-
-interface CommentItemProps {
-  comment: Comment;
-  onLike: (commentId: number) => void;
-  onDislike: (commentId: number) => void;
-}
-
 const getInitials = (name: string): string => {
   return name
     .split(' ')
@@ -30,6 +19,75 @@ const getAvatarColor = (name: string): string => {
   const index = name.length % colors.length;
   return colors[index];
 };
+
+interface PostHeaderProps {
+  post: {
+    id: number;
+    content: string;
+    timestamp: string;
+    user: {
+      name: string;
+    };
+    likes: number;
+    dislikes: number;
+    comments: number;
+  };
+}
+
+// کامپوننت PostHeader اضافه شد
+const PostHeader = ({ post }: PostHeaderProps) => {
+  const formatTimeAgo = (timestamp: string) => {
+    const now = new Date();
+    const postDate = new Date(timestamp);
+    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'همین حالا';
+    if (diffInHours === 1) return '1 ساعت پیش';
+    return `${diffInHours} ساعت پیش`;
+  };
+
+  const initials = getInitials(post.user.name);
+  const avatarColor = getAvatarColor(post.user.name);
+
+  return (
+    <div className="post-header">
+      <div className="post-user-info">
+        <div className="user-avatar" style={{ backgroundColor: avatarColor }}>
+          {initials}
+        </div>
+        <div className="user-details">
+          <span className="author-name">{post.user.name}</span>
+          <span className="post-time">{formatTimeAgo(post.timestamp)}</span>
+        </div>
+      </div>
+      
+      <div className="post-content-wrapper">
+        <p className="post-content-text">{post.content}</p>
+      </div>
+
+      <div className="post-stats">
+        <div className="stat-item">
+          <span className="stat-icon">👍</span>
+          <span className="stat-count">{post.likes}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-icon">👎</span>
+          <span className="stat-count">{post.dislikes}</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-icon">💬</span>
+          <span className="stat-count">{post.comments}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface CommentItemProps {
+  comment: Comment;
+  onLike: (commentId: number) => void;
+  onDislike: (commentId: number) => void;
+}
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onDislike }) => {
   const initials = getInitials(comment.name);
@@ -65,53 +123,6 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onDislike })
   );
 };
 
-const Comments: React.FC<CommentsProps> = ({ 
-  initialComments = [],
-  title = "نظرات",
-  currentUserName ="کاربر",
-  postId,
-  onBackToPosts,
-}) => {
-  const [comments, setComments] = useState<Comment[]>(initialComments);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleAddComment = (newComment: {text: string }) => {
-    const addedComment: Comment = {
-      id: Date.now(),
-      name: currentUserName,
-      time: 'همین الان',
-      text: newComment.text,
-      likes: 0,
-      dislikes: 0
-    };
-    setComments(prev => [addedComment, ...prev]);
-  };
-
-  const handleLike = (commentId: number) => {
-    setComments(prev => prev.map(comment => 
-      comment.id === commentId 
-        ? { ...comment, likes: comment.likes + 1 }
-        : comment
-    ));
-  };
-
-  const handleBackClick = () => {
-    if (onBackToPosts) {
-      onBackToPosts();
-    }
-  };
-
-  const handleDislike = (commentId: number): void => {
-    setComments(prevComments => 
-      prevComments.map(comment =>
-        comment.id === commentId
-          ? { ...comment, dislikes: (comment.dislikes || 0) + 1 }
-          : comment
-      )
-    );
-  };
-
-
 interface CommentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -119,31 +130,13 @@ interface CommentModalProps {
   currentUserName: string;
 }
 
-/*const getInitials = (name: string): string => {
-  return name
-    .split(' ')
-    .map(word => word.charAt(0))
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
-};*/
-
-const getAvatarColor = (name: string): string => {
-  const colors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
-  ];
-  const index = name.length % colors.length;
-  return colors[index];
-};
-
-const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, currentUserName }) => {
   const [text, setText] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (text.trim()) {
-      onSubmit({text: text.trim() });
+      onSubmit({ text: text.trim() });
       setText('');
       onClose();
     }
@@ -163,6 +156,10 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit }
         </div>
         <form onSubmit={handleSubmit} className="comment-form">
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
+            <div className="user-avatar" style={{ backgroundColor: avatarColor }}>
+              {initials}
+            </div>
+            <span className="author-name">{currentUserName}</span>
           </div>
           <textarea
             value={text}
@@ -186,9 +183,50 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit }
   );
 };
 
+const Comments: React.FC<CommentsProps> = ({ 
+  initialComments = [],
+  title = "نظرات",
+  currentUserName = "کاربر",
+  post
+}) => {
+  const [comments, setComments] = useState<Comment[]>(initialComments);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddComment = (newComment: { text: string }) => {
+    const addedComment: Comment = {
+      id: Date.now(),
+      name: currentUserName,
+      time: 'همین الان',
+      text: newComment.text,
+      likes: 0,
+      dislikes: 0
+    };
+    setComments(prev => [addedComment, ...prev]);
+  };
+
+  const handleLike = (commentId: number) => {
+    setComments(prev => prev.map(comment => 
+      comment.id === commentId 
+        ? { ...comment, likes: comment.likes + 1 }
+        : comment
+    ));
+  };
+
+  const handleDislike = (commentId: number): void => {
+    setComments(prevComments => 
+      prevComments.map(comment =>
+        comment.id === commentId
+          ? { ...comment, dislikes: (comment.dislikes || 0) + 1 }
+          : comment
+      )
+    );
+  };
+
   return (
     <div className="comments-container">
       <div className="comments-card">
+        {post && <PostHeader post={post} />}
+        
         <div className="comments-header">
           <h2 className="comments-title">{title}</h2>
           <button 
