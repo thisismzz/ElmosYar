@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { Comment, CommentsProps } from '../../types/comments';
 import './Comments.css';
 
+interface ExtendedCommentsProps extends CommentsProps {
+  postId?: number;
+  onBackToPosts?: () => void;
+}
+
 interface CommentItemProps {
   comment: Comment;
   onLike: (commentId: number) => void;
@@ -64,6 +69,8 @@ const Comments: React.FC<CommentsProps> = ({
   initialComments = [],
   title = "نظرات",
   currentUserName ="کاربر",
+  postId,
+  onBackToPosts,
 }) => {
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -86,6 +93,12 @@ const Comments: React.FC<CommentsProps> = ({
         ? { ...comment, likes: comment.likes + 1 }
         : comment
     ));
+  };
+
+  const handleBackClick = () => {
+    if (onBackToPosts) {
+      onBackToPosts();
+    }
   };
 
   const handleDislike = (commentId: number): void => {

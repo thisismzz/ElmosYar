@@ -10,4 +10,7 @@ export interface Comment {
 export interface CommentsProps {
   initialComments?: Comment[];
   title?: string;
+  currentUserName?: string;
+  postId?: number;
+  onBackToPosts?: () => void;
 }
