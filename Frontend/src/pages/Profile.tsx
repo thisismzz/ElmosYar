@@ -4,7 +4,7 @@ import { Card, CardContent } from "../components/UILib";
 import { Wallet, HelpCircle, Edit, ChevronLeft } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import type { UserProfile } from "../components/User";
+import { UserProfile } from "../services/userProfileService";
 
 interface ProfilePageProps {
   onNavigate: (page: "profile" | "wallet" | "edit-profile") => void;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { UserProfile } from '../components/User';
+import { fetchUserProfile, updateUserProfile, UserProfile } from "../services/userProfileService";
 import { Avatar, Card, CardContent } from '../components/UILib';
 import { Button } from '../components/UILib';
 import { Input } from '../components/UILib';
@@ -12,20 +12,9 @@ interface EditProfilePageProps {
 }
 
 export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
+	const userId = "123" //! change to useAuth()
   const [userProfile, setUserProfile] = useState<UserProfile>();
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    bio: "",
-  });
-  // useEffect(() => {
-  //   axios.get('idk') //! TODO
-  //     .then(response => setUserProfile(response.data))
-  //     .catch(error => console.error('Error fetching profile data:', error));
-  // }, []);
-
-  //mock user for testing
-  const mock_profile: UserProfile = {
+  const [form, setForm] = useState({ // default values for testing
     username: "باقر شمس",
     bio: "دوستدار طبیعت",
     avatar:
@@ -33,18 +22,37 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
     info: "انسانیت بساز، نه انسان. تولید مثل را هر حیوانی بلد است.",
     mobile: "09123456789",
     email: "shamsollah@bagher.com"
-  };
+  });
+
 
   useEffect(() => {
-    setUserProfile(mock_profile);
-  });
+    fetchUserProfile(userId).then((u) => {
+      setUserProfile(u);
+      setForm({
+        username: u.username ?? "",
+        email: u.email ?? "",
+        info: u.info ?? "",
+        bio: u.bio ?? "",
+		avatar: u.avatar ?? "",
+		mobile: u.mobile ?? "",
+      });
+    });
+  }, [userId]);
 
   if (!userProfile) return <div>Loading...</div>;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
     onNavigate('profile');
+  };
+
+    const handleChange = (key: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleSave = async () => {
+    const saved = await updateUserProfile(userId, form);
+    setUserProfile(saved);
   };
 
   return (
@@ -101,8 +109,8 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                     <Input
                       id="username"
                       type="text"
-                      value={userProfile.username?.toString()}
-                      onChange={(e) => setUserProfile({ ...userProfile, username: e.target.value })}
+                      value={form.username?.toString()}
+                      onChange={(e) => setForm({ ...form, username: e.target.value })}
                       placeholder="نام کاربری خود را وارد کنید"
                       className="mt-1.5 rounded-xl text-right"
                     />
@@ -124,8 +132,8 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                     <Label htmlFor="bio" className="text-right block">بیوگرافی</Label>
                     <Textarea
                       id="bio"
-                      value={userProfile.bio?.toString()}
-                      onChange={(e) => setUserProfile({ ...userProfile, bio: e.target.value })}
+                      value={form.bio?.toString()}
+                      onChange={(e) => setForm({ ...form, bio: e.target.value })}
                       placeholder="درباره خودتان بگویید"
                       className="mt-1.5 min-h-[80px] rounded-xl text-right"
                     />
@@ -148,8 +156,8 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                     <Input
                       id="mobile"
                       type="tel"
-                      value={userProfile.mobile?.toString()}
-                      onChange={(e) => setUserProfile({ ...userProfile, mobile: e.target.value })}
+                      value={form.mobile?.toString()}
+                      onChange={(e) => setForm({ ...form, mobile: e.target.value })}
                       placeholder="شماره تلفن خود را وارد کنید"
                       className="mt-1.5 rounded-xl text-right"
                     />
@@ -172,8 +180,8 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                     <Input
                       id="email"
                       type="email"
-                      value={userProfile.email?.toString()}
-                      onChange={(e) => setUserProfile({ ...userProfile, email: e.target.value })}
+                      value={form.email?.toString()}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
                       placeholder="ایمیل خود را وارد کنید"
                       className="mt-1.5 rounded-xl text-right"
                       dir="ltr"
@@ -195,7 +203,8 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
             type="submit"
             className="w-full mt-8 rounded-xl shadow-lg hover:shadow-xl transition-all"
             style={{ background: 'linear-gradient(135deg, #16519F 0%, #4FCBE9 100%)' }}
-          >
+			onClick={handleSave}
+		  >
             ذخیره تغییرات
           </Button>
         </form>
