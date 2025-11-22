@@ -29,10 +29,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+DRF_API_LOGGER_DATABASE = True
+
 
 # Application definition
 
 INSTALLED_APPS = [
+	'drf_api_logger',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +45,7 @@ INSTALLED_APPS = [
     'accounts',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+	"corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -52,9 +56,24 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'drf_api_logger.middleware.api_logger_middleware.APILoggerMiddleware',
+	"corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 ROOT_URLCONF = 'ElmosYar.urls'
+
+CORS_ALLOW_ALL_ORIGINS = True   # Only while developing
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+    "x-csrftoken",
+    "accept",
+]
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3002"]
 
 TEMPLATES = [
     {
