@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from django.db import transaction
@@ -20,14 +19,6 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('email has already been used!')
         return value
     
-    
-    def validate_password(self, value):
-        temp_user = User(username = self.initial_data.get('username'))
-        try:
-            validate_password(value, user=temp_user)
-        except ValidationError as e:
-            raise serializers.ValidationError(e.messages)
-        return value
 
     def create(self, validated_data):
         password = validated_data.pop('password')

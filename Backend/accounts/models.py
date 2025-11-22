@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+class UserMajor(models.Model):
+    name = models.CharField(max_length=50, blank=False, null=False)
+    abbr = models.CharField(max_length=10, blank=False, null=False)
+
 class UserInfo(models.Model):
     MAJORS = [
         ('CS', 'Computer Science'),
@@ -11,9 +16,10 @@ class UserInfo(models.Model):
     ]
     
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='info')
     studentId = models.CharField(max_length=9, blank=True, null=False)
     phoneNo = models.CharField(max_length=11, blank=True, null=False)
     bio = models.TextField(blank=True, null=False)
-    major = models.CharField(max_length=50, choices=MAJORS, blank=True, null=False)
+    # major = models.ForeignKey(UserMajor, on_delete=models.)
+
 
