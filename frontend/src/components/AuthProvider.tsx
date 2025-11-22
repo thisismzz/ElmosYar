@@ -18,8 +18,8 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: { username: string; password: string }) => Promise<void>;
-  register: (userData: { email: string; username: string; password: string }) => Promise<void>;
+  login: (credentials: { username: string; password: string; rememberme: boolean }) => Promise<void>;
+  register: (userData: { email: string; username: string; password: string; password2: string }) => Promise<void>;
   logout: () => void;
 }
 
@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (credentials: { username: string; password: string }) => {
+  const login = async (credentials: { username: string; password: string; rememberme: boolean }) => {
     try {
       setIsLoading(true);
       const response = await authLogin(credentials);
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (userData: { email: string; username: string; password: string }) => {
+  const register = async (userData: { email: string; username: string; password: string; password2: string }) => {
     try {
       setIsLoading(true);
       const response = await authRegister(userData);

@@ -1,6 +1,9 @@
 import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
+const LOGIN_ENDPOINT = "/accounts/login";
+const REGISTER_ENDPOINT = '/accounts/signup';
+const REFRESH_TOKEN_ENDPOINT = '/token/refresh';
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -75,8 +78,8 @@ export const removeTokens = (): void => {
 };
 
 // Auth functions
-export const login = async (credentials: { username: string; password: string }) => {
-  const response = await api.post('/auth/login', credentials);
+export const login = async (credentials: { username: string; password: string; rememberme: boolean }) => {
+  const response = await api.post(LOGIN_ENDPOINT, credentials);
   
   if (response.data.accessToken) {
     setToken(response.data.accessToken);
@@ -95,8 +98,9 @@ export const register = async (userData: {
   email: string; 
   username: string; 
   password: string; 
+  password2: string; 
 }) => {
-  const response = await api.post('/auth/register', userData);
+  const response = await api.post(REGISTER_ENDPOINT, userData);
   
   if (response.data.accessToken) {
     setToken(response.data.accessToken);
@@ -117,7 +121,7 @@ export const refreshToken = async (): Promise<string | null> => {
       throw new Error('No refresh token available');
     }
 
-    const response = await api.post('/auth/refreshtoken', {
+    const response = await api.post(REFRESH_TOKEN_ENDPOINT, {
       refreshToken,
     });
 
