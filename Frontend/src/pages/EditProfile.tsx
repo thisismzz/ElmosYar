@@ -26,7 +26,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
 
 
   useEffect(() => {
-    fetchUserProfile(userId).then((u) => {
+    fetchUserProfile().then((u) => {
       setUserProfile(u);
       setForm({
         username: u.username ?? "",
@@ -51,7 +51,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
   };
 
   const handleSave = async () => {
-    const saved = await updateUserProfile(userId, form);
+    const saved = await updateUserProfile(form);
     setUserProfile(saved);
   };
 

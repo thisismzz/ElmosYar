@@ -1,28 +1,40 @@
-import { api } from "./authService";
+// userProfileService.ts
+
+import axios from "axios";
+import { getAccessToken } from "./authService";
 
 export interface UserProfile {
-  username: string | null;
-  email: string | null;
-  avatar: string | null;
-  bio: string | null;
-  info: string | null;
-  mobile: string | null;
+  username?: string;
+  email?: string;
+  avatar?: string;
+  bio?: string;
+  info?: string;
+  mobile?: string;
 }
 
-//! profiles/me will be changed to use id
-export async function fetchUserProfile(id: string): Promise<UserProfile> {
-  const { data } = await api.get<UserProfile>("/profiles/me");
-  
-  localStorage.setItem("profile_data", JSON.stringify(data));
-  
-  return data;
+const profileApi = axios.create({
+  baseURL: "http://127.0.0.1:4000/profile", 
+});
+
+
+profileApi.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+
+export async function fetchUserProfile(): Promise<UserProfile> {
+  const response = await profileApi.get<UserProfile>("/profiles/me/");
+  return response.data;
 }
 
-//! profiles/me will be changed to use id
-export async function updateUserProfile(id: string, updates: Partial<UserProfile>): Promise<UserProfile> {
-  const { data } = await api.put<UserProfile>("/profiles/me", updates);
 
-  localStorage.setItem("profile_data", JSON.stringify(data));
-
-  return data;
+export async function updateUserProfile(
+  updates: Partial<UserProfile>
+): Promise<UserProfile> {
+  const response = await profileApi.put<UserProfile>("/profiles/me/", updates);
+  return response.data;
 }
