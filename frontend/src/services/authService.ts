@@ -78,7 +78,7 @@ export const removeTokens = (): void => {
 };
 
 // Auth functions
-export const login = async (credentials: { username: string; password: string; rememberme: boolean }) => {
+export const login = async (credentials: { username: string; password: string; rememberMe: boolean }) => {
   const response = await api.post(LOGIN_ENDPOINT, credentials);
   
   if (response.data.accessToken) {

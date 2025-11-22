@@ -216,7 +216,7 @@ const RegisterPage: React.FC = () => {
       await login({
         username: data.username,
         password: data.password,
-		rememberme: data.rememberMe ?? false,
+		rememberMe: data.rememberMe ?? false,
       });
       navigate("/");
     } catch (error: any) {
