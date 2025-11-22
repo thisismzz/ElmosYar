@@ -1,159 +1,121 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
+// -------------------
+// CONFIG
+// -------------------
+const API_URL = "http://127.0.0.1:4000/accounts";
 
-// Create axios instance with base configuration
-export const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+axios.defaults.baseURL = API_URL;
 
-// Request interceptor to add auth token to requests
-api.interceptors.request.use(
-  (config) => {
-    const token = getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+// -------------------
+// TOKEN HELPERS
+// -------------------
+const ACCESS_KEY = "accessToken";
+const REFRESH_KEY = "refreshToken";
 
-// Response interceptor to handle token refresh and auth errors
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
+export function saveTokens(access: string, refresh: string) {
+  localStorage.setItem(ACCESS_KEY, access);
+  localStorage.setItem(REFRESH_KEY, refresh);
+}
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      
-      try {
-        const newToken = await refreshToken();
-        if (newToken) {
-          setToken(newToken);
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return api(originalRequest);
-        }
-      } catch (refreshError) {
-        logout();
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      }
-    }
+export function getAccessToken() {
+  return localStorage.getItem(ACCESS_KEY);
+}
 
-    return Promise.reject(error);
-  }
-);
+export function getRefreshToken() {
+  return localStorage.getItem(REFRESH_KEY);
+}
 
-// Token management
-export const getToken = (): string | null => {
-  return localStorage.getItem('accessToken');
-};
+export function clearTokens() {
+  localStorage.removeItem(ACCESS_KEY);
+  localStorage.removeItem(REFRESH_KEY);
+}
 
-export const getRefreshToken = (): string | null => {
-  return localStorage.getItem('refreshToken');
-};
+// -------------------
+// USER HELPERS
+// -------------------
 
-export const setToken = (token: string): void => {
-  localStorage.setItem('accessToken', token);
-};
+// Decode JWT payload:
+function decodeJWT(token: string) {
+  const payload = token.split(".")[1];
+  const decoded = atob(payload);
+  return JSON.parse(decoded);
+}
 
-export const setRefreshToken = (token: string): void => {
-  localStorage.setItem('refreshToken', token);
-};
+export function getCurrentUser() {
+  const token = getAccessToken();
+  if (!token) return null;
 
-export const removeTokens = (): void => {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('userData');
-};
+  const payload = decodeJWT(token);
 
-// Auth functions
-export const login = async (credentials: { username: string; password: string }) => {
-  const response = await api.post('/auth/login', credentials);
-  
-  if (response.data.accessToken) {
-    setToken(response.data.accessToken);
-    setRefreshToken(response.data.refreshToken);
-    
-    // Store user data if provided
-    if (response.data.user) {
-      localStorage.setItem('userData', JSON.stringify(response.data.user));
-    }
-  }
-  
+  return {
+    id: payload.user_id,
+    username: payload.username,
+    email: payload.email,
+  };
+}
+
+export function isAuthenticated() {
+  return !!getAccessToken();
+}
+
+// -------------------
+// AUTH REQUESTS
+// -------------------
+export async function login(credentials: {
+  username: string;
+  password: string;
+  rememberMe: boolean;
+}) {
+  const payload = {
+    username: credentials.username,
+    password: credentials.password,
+    rememberMe: credentials.rememberMe,  // IMPORTANT: Django uses rememberMe
+  };
+
+  const response = await axios.post("login/", payload);
+
+  saveTokens(response.data.access, response.data.refresh);
+
+  return { user: getCurrentUser() };
+}
+
+export async function register(data: {
+  email: string;
+  username: string;
+  password: string;
+  password2: string;
+}) {
+  await axios.post("signup/", data);
+
+  // after signup, auto-login?
+  const loginResp = await login({
+    username: data.username,
+    password: data.password,
+    rememberMe: false,
+  });
+
+  return loginResp;
+}
+
+export async function refreshToken() {
+  const refresh = getRefreshToken();
+  if (!refresh) throw new Error("No refresh token exists");
+
+  const response = await axios.post("token/refresh/", { refresh });
+
+  localStorage.setItem(ACCESS_KEY, response.data.access);
+
   return response.data;
-};
+}
 
-export const register = async (userData: { 
-  email: string; 
-  username: string; 
-  password: string; 
-}) => {
-  const response = await api.post('/auth/register', userData);
-  
-  if (response.data.accessToken) {
-    setToken(response.data.accessToken);
-    setRefreshToken(response.data.refreshToken);
-    
-    if (response.data.user) {
-      localStorage.setItem('userData', JSON.stringify(response.data.user));
-    }
+export async function logout() {
+  const refresh = getRefreshToken();
+  if (refresh) {
+    try {
+      await axios.post("logout/", { refresh });
+    } catch {}
   }
-  
-  return response.data;
-};
 
-export const refreshToken = async (): Promise<string | null> => {
-  try {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    const response = await api.post('/auth/refreshtoken', {
-      refreshToken,
-    });
-
-    const { accessToken } = response.data;
-    if (accessToken) {
-      setToken(accessToken);
-      return accessToken;
-    }
-
-    return null;
-  } catch (error) {
-    removeTokens();
-    throw error;
-  }
-};
-
-export const logout = (): void => {
-  removeTokens();
-};
-
-export const getCurrentUser = (): any => {
-  const userData = localStorage.getItem('userData');
-  return userData ? JSON.parse(userData) : null;
-};
-
-export const isAuthenticated = (): boolean => {
-  const token = getToken();
-  if (!token) return false;
-
-  // Check if token is expired
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.exp * 1000 > Date.now();
-  } catch {
-    return false;
-  }
-};
-
-export default api;
+  clearTokens();
+}

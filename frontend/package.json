@@ -10,6 +10,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.126",
+<<<<<<< HEAD
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
     "axios": "^1.13.2",
@@ -21,6 +22,15 @@
     "react-router-dom": "^7.9.6",
     "react-scripts": "5.0.1",
     "tailwind-merge": "^3.4.0",
+=======
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "axios": "^1.13.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-hook-form": "^7.66.0",
+    "react-router-dom": "^7.9.5",
+>>>>>>> Front-signup
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4",
     "yup": "^1.7.1"
@@ -50,6 +60,11 @@
     ]
   },
   "devDependencies": {
+<<<<<<< HEAD
     "tailwindcss": "^3.4.18"
+=======
+    "html-webpack-plugin": "^5.6.4",
+    "react-scripts": "^5.0.1"
+>>>>>>> Front-signup
   }
 }

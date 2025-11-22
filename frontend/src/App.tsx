@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from "react";
 import { useState } from "react";
 import { ProfilePage } from "./pages/Profile";
@@ -14,6 +15,28 @@ function App() {
         {currentPage === "wallet" && <WalletPage onNavigate={setCurrentPage} />}
         {currentPage === "edit-profile" && <EditProfilePage onNavigate={setCurrentPage} />}
       </main>;
+=======
+import React from 'react';
+import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './components/AuthProvider';
+import { Main } from './pages/Main/main';
+import RegisterPage from './pages/Login/login';
+
+function App() {
+  return (
+    <div className="App">
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path='/' element={<Main/>}/>
+            <Route path='/Login' element={<RegisterPage/>}/>
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </div>
+  );
+>>>>>>> Front-signup
 }
 
 export default App;
