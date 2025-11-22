@@ -6,16 +6,15 @@ from django.db import transaction
 
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
-    password2 = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(required=True, allow_blank=False)
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password2']
+        fields = ['username', 'email', 'password']
     
     
     def validate_email(self, value):
-        if not value.endswith('@iust.com'):
+        if not value.endswith('@iust.ac.com'):
             raise serializers.ValidationError('wrong email format!')
         if User.objects.filter(email__iexact=value).exists():
             raise serializers.ValidationError('email has already been used!')
@@ -29,14 +28,8 @@ class SignUpSerializer(serializers.ModelSerializer):
         except ValidationError as e:
             raise serializers.ValidationError(e.messages)
         return value
-            
-    def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError("Passwords are not match!")
-        return attrs
 
     def create(self, validated_data):
-        validated_data.pop('password2')
         password = validated_data.pop('password')
         user = User(**validated_data)
         user.set_password(password)
