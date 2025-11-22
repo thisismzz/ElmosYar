@@ -13,7 +13,7 @@ class SignUpSerializer(serializers.ModelSerializer):
     
     
     def validate_email(self, value):
-        if not value.endswith('@iust.ac.com'):
+        if not value.endswith('iust.ac.ir'):
             raise serializers.ValidationError('wrong email format!')
         if User.objects.filter(email__iexact=value).exists():
             raise serializers.ValidationError('email has already been used!')

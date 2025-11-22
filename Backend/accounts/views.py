@@ -22,7 +22,7 @@ def signup(request):
             "refresh": str(refresh)
         }, status=status.HTTP_201_CREATED)
     
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_409_CONFLICT)
 
 
 class Logout(APIView):
@@ -46,7 +46,7 @@ class Login(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED)
         
         username = serializer.validated_data['username']
         password = serializer.validated_data['password']
@@ -62,4 +62,4 @@ class Login(APIView):
                 'refresh' : str(refresh)
             }, status=status.HTTP_200_OK)
         
-        return Response({'ERROR' : 'invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'ERROR' : 'invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
