@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../components/AuthProvider";
+import { useAuth } from "../../contexts/AuthContext";
 import logo from "../../assets/logo.svg";
 import './login.css';
 
@@ -11,7 +11,7 @@ import './login.css';
 interface LoginFormData {
   username: string;
   password: string;
-  rememberMe?: boolean;
+  rememberMe: boolean;
 }
 
 interface SignUpFormData {
@@ -29,24 +29,26 @@ interface LoginFormProps {
 interface SignUpFormProps {
   onSubmit: (data: SignUpFormData) => Promise<void>;
   isLoading: boolean;
+  apiErrors: { [key: string]: string };
+  clearApiError: (fieldName: string) => void;
 }
 
 // Validation Schemas
 const loginSchema = yup.object({
-  username: yup
-    .string()
-    .required("نام کاربری الزامی است"),
+  username: yup.string().required("نام کاربری الزامی است"),
   password: yup
     .string()
     .required("رمز عبور الزامی است")
     .min(6, "رمز عبور باید حداقل 6 کاراکتر باشد"),
+  rememberMe: yup.boolean().required()
 });
 
 const signupSchema = yup.object({
   email: yup
     .string()
     .required("ایمیل الزامی است")
-    .email("فرمت ایمیل نامعتبر است"),
+    .email("فرمت ایمیل نامعتبر است")
+    .matches(/iust\.ac\.ir$/, 'ایمیل باید با iust.ac.ir پایان یابد'),
   username: yup
     .string()
     .required("نام کاربری الزامی است")
@@ -126,7 +128,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => {
   );
 };
 
-const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
+const SignUpForm: React.FC<SignUpFormProps> = ({ 
+  onSubmit, 
+  isLoading, 
+  apiErrors, 
+  clearApiError 
+}) => {
   const {
     register,
     handleSubmit,
@@ -136,18 +143,38 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
     mode: "onSubmit",
   });
 
+  // Create a custom register function that clears API errors on change
+  const customRegister = (fieldName: keyof SignUpFormData) => {
+    const { onChange, ...rest } = register(fieldName);
+    return {
+      ...rest,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Clear API error for this field when user starts typing
+        if (apiErrors[fieldName]) {
+          clearApiError(fieldName);
+        }
+        if (onChange) {
+          onChange(e);
+        }
+      },
+    };
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="form-group">
         <input
           type="email"
           placeholder="ایمیل"
-          {...register("email")}
-          className={`form-input ${errors.email ? 'error' : ''}`}
+          {...customRegister("email")}
+          className={`form-input ${errors.email || apiErrors.email ? 'error' : ''}`}
           disabled={isLoading}
         />
         {errors.email && (
           <p className="error-message">{errors.email.message}</p>
+        )}
+        {apiErrors.email && !errors.email && (
+          <p className="error-message">{apiErrors.email}</p>
         )}
       </div>
 
@@ -155,12 +182,15 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
         <input
           type="text"
           placeholder="نام کاربری"
-          {...register("username")}
-          className={`form-input ${errors.username ? 'error' : ''}`}
+          {...customRegister("username")}
+          className={`form-input ${errors.username || apiErrors.username ? 'error' : ''}`}
           disabled={isLoading}
         />
         {errors.username && (
           <p className="error-message">{errors.username.message}</p>
+        )}
+        {apiErrors.username && !errors.username && (
+          <p className="error-message">{apiErrors.username}</p>
         )}
       </div>
 
@@ -168,7 +198,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
         <input
           type="password"
           placeholder="رمز عبور"
-          {...register("password")}
+          {...customRegister("password")}
           className={`form-input ${errors.password ? 'error' : ''}`}
           disabled={isLoading}
         />
@@ -181,7 +211,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
         <input
           type="password"
           placeholder="تکرار رمز عبور"
-          {...register("repeatPassword")}
+          {...customRegister("repeatPassword")}
           className={`form-input ${errors.repeatPassword ? 'error' : ''}`}
           disabled={isLoading}
         />
@@ -207,8 +237,9 @@ type FormMode = "login" | "signup";
 const RegisterPage: React.FC = () => {
   const [currentMode, setCurrentMode] = useState<FormMode>("login");
   const [apiError, setApiError] = useState<string | null>(null);
+  const [signUpApiErrors, setSignUpApiErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
-  const { login, register, isLoading } = useAuth();
+  const { login, register: authRegister, isLoading } = useAuth();
 
   const handleLoginSubmit = async (data: LoginFormData) => {
     try {
@@ -216,11 +247,13 @@ const RegisterPage: React.FC = () => {
       await login({
         username: data.username,
         password: data.password,
+        rememberMe: data.rememberMe
       });
       navigate("/");
     } catch (error: any) {
+      console.log(error)
       setApiError(
-        error.response?.data?.message || 
+        error.response?.data?.ERROR || 
         'خطا در ورود. لطفاً مجدداً تلاش کنید.'
       );
     }
@@ -229,20 +262,47 @@ const RegisterPage: React.FC = () => {
   const handleSignUpSubmit = async (data: SignUpFormData) => {
     try {
       setApiError(null);
+      setSignUpApiErrors({});
       const { repeatPassword, ...signUpData } = data;
-      await register(signUpData);
+      await authRegister(signUpData);
       navigate("/"); //to be changed to Edit profile page
     } catch (error: any) {
-      setApiError(
-        error.response?.data?.message || 
-        'خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.'
-      );
+      // Extract field-specific errors from API response
+      const fieldErrors: { [key: string]: string } = {};
+      
+      if (error.response?.data) {
+        if (error.response.data.email) {
+          fieldErrors.email = error.response.data.email;
+        }
+        if (error.response.data.username) {
+          fieldErrors.username = error.response.data.username;
+        }
+      }
+
+      // If we have field-specific errors, set them
+      if (Object.keys(fieldErrors).length > 0) {
+        setSignUpApiErrors(fieldErrors);
+      } else {
+        // Fallback to general error
+        setApiError(
+          'خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.'
+        );
+      }
     }
+  };
+
+  const clearSignUpApiError = (fieldName: string) => {
+    setSignUpApiErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[fieldName];
+      return newErrors;
+    });
   };
 
   const handleTabChange = (mode: FormMode) => {
     setCurrentMode(mode);
     setApiError(null);
+    setSignUpApiErrors({});
   };
 
   return (
@@ -279,7 +339,12 @@ const RegisterPage: React.FC = () => {
           <LoginForm onSubmit={handleLoginSubmit} isLoading={isLoading} />
         )}
         {currentMode === "signup" && (
-          <SignUpForm onSubmit={handleSignUpSubmit} isLoading={isLoading} />
+          <SignUpForm 
+            onSubmit={handleSignUpSubmit} 
+            isLoading={isLoading}
+            apiErrors={signUpApiErrors}
+            clearApiError={clearSignUpApiError}
+          />
         )}
       </div>
     </div>

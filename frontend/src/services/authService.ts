@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001';
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -42,7 +42,7 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         logout();
-        window.location.href = '/login';
+        window.location.href = '/accounts/login/';
         return Promise.reject(refreshError);
       }
     }
@@ -75,8 +75,8 @@ export const removeTokens = (): void => {
 };
 
 // Auth functions
-export const login = async (credentials: { username: string; password: string }) => {
-  const response = await api.post('/auth/login', credentials);
+export const login = async (credentials: { username: string; password: string; rememberMe?: boolean }) => {
+  const response = await api.post('/accounts/login/', credentials);
   
   if (response.data.accessToken) {
     setToken(response.data.accessToken);
@@ -96,7 +96,7 @@ export const register = async (userData: {
   username: string; 
   password: string; 
 }) => {
-  const response = await api.post('/auth/register', userData);
+  const response = await api.post('/accounts/signup/', userData);
   
   if (response.data.accessToken) {
     setToken(response.data.accessToken);
@@ -117,7 +117,7 @@ export const refreshToken = async (): Promise<string | null> => {
       throw new Error('No refresh token available');
     }
 
-    const response = await api.post('/auth/refreshtoken', {
+    const response = await api.post('/accounts/token/refresh', {
       refreshToken,
     });
 
