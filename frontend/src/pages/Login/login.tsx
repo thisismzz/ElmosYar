@@ -18,7 +18,7 @@ interface SignUpFormData {
   email: string;
   username: string;
   password: string;
-  password2: string;
+  repeatPassword: string;
 }
 
 interface LoginFormProps {
@@ -55,7 +55,7 @@ const signupSchema = yup.object({
     .string()
     .required("رمز عبور الزامی است")
     .min(6, "رمز عبور باید حداقل 6 کاراکتر باشد"),
-  password2: yup
+  repeatPassword: yup
     .string()
     .required("تکرار رمز عبور الزامی است")
     .oneOf([yup.ref('password')], "رمز عبور و تکرار آن باید یکسان باشند"),
@@ -181,12 +181,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, isLoading }) => {
         <input
           type="password"
           placeholder="تکرار رمز عبور"
-          {...register("password2")}
-          className={`form-input ${errors.password2 ? 'error' : ''}`}
+          {...register("repeatPassword")}
+          className={`form-input ${errors.repeatPassword ? 'error' : ''}`}
           disabled={isLoading}
         />
-        {errors.password2 && (
-          <p className="error-message">{errors.password2.message}</p>
+        {errors.repeatPassword && (
+          <p className="error-message">{errors.repeatPassword.message}</p>
         )}
       </div>
 
@@ -216,7 +216,6 @@ const RegisterPage: React.FC = () => {
       await login({
         username: data.username,
         password: data.password,
-		rememberme: data.rememberMe ?? false,
       });
       navigate("/");
     } catch (error: any) {
@@ -230,7 +229,7 @@ const RegisterPage: React.FC = () => {
   const handleSignUpSubmit = async (data: SignUpFormData) => {
     try {
       setApiError(null);
-      const signUpData = data;
+      const { repeatPassword, ...signUpData } = data;
       await register(signUpData);
       navigate("/"); //to be changed to Edit profile page
     } catch (error: any) {
