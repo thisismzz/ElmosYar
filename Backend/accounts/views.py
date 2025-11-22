@@ -3,11 +3,20 @@ from django.contrib.auth import authenticate
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.views import APIView
-from .serializers import SignUpSerializer, LoginSerializer
+from .serializers import SignUpSerializer, LoginSerializer, UserInfoSerializer
+from .models import UserInfo
 from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import timedelta
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    serializer_class = UserInfoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user.profile
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

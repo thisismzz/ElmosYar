@@ -6,4 +6,4 @@ from .models import UserInfo
 @receiver(post_save, sender=User)
 def create_UserInfo(sender, instance, created, **kwargs):
     if created:
-        UserInfo.objects.create(user=instance,)
+        UserInfo.objects.create(user=instance)

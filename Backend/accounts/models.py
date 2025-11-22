@@ -8,12 +8,13 @@ class UserMajor(models.Model):
 
 
 class UserInfo(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='info')
-    first_name = models.CharField(max_length=50, blank=True, null=False)
-    last_name = models.CharField(max_length=50, blank=True, null=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    firstname = models.CharField(max_length=50, blank=True, null=False)
+    lastname = models.CharField(max_length=50, blank=True, null=False)
     studentId = models.CharField(max_length=9, blank=True, null=False)
     phoneNo = models.CharField(max_length=11, blank=True, null=False)
     bio = models.TextField(blank=True, null=False)
+    info = models.TextField(blank=True, null=False)
     major = models.ForeignKey(UserMajor, on_delete=models.SET_NULL, blank=True, null=True)
     # avatar = models.ImageField()
     
