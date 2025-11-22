@@ -3,6 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from django.db import transaction
+from .models import UserInfo
 
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
@@ -48,3 +49,31 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True, allow_blank=False)
     password = serializers.CharField(required=True, allow_blank=False)
     rememberMe = serializers.BooleanField(default=False)
+ # serializers.py
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    # Include User fields that you want to expose/edit
+    username = serializers.CharField(source="user.username", read_only=True)
+    email = serializers.EmailField(source="user.email", read_only=True)
+
+    class Meta:
+        model = UserInfo
+        fields = [
+            "username",
+            "email",
+            "studentId",
+            "phoneNo",
+            "bio",
+            "info",
+            "avatar",
+        ]
+
+    def update(self, instance, validated_data):
+        # Because username/email are read-only, only update UserInfo fields
+        user_info_data = validated_data
+
+        for field, value in user_info_data.items():
+            setattr(instance, field, value)
+
+        instance.save()
+        return instance

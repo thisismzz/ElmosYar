@@ -9,6 +9,9 @@ from .serializers import SignUpSerializer, LoginSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import timedelta
 
+from .models import UserInfo
+from .serializers import UserProfileSerializer
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
@@ -57,3 +60,24 @@ class Login(APIView):
             }, status=status.HTTP_200_OK)
         
         return Response({'ERROR' : 'invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Ensure UserInfo object exists
+        user_info, _ = UserInfo.objects.get_or_create(user=request.user)
+
+        serializer = UserProfileSerializer(user_info)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        user_info, _ = UserInfo.objects.get_or_create(user=request.user)
+
+        serializer = UserProfileSerializer(user_info, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
