@@ -1,23 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useState, } from 'react';
+import Comments from './components/Comments';
+import { Comment } from './types/comments';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './components/AuthProvider';
-import { Main } from './pages/Main/main';
-import RegisterPage from './pages/Login/login';
+import { getCommentsByPostId } from './services/commentService';
+
+async function loadComments() {
+	const comments = await getCommentsByPostId(1);
+}
 
 function App() {
-  return (
-    <div className="App">
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path='/' element={<Main/>}/>
-            <Route path='/Login' element={<RegisterPage/>}/>
-          </Routes>
-        </Router>
-      </AuthProvider>
-    </div>
-  );
+	// 1 for now
+	const postId: number = 1;
+
+	const [commentsList, setComments] = useState<Comment[]>([]);
+
+	useEffect(() => {
+		const load = async () => {
+			const data = await getCommentsByPostId(postId);
+			setComments(data);
+		};
+
+		load();
+	}, [postId]);
+
+	return (
+		<div className="App">
+			<header className="App-header">
+				<h1>خوش آمدید</h1>
+				<p>سیستم نظردهی</p>
+			</header>
+			<Comments
+				initialComments={commentsList}
+				title="نظرات کاربران"
+			/>
+		</div>
+	);
 }
 
 export default App;
