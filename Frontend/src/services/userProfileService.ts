@@ -1,40 +1,42 @@
 // userProfileService.ts
+import api from "./authService";
 
-import axios from "axios";
-import { getAccessToken } from "./authService";
-
+// Type for user profile returned from Django serializer
 export interface UserProfile {
-  username?: string;
-  email?: string;
-  avatar?: string;
-  bio?: string;
-  info?: string;
-  mobile?: string;
+  username: string;
+  email: string;
+  studentId: string;
+  phoneNo: string;
+  bio: string;
+  info: string;
+  avatar: string;
 }
 
-const profileApi = axios.create({
-  baseURL: "http://127.0.0.1:4000/profile", 
-});
-
-
-profileApi.interceptors.request.use((config) => {
-  const token = getAccessToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Fetch the user profile
+export const getUserProfile = async (): Promise<UserProfile> => {
+  try {
+    const response = await api.get<UserProfile>("/profiles/me/");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    throw error;
   }
-  return config;
-});
+};
 
+// Update user profile
+export const updateUserProfile = async (
+  profileData: Partial<UserProfile>
+): Promise<UserProfile> => {
+  try {
+    const response = await api.put<UserProfile>("/profiles/me/", profileData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    throw error;
+  }
+};
 
-export async function fetchUserProfile(): Promise<UserProfile> {
-  const response = await profileApi.get<UserProfile>("/profiles/me/");
-  return response.data;
-}
-
-
-export async function updateUserProfile(
-  updates: Partial<UserProfile>
-): Promise<UserProfile> {
-  const response = await profileApi.put<UserProfile>("/profiles/me/", updates);
-  return response.data;
-}
+export default {
+  getUserProfile,
+  updateUserProfile,
+};

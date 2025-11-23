@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchUserProfile, updateUserProfile, UserProfile } from "../services/userProfileService";
+import { getUserProfile, updateUserProfile, UserProfile } from "../services/userProfileService";
 import { Avatar, Card, CardContent } from '../components/UILib';
 import { Button } from '../components/UILib';
 import { Input } from '../components/UILib';
@@ -20,13 +20,13 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
     avatar:
       "https://preview.redd.it/z4t51ibk1is61.png?auto=webp&s=7a5d0dad617ed52dfe29a65b742bdc39c49b94b7",
     info: "انسانیت بساز، نه انسان. تولید مثل را هر حیوانی بلد است.",
-    mobile: "09123456789",
+    phoneNo: "09123456789",
     email: "shamsollah@bagher.com"
   });
 
 
   useEffect(() => {
-    fetchUserProfile().then((u) => {
+    getUserProfile().then((u) => {
       setUserProfile(u);
       setForm({
         username: u.username ?? "",
@@ -34,7 +34,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
         info: u.info ?? "",
         bio: u.bio ?? "",
 		avatar: u.avatar ?? "",
-		mobile: u.mobile ?? "",
+		phoneNo: u.phoneNo ?? "",
       });
     });
   }, [userId]);
@@ -152,12 +152,12 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="flex-1">
-                    <Label htmlFor="mobile" className="text-right block">شماره موبایل</Label>
+                    <Label htmlFor="phoneNo" className="text-right block">شماره موبایل</Label>
                     <Input
-                      id="mobile"
+                      id="phoneNo"
                       type="tel"
-                      value={form.mobile?.toString()}
-                      onChange={(e) => setForm({ ...form, mobile: e.target.value })}
+                      value={form.phoneNo?.toString()}
+                      onChange={(e) => setForm({ ...form, phoneNo: e.target.value })}
                       placeholder="شماره تلفن خود را وارد کنید"
                       className="mt-1.5 rounded-xl text-right"
                     />

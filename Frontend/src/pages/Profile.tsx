@@ -25,8 +25,9 @@ export function ProfilePage({ onNavigate }: ProfilePageProps) {
 	  avatar:
 		"https://preview.redd.it/z4t51ibk1is61.png?auto=webp&s=7a5d0dad617ed52dfe29a65b742bdc39c49b94b7",
 	  info: "انسانیت بساز، نه انسان. تولید مثل را هر حیوانی بلد است.",
-	  mobile: "09123456789",
-	  email: "shamsollah@bagher.com"
+	  phoneNo: "09123456789",
+	  email: "shamsollah@bagher.com",
+	  studentId: "111111111"
 	};
 
   useEffect(() => {
