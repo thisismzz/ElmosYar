@@ -50,7 +50,10 @@ def signup(request):
                          'data' : {"access": str(refresh.access_token),
                                    "refresh": str(refresh)}}, status=status.HTTP_201_CREATED)
     
-    return Response(serializer.errors, status=status.HTTP_409_CONFLICT)
+    return Response({'error' : True,
+                     'message' : "مقادیر وارد شده نامعتبر است",
+                     'code' : 'AUTH_REGISTER_INVALID',
+                     'details' : serializer.errors}, status=status.HTTP_409_CONFLICT)
 
 
 class Logout(APIView):
