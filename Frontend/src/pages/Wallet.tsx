@@ -33,7 +33,7 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
             </div>
             <div className="flex items-baseline gap-2 justify-end" dir="ltr">
               <span className="text-2xl md:text-3xl">.50</span>
-              <span className="text-5xl md:text-6xl">$1,247,000,000,000,000,000,000,000</span>
+              <span className="text-5xl md:text-6xl">$1,247,000,000,000,000</span>
             </div>
           </CardContent>
         </Card>

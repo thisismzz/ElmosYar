@@ -25,21 +25,21 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
   });
 
 
-  useEffect(() => {
-    getUserProfile().then((u) => {
-      setUserProfile(u);
-      setForm({
-        username: u.username ?? "",
-        email: u.email ?? "",
-        info: u.info ?? "",
-        bio: u.bio ?? "",
-		avatar: u.avatar ?? "",
-		phoneNo: u.phoneNo ?? "",
-      });
-    });
-  }, [userId]);
+//   useEffect(() => {
+//     getUserProfile().then((u) => {
+//       setUserProfile(u);
+//       setForm({
+//         username: u.username ?? "",
+//         email: u.email ?? "",
+//         info: u.info ?? "",
+//         bio: u.bio ?? "",
+// 		avatar: u.avatar ?? "",
+// 		phoneNo: u.phoneNo ?? "",
+//       });
+//     });
+//   }, [userId]);
 
-  if (!userProfile) return <div>Loading...</div>;
+//   if (!userProfile) return <div>Loading...</div>;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
