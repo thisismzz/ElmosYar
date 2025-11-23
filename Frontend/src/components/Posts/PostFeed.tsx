@@ -4,7 +4,7 @@ import { type PostFeedProps, type Post } from '../../types/posts';
 import './PostFeed.css';
 
 
-const PostActions: React.FC<{
+export const PostActions: React.FC<{
   likes: number;
   dislikes: number;
   comments: number;
@@ -33,7 +33,7 @@ const PostActions: React.FC<{
 };
 
 
-const PostCard: React.FC<{
+export const PostCard: React.FC<{
   post: Post;
   onLike: () => void;
   onDislike: () => void;
@@ -80,7 +80,7 @@ const PostCard: React.FC<{
 };
 
 
-const PostFeed: React.FC<PostFeedProps> = ({ posts }) => {
+export const PostFeed: React.FC<PostFeedProps> = ({ posts }) => {
   const handleLike = (postId: number) => {
     console.log('Liked post:', postId);
   };

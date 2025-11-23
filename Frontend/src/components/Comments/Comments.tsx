@@ -181,15 +181,22 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
       </div>
     </div>
   );
-};
-
-const Comments: React.FC<CommentsProps> = ({ 
+};const Comments: React.FC<CommentsProps> = ({ 
   initialComments = [],
+  comments: externalComments,
+  setComments: externalSetComments,
   title = "نظرات",
   currentUserName = "کاربر",
   post
 }) => {
-  const [comments, setComments] = useState<Comment[]>(initialComments);
+
+  // If parent provided comments → use them
+  // Else → fall back to internal state
+  const [internalComments, internalSetComments] = useState<Comment[]>(initialComments);
+
+  const comments = externalComments ?? internalComments;
+  const setComments = externalSetComments ?? internalSetComments;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleAddComment = (newComment: { text: string }) => {
@@ -226,7 +233,7 @@ const Comments: React.FC<CommentsProps> = ({
     <div className="comments-container">
       <div className="comments-card">
         {post && <PostHeader post={post} />}
-        
+
         <div className="comments-header">
           <h2 className="comments-title">{title}</h2>
           <button 
@@ -246,7 +253,7 @@ const Comments: React.FC<CommentsProps> = ({
               onDislike={handleDislike} 
             />
           ))}
-          
+
           {comments.length === 0 && (
             <div className="empty-state">
               <h3>هنوز نظری ثبت نشده است</h3>

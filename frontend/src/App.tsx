@@ -3,25 +3,26 @@ import { useState, } from 'react';
 import Comments from './components/Comments';
 import { Comment } from './types/comments';
 import './App.css';
-import { getCommentsByPostId } from './services/commentService';
+import { getCommentsForPost } from './services/commentService';
+import { stringify } from 'querystring';
 
 async function loadComments() {
-	const comments = await getCommentsByPostId(1);
+	const comments = await getCommentsForPost(1);
 }
 
 function App() {
 	// 1 for now
 	const postId: number = 1;
 
-	const [commentsList, setComments] = useState<Comment[]>([]);
+	const [commentsList, setCommentsList] = useState<Comment[]>([]);
 
 	useEffect(() => {
-		const load = async () => {
-			const data = await getCommentsByPostId(postId);
-			setComments(data);
-		};
+		async function loadComments() {
+			const result = await getCommentsForPost(postId);
+			setCommentsList(result);
+		}
+		loadComments();
 
-		load();
 	}, [postId]);
 
 	return (
@@ -31,8 +32,9 @@ function App() {
 				<p>سیستم نظردهی</p>
 			</header>
 			<Comments
-				initialComments={commentsList}
 				title="نظرات کاربران"
+				comments={commentsList}
+				setComments={setCommentsList}
 			/>
 		</div>
 	);
