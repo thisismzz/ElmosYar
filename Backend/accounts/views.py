@@ -11,23 +11,67 @@ from .models import UserInfo
 from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import timedelta
 
-class UserProfileView(generics.RetrieveUpdateAPIView):
+class UserInfoView(generics.RetrieveUpdateAPIView):
     serializer_class = UserInfoSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user.profile
+    
+    def put(self, request, *args, **kwargs):
+        return self._update(request, partial=False)
+    
+    def patch(self, request, *args, **kwargs):
+        return self._update(request, partial=True)
+    
+    def get(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+        except UserInfo.DoesNotExist:
+            return Response({"error": True,
+                             "message": "پروفایل وجود ندارد",
+                             "code": "USER_PROFILE_NOT_FOUND",}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(instance)
+        return Response({"error": False,
+                         "message": "پروفایل با موفقیت دریافت شد",
+                         "code": "USER_PROFILE_FETCHED",
+                         "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def _update(self, request, partial):
+        profile = self.get_object()
+        serializer = self.get_serializer(profile, data=request.data, partial=partial)
+        
+        if serializer.is_valid():
+            self.perform_update(serializer)
+            return Response({'error' : False,
+                             'message' : 'پروفایل با موفقیت بروزرسانی شد',
+                             'code' : 'USER_PROFILE_UPDATED',
+                             'data' : serializer.data}, status=status.HTTP_200_OK)
+            
+        return Response({'error' : True,
+                         'message' : 'مقادیر وارد شده نامعتبر است',
+                         'code' : 'USER_PROFILE_UPDATE_INVALID',
+                         'details' : serializer.errors}, status=status.HTTP_409_CONFLICT)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_other_user_profile(request, username):
-    user = get_object_or_404(User, username=username)
     try:
+        user = User.objects.get(username=username)
         profile = user.profile
-    except User.profile.RelatedObjectDoesNotExist:
+        
+    except User.DoesNotExist:
         return Response({
             'error': True,
-            'message': 'پروفایل برای این کاربر ساخته نشده است',
+            'message': 'کاربر مورد نظر یافت نشد',
+            'code': 'USER_NOT_FOUND'}, status=status.HTTP_404_NOT_FOUND)
+        
+    except UserInfo.DoesNotExist:
+        return Response({
+            'error': True,
+            'message': 'پروفایلی برای این کاربر ساخته نشده است',
             'code': 'PROFILE_NOT_FOUND'}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = UserInfoSerializer(profile)
@@ -35,7 +79,8 @@ def get_other_user_profile(request, username):
                      'message': 'کاربر یافت شد',
                      'code': 'USER_PROFILE_FETCHED',
                      'data': serializer.data}, status=status.HTTP_200_OK)
-    
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
@@ -76,7 +121,8 @@ class Logout(APIView):
             return Response({'error' : True,
                              'message' : "توکن معتبر نیست",
                              'code' : "AUTH_TOKEN_INVALID"}, status=status.HTTP_401_UNAUTHORIZED)
-        
+
+
 class Login(APIView):
     permission_classes = [AllowAny]
     

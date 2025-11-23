@@ -11,6 +11,6 @@ urlpatterns= [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('logout/', views.Logout.as_view(), name='logout'),
-    path('profile/', views.UserProfileView.as_view(), name='user_profile'),
+    path('profile/', views.UserInfoView.as_view(), name='user_profile'),
     path('profile/<str:username>/', views.get_other_user_profile)
 ]
