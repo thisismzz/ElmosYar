@@ -3,34 +3,29 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from django.db import transaction
 from .models import UserInfo, UserMajor
+from rest_framework.validators import UniqueValidator
 
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     email = serializers.EmailField(required=True, allow_blank=False)
+    username = serializers.CharField(
+        validators=[UniqueValidator(queryset=User.objects.all(),message="این نام کاربری قبلا استفاده شده است")]
+    )
     
     class Meta:
         model = User
         fields = ['username', 'email', 'password']
     
     
-    def validate_username(self, value):
-        user = self.instance
-        qs = User.objects.filter(username__iexact=value)
-        if user:
-            qs = qs.exclude(pk=user.pk)
-        if qs.exists():
-            raise serializers.ValidationError('username has already been used!')
-        return value
-    
     def validate_email(self, value):
         if not value.endswith('iust.ac.ir'):
-            raise serializers.ValidationError('wrong email format!')
+            raise serializers.ValidationError('فرمت ایمیل اشتباه است')
         user = self.instance
         qs = User.objects.filter(email__iexact=value)
         if user:
             qs = qs.exclude(pk=user.pk)
         if qs.exists():
-            raise serializers.ValidationError('email has already been used!')
+            raise serializers.ValidationError('این ایمیل قبلا استفاده شده است')
         return value
     
 
@@ -57,30 +52,50 @@ class LoginSerializer(serializers.Serializer):
     
     
 class UserInfoSerializer(serializers.ModelSerializer):
-    user = SignUpSerializer()
-    major = serializers.CharField(write_only=True, required=False)
+    username = serializers.CharField(required=False)
+    email = serializers.CharField(required=False)
+    major = serializers.CharField(required=False)
 
     class Meta:
         model = UserInfo
         fields = [
-            'user', 'firstname', 'lastname', 'studentId', 'phoneNo', 'info', 'bio', 'major'
+            'username', 'email', 'firstname', 'lastname', 'studentId', 'phoneNo', 'info', 'bio', 'major'
         ]
+        
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['username'] = instance.user.username
+        data['email'] = instance.user.email
+        return data
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', None)
-        if user_data:
-            user_serializer = self.fields['user']
-            user_serializer.update(instance.user, user_data)
-
-        major_name = validated_data.pop('major', None)
-        if major_name:
+        user = instance.user
+        
+        new_username = validated_data.pop('username', None)
+        new_email = validated_data.pop('email', None)
+        if new_username:
+            if User.objects.exclude(pk=user.pk).filter(username__iexact=new_username).exists():
+                raise serializers.ValidationError("این نام کاربری قبلا استفاده شده است")
+            user.username = new_username
+        
+        if new_email:
+            if User.objects.exclude(pk=user.pk).filter(email__iexact=new_email).exists():
+                raise serializers.ValidationError('این ایمیل قبلا استفاده شده است')
+            if not new_email.endswith("iust.ac.ir"):
+                raise serializers.ValidationError('فرمت ایمیل اشتباه است')
+            user.email = new_email
+        
+        user.save()
+        
+        new_major = validated_data.pop('major', None)
+        if new_major:
             try:
-                major_obj = UserMajor.objects.get(name=major_name)
+                new_major_obj = UserMajor.objects.get(name=new_major)
             except UserMajor.DoesNotExist:
-                raise serializers.ValidationError({"major": "this major does not exists"})
-            instance.major = major_obj
+                raise serializers.ValidationError("رشته وارد شده معتبر نیست")
+            instance.major = new_major_obj
 
-        for attr in ['firstname', 'lastname', 'phoneNo', 'bio']:
+        for attr in ['firstname', 'lastname', 'studentId', 'phoneNo', 'info', 'bio']:
             if attr in validated_data:
                 setattr(instance, attr, validated_data[attr])
 

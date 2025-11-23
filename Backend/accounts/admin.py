@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from .models import UserInfo
+from .models import UserInfo, UserMajor
 
 class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
@@ -21,3 +21,4 @@ admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 
 admin.site.register(UserInfo)
+admin.site.register(UserMajor)
