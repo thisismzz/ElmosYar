@@ -1,6 +1,6 @@
 import { Card, CardContent } from '../components/UILib';
 import { Button } from '../components/UILib';
-import { ArrowLeft, ArrowDownToLine, History, Plus, Wallet } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowDownToLine, History, Plus, Wallet } from 'lucide-react';
 
 interface WalletPageProps {
   onNavigate: (page: 'profile' | 'wallet' | 'edit-profile') => void;
@@ -11,7 +11,7 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
     <div className="min-h-screen bg-gray-50 pb-20 lg:pb-8">
       <div className="max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
         {/* Header with Back Button */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-8 flex-row-reverse">
           <Button 
             variant="ghost" 
             size="icon"
@@ -19,21 +19,21 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
             className="rounded-xl hover:bg-cyan-50"
             style={{ color: '#4FCBE9' }}
           >
-            <ArrowLeft className="w-5 h-5" />
+		  <ArrowRight className="w-5 h-5" />
           </Button>
-          <h1 style={{ color: '#16519F' }}>Wallet</h1>
+          <h1 style={{ color: '#16519F' }}>کیف پول</h1>
         </div>
 
         {/* Balance Card */}
         <Card className="mb-8 border-0 rounded-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #16519F 0%, #4FCBE9 100%)' }}>
           <CardContent className="p-8 md:p-10 text-white">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 justify-end">
+              <p className="text-blue-50">موجودی فعلی</p>
               <Wallet className="w-5 h-5" />
-              <p className="text-blue-50">Current Balance</p>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-5xl md:text-6xl">$1,247</span>
+            <div className="flex items-baseline gap-2 justify-end" dir="ltr">
               <span className="text-2xl md:text-3xl">.50</span>
+              <span className="text-5xl md:text-6xl">$1,247,000,000,000,000,000,000,000</span>
             </div>
           </CardContent>
         </Card>
@@ -48,8 +48,8 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
               >
                 <ArrowDownToLine className="w-7 h-7" style={{ color: '#F07E74' }} />
               </div>
-              <h3 className="mb-2">Withdraw</h3>
-              <p className="text-gray-500">Transfer funds to your bank</p>
+              <h3 className="mb-2">برداشت</h3>
+              <p className="text-gray-500">انتقال وجه به حساب بانکی</p>
             </CardContent>
           </Card>
 
@@ -61,8 +61,8 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
               >
                 <History className="w-7 h-7" style={{ color: '#16519F' }} />
               </div>
-              <h3 className="mb-2">Transaction History</h3>
-              <p className="text-gray-500">View all your transactions</p>
+              <h3 className="mb-2">تاریخچه تراکنش‌ها</h3>
+              <p className="text-gray-500">مشاهده همه تراکنش‌های شما</p>
             </CardContent>
           </Card>
 
@@ -74,8 +74,8 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
               >
                 <Plus className="w-7 h-7" style={{ color: '#4FCBE9' }} />
               </div>
-              <h3 className="mb-2">Top-up</h3>
-              <p className="text-gray-500">Add funds to your wallet</p>
+              <h3 className="mb-2">شارژ حساب</h3>
+              <p className="text-gray-500">افزودن وجه به کیف پول</p>
             </CardContent>
           </Card>
         </div>
