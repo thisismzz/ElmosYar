@@ -26,10 +26,11 @@ def signup(request):
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
         
-        return Response({
-            "access": str(refresh.access_token),
-            "refresh": str(refresh)
-        }, status=status.HTTP_201_CREATED)
+        return Response({'error' : False,
+                         'message' : 'ثبت‌نام با موفقیت انجام شد',
+                         'code' : 'AUTH_REGISTER_SUCCESS',
+                         'data' : {"access": str(refresh.access_token),
+                                   "refresh": str(refresh)}}, status=status.HTTP_201_CREATED)
     
     return Response(serializer.errors, status=status.HTTP_409_CONFLICT)
 
@@ -40,14 +41,20 @@ class Logout(APIView):
     def post(self, request):
         refresh_token = request.data.get("refresh")
         if not refresh_token:
-            return Response({'ERROR' : 'refresh token is required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error' : True,
+                             'message' : "توکن بازیابی الزامی است",
+                             'code' : "AUTH_TOKEN_MISSING"}, status=status.HTTP_401_UNAUTHORIZED)
         
         try:
             token = RefreshToken(refresh_token)
             token.blacklist()
-            return Response({'SUCCESS' : 'logging out'}, status=status.HTTP_200_OK)
+            return Response({'error' : False,
+                             'message' : "با موفقیت خارج شدید",
+                             'code' : 'AUTH_LOGOUT_SUCCESS'}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({'ERROR' : 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error' : True,
+                             'message' : "توکن معتبر نیست",
+                             'code' : "AUTH_TOKEN_INVALID"}, status=status.HTTP_401_UNAUTHORIZED)
         
 class Login(APIView):
     permission_classes = [AllowAny]
@@ -66,9 +73,12 @@ class Login(APIView):
             refresh = RefreshToken.for_user(user)
             if rememberMe:
                 refresh.set_exp(lifetime=timedelta(days=7))
-            return Response({
-                'access' : str(refresh.access_token),
-                'refresh' : str(refresh)
-            }, status=status.HTTP_200_OK)
+            return Response({'error' : False,
+                             'message' : "با موفقیت وارد شدید",
+                             'code' : 'AUTH_LOGIN_SUCCESS',
+                             'data' : {'access' : str(refresh.access_token), 
+                                       'refresh' : str(refresh)}}, status=status.HTTP_200_OK)
         
-        return Response({'ERROR' : 'invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'error' : True,
+                         'message' : 'نام کاربری یا نام رمزعبور نامعتبر است',
+                         'code' : 'AUTH_LOGIN_FAILED'}, status=status.HTTP_401_UNAUTHORIZED)
