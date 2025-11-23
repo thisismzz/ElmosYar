@@ -1,39 +1,62 @@
 // userProfileService.ts
-import api from "./authService";
+import api from './authService';
 
-// Type for user profile returned from Django serializer
 export interface UserProfile {
   username: string;
-  email: string;
-  studentId: string;
-  phoneNo: string;
-  bio: string;
-  info: string;
-  avatar: string;
+  email?: string;            // only present for own profile
+  bio: string | null;
+  profilePicture: string | null;
+  studentId: string | null;
+  phoneNumber: string | null;
 }
 
-// Fetch the user profile
-export const getUserProfile = async (): Promise<UserProfile> => {
-  try {
-    const response = await api.get<UserProfile>("/profiles/me/");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
-    throw error;
-  }
+export const getUserProfile = async (
+  username: string
+): Promise<UserProfile> => {
+  const response = await api.get(`/users/${username}/profile/`);
+
+  const user = response.data.user;
+
+  return {
+    username: user.username,
+    email: user.email ?? null, // backend removes for other users
+    bio: user.bio ?? null,
+    profilePicture: user.profile_picture ?? null,
+    studentId: user.student_id ?? null,
+    phoneNumber: user.mobile ?? null, // adjust if backend uses another field name
+  };
 };
 
-// Update user profile
+export interface UpdateProfilePayload {
+  username?: string;
+  email?: string;
+  bio?: string;
+  studentId?: string;
+  phoneNumber?: string;
+}
+
 export const updateUserProfile = async (
-  profileData: Partial<UserProfile>
+  data: UpdateProfilePayload
 ): Promise<UserProfile> => {
-  try {
-    const response = await api.put<UserProfile>("/profiles/me/", profileData);
-    return response.data;
-  } catch (error) {
-    console.error("Error updating user profile:", error);
-    throw error;
-  }
+  const payload = {
+    username: data.username,
+    email: data.email,
+    bio: data.bio,
+    student_id: data.studentId,
+    mobile: data.phoneNumber,
+  };
+
+  const response = await api.put("/profile/update/", payload);
+  const u = response.data.user;
+
+  return {
+    username: u.username,
+    email: u.email ?? null,
+    bio: u.bio ?? null,
+    profilePicture: u.profile_picture ?? null,
+    studentId: u.student_id ?? null,
+    phoneNumber: u.mobile ?? null,
+  };
 };
 
 export default {
