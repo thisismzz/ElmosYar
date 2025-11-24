@@ -139,6 +139,9 @@ class Login(APIView):
         password = serializer.validated_data['password']
         rememberMe = serializer.validated_data['rememberMe']
         
+        if username.endswith('iust.ac.ir'):
+            username = User.objects.get(email=username).username
+        
         user = authenticate(username=username, password=password)
         if user is not None:
             refresh = RefreshToken.for_user(user)
