@@ -1,4 +1,3 @@
-// types.ts
 export interface User {
   id: number;
   name: string;
@@ -14,6 +13,8 @@ export interface Post {
   likes: number;
   dislikes: number;
   comments: number;
+  isLiked?: boolean;
+  isDisliked?: boolean;
 }
 
 export interface PostFeedProps {
@@ -22,13 +23,19 @@ export interface PostFeedProps {
 
 export interface PostCardProps {
   post: Post;
+  onLike: (postId: number) => void;
+  onDislike: (postId: number) => void;
+  onComment: (postId: number) => void;
 }
 
 export interface PostActionsProps {
+  postId: number;
   likes: number;
   dislikes: number;
   comments: number;
-  onLike: () => void;
-  onDislike: () => void;
-  onComment: () => void;
+  isLiked: boolean;
+  isDisliked: boolean;
+  onLike: (postId: number) => void;
+  onDislike: (postId: number) => void;
+  onComment: (postId: number) => void;
 }
