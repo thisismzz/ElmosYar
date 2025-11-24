@@ -1,43 +1,56 @@
-// PostFeed.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { type PostFeedProps, type Post } from '../../types/posts';
+import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
 import './PostFeed.css';
 
-
-export const PostActions: React.FC<{
+const PostActions: React.FC<{
+  postId: number;
   likes: number;
   dislikes: number;
   comments: number;
-  onLike: () => void;
-  onDislike: () => void;
-  onComment: () => void;
-}> = ({ likes, dislikes, comments, onLike, onDislike, onComment }) => {
+  isLiked: boolean;
+  isDisliked: boolean;
+  onLike: (postId: number) => void;
+  onDislike: (postId: number) => void;
+  onComment: (postId: number) => void;
+}> = ({ postId, likes, dislikes, comments, isLiked, isDisliked, onLike, onDislike, onComment }) => {
   return (
     <div className="post-actions">
-      <button className="action-btn" onClick={onLike}>
+      <button 
+        className={`action-btn ${isLiked ? 'liked' : ''}`} 
+        onClick={() => onLike(postId)}
+      >
+        <span className="action-icon">
+          <ThumbsUp size={18} fill={isLiked ? "currentColor" : "none"} />
+        </span>
         <span className="action-count">{likes}</span>
-        <span className="action-icon">👍</span>
       </button>
       
-      <button className="action-btn" onClick={onDislike}>
+      <button 
+        className={`action-btn ${isDisliked ? 'disliked' : ''}`} 
+        onClick={() => onDislike(postId)}
+      >
+        <span className="action-icon">
+          <ThumbsDown size={18} fill={isDisliked ? "currentColor" : "none"} />
+        </span>
         <span className="action-count">{dislikes}</span>
-        <span className="action-icon">👎</span>
       </button>
       
-      <button className="action-btn" onClick={onComment}>
+      <button className="action-btn" onClick={() => onComment(postId)}>
+        <span className="action-icon">
+          <MessageCircle size={18} />
+        </span>
         <span className="action-count">{comments}</span>
-        <span className="action-icon">💬</span>
       </button>
     </div>
   );
 };
 
-
-export const PostCard: React.FC<{
+const PostCard: React.FC<{
   post: Post;
-  onLike: () => void;
-  onDislike: () => void;
-  onComment: () => void;
+  onLike: (postId: number) => void;
+  onDislike: (postId: number) => void;
+  onComment: (postId: number) => void;
 }> = ({ post, onLike, onDislike, onComment }) => {
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
@@ -68,9 +81,12 @@ export const PostCard: React.FC<{
       )}
       
       <PostActions
+        postId={post.id}
         likes={post.likes}
         dislikes={post.dislikes}
         comments={post.comments}
+        isLiked={post.isLiked || false}
+        isDisliked={post.isDisliked || false}
         onLike={onLike}
         onDislike={onDislike}
         onComment={onComment}
@@ -79,14 +95,63 @@ export const PostCard: React.FC<{
   );
 };
 
+const PostFeed: React.FC<PostFeedProps> = ({ posts: initialPosts }) => {
+  const [posts, setPosts] = useState<Post[]>(initialPosts.map(post => ({
+    ...post,
+    isLiked: false,
+    isDisliked: false
+  })));
 
-export const PostFeed: React.FC<PostFeedProps> = ({ posts }) => {
   const handleLike = (postId: number) => {
-    console.log('Liked post:', postId);
+    setPosts(posts.map(post => {
+      if (post.id === postId) {
+        if (post.isLiked) {
+          return {
+            ...post,
+            likes: post.likes - 1,
+            isLiked: false
+          };
+        } else {
+          const newPost = {
+            ...post,
+            likes: post.likes + 1,
+            isLiked: true
+          };
+          if (post.isDisliked) {
+            newPost.dislikes = post.dislikes - 1;
+            newPost.isDisliked = false;
+          }
+          return newPost;
+        }
+      }
+      return post;
+    }));
   };
 
   const handleDislike = (postId: number) => {
-    console.log('Disliked post:', postId);
+    setPosts(posts.map(post => {
+      if (post.id === postId) {
+        if (post.isDisliked) {
+          return {
+            ...post,
+            dislikes: post.dislikes - 1,
+            isDisliked: false
+          };
+        } else {
+          const newPost = {
+            ...post,
+            dislikes: post.dislikes + 1,
+            isDisliked: true
+          };
+          if (post.isLiked) {
+            newPost.likes = post.likes - 1;
+            newPost.isLiked = false;
+          }
+          return newPost;
+        }
+      }
+      return post;
+    }));
   };
 
   const handleComment = (postId: number) => {
@@ -100,9 +165,9 @@ export const PostFeed: React.FC<PostFeedProps> = ({ posts }) => {
           <PostCard 
             key={post.id}
             post={post}
-            onLike={() => handleLike(post.id)}
-            onDislike={() => handleDislike(post.id)}
-            onComment={() => handleComment(post.id)}
+            onLike={handleLike}
+            onDislike={handleDislike}
+            onComment={handleComment}
           />
         ))}
       </div>
