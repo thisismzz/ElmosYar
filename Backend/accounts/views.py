@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status, generics
 from rest_framework.views import APIView
@@ -42,17 +43,20 @@ class UserInfoView(generics.RetrieveUpdateAPIView):
         profile = self.get_object()
         serializer = self.get_serializer(profile, data=request.data, partial=partial)
         
-        if serializer.is_valid():
+        try:
+            serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
-            return Response({'error' : False,
-                             'message' : 'پروفایل با موفقیت بروزرسانی شد',
-                             'code' : 'USER_PROFILE_UPDATED',
-                             'data' : serializer.data}, status=status.HTTP_200_OK)
-            
-        return Response({'error' : True,
-                         'message' : 'مقادیر وارد شده نامعتبر است',
-                         'code' : 'USER_PROFILE_UPDATE_INVALID',
-                         'details' : serializer.errors}, status=status.HTTP_409_CONFLICT)
+        except ValidationError as exc:
+            return Response({'error': True,
+                             'message': 'مقادیر وارد شده نامعتبر است',
+                             'code': 'USER_PROFILE_UPDATE_INVALID',
+                             'details': exc.detail}, status=status.HTTP_409_CONFLICT)
+
+        return Response({
+            'error': False,
+            'message': 'پروفایل با موفقیت بروزرسانی شد',
+            'code': 'USER_PROFILE_UPDATED',
+            'data': serializer.data}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
