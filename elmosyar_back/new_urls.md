@@ -1,4 +1,4 @@
-
+### The new version is a running on port 8001 temporarily. (both 1.0.0 & 1.0.1 are active rightnow)
 
 | old URLs | new URLs |
 |-----------|-----------|
