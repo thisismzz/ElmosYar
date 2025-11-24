@@ -5,6 +5,7 @@ import { AuthProvider } from './components/AuthProvider';
 import { useAuth } from './contexts/AuthContext';
 import { Main } from './pages/Main/main';
 import RegisterPage from './pages/Login/login';
+import { ProfilePage } from './pages/Profile';
 import Header from './components/Header/Header';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 
@@ -90,8 +91,16 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            {/* Add ProfilePage route */}
+            <Route 
+              path='/profile' 
+              element={
+                <ProtectedRoute>
+                  <ProfilePage onNavigate={()=>{}}/>
+                </ProtectedRoute>
+              } 
+            />
             <Route path='/Login' element={<RegisterPage />} />
-            {/* Fallback route for undefined paths */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AppLayout>
