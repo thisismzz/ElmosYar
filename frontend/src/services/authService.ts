@@ -30,7 +30,14 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+  error.response?.status === 401 && !originalRequest._retry &&
+    (
+      error.response?.code === "AUTH_TOKEN_INVALID" ||
+      error.response?.code === "AUTH_TOKEN_EXPIRED" ||
+      error.response?.code === "AUTH_TOKEN_MISSING"
+    )
+  ) {
       originalRequest._retry = true;
       
       try {
@@ -42,7 +49,6 @@ api.interceptors.response.use(
         }
       } catch (refreshError) {
         logout();
-        window.location.href = '/accounts/login/';
         return Promise.reject(refreshError);
       }
     }
@@ -53,39 +59,35 @@ api.interceptors.response.use(
 
 // Token management
 export const getToken = (): string | null => {
-  return localStorage.getItem('accessToken');
+  return localStorage.getItem('access_token');
 };
 
 export const getRefreshToken = (): string | null => {
-  return localStorage.getItem('refreshToken');
+  return localStorage.getItem('refresh_token');
 };
 
 export const setToken = (token: string): void => {
-  localStorage.setItem('accessToken', token);
+  localStorage.setItem('access_token', token);
 };
 
 export const setRefreshToken = (token: string): void => {
-  localStorage.setItem('refreshToken', token);
+  localStorage.setItem('refresh_token', token);
 };
 
 export const removeTokens = (): void => {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
   localStorage.removeItem('userData');
 };
 
 // Auth functions
-export const login = async (credentials: { username: string; password: string; rememberMe?: boolean }) => {
+export const login = async (credentials: { username: string; password: string; rememberMe: boolean }) => {
   const response = await api.post('/accounts/login/', credentials);
   
-  if (response.data.accessToken) {
-    setToken(response.data.accessToken);
-    setRefreshToken(response.data.refreshToken);
-    
-    // Store user data if provided
-    if (response.data.user) {
-      localStorage.setItem('userData', JSON.stringify(response.data.user));
-    }
+  // UPDATED: Access tokens directly from data (not data.data)
+  if (response.data.error === false && response.data.data) {
+    setToken(response.data.data.access);
+    setRefreshToken(response.data.data.refresh);
   }
   
   return response.data;
@@ -98,33 +100,32 @@ export const register = async (userData: {
 }) => {
   const response = await api.post('/accounts/signup/', userData);
   
-  if (response.data.accessToken) {
-    setToken(response.data.accessToken);
-    setRefreshToken(response.data.refreshToken);
-    
-    if (response.data.user) {
-      localStorage.setItem('userData', JSON.stringify(response.data.user));
-    }
+  // UPDATED: Access tokens directly from data (not data.data)
+  if (response.data.error === false && response.data.data) {
+    setToken(response.data.data.access);
+    setRefreshToken(response.data.data.refresh);
   }
   
   return response.data;
 };
 
+// Token refresh function
 export const refreshToken = async (): Promise<string | null> => {
   try {
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) {
+    const refresh = getRefreshToken();
+    if (!refresh) {
       throw new Error('No refresh token available');
     }
 
-    const response = await api.post('/accounts/token/refresh', {
-      refreshToken,
+    const response = await api.post('/accounts/token/refresh/', {
+      refresh,
     });
 
-    const { accessToken } = response.data;
-    if (accessToken) {
-      setToken(accessToken);
-      return accessToken;
+    // UPDATED: Access token is directly in response.data
+    const { access } = response.data;
+    if (access) {
+      setToken(access);
+      return access;
     }
 
     return null;
@@ -134,13 +135,20 @@ export const refreshToken = async (): Promise<string | null> => {
   }
 };
 
-export const logout = (): void => {
+export const logout = async (): Promise<void> => {
+  const refreshTokenValue = getRefreshToken();
+  if (refreshTokenValue) {
+    try {
+      await api.post('/accounts/logout/', {
+        refresh: refreshTokenValue,
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Continue with client-side logout even if server logout fails
+    }
+  }
   removeTokens();
-};
-
-export const getCurrentUser = (): any => {
-  const userData = localStorage.getItem('userData');
-  return userData ? JSON.parse(userData) : null;
+  window.location.href = '/Login';
 };
 
 export const isAuthenticated = (): boolean => {

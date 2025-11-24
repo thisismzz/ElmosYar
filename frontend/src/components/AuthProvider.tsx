@@ -3,28 +3,20 @@ import {
   login as authLogin, 
   register as authRegister, 
   logout as authLogout, 
-  getCurrentUser, 
   isAuthenticated,
-  refreshToken 
+  refreshToken
 } from '../services/authService';
-import { AuthContext, User, AuthProviderProps } from '../contexts/AuthContext';
+import { AuthContext, AuthProviderProps } from '../contexts/AuthContext';
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const initAuth = async () => {
       try {
-        if (isAuthenticated()) {
-          const userData = getCurrentUser();
-          setUser(userData);
-        } else {
-          // Try to refresh token
+        if (!isAuthenticated()) {
           try {
             await refreshToken();
-            const userData = getCurrentUser();
-            setUser(userData);
           } catch (error) {
             // Refresh failed, user remains logged out
           }
@@ -42,8 +34,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (credentials: { username: string; password: string; rememberMe: boolean }) => {
     try {
       setIsLoading(true);
-      const response = await authLogin(credentials);
-      setUser(response.user);
+      await authLogin(credentials);
     } catch (error) {
       throw error;
     } finally {
@@ -54,8 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (userData: { email: string; username: string; password: string }) => {
     try {
       setIsLoading(true);
-      const response = await authRegister(userData);
-      setUser(response.user);
+      await authRegister(userData);
     } catch (error) {
       console.log(error)
       throw error;
@@ -66,12 +56,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     authLogout();
-    setUser(null);
   };
 
   const value = {
-    user,
-    isAuthenticated: !!user,
+    isAuthenticated: isAuthenticated(),
     isLoading,
     login,
     register,

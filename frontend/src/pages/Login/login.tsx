@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -238,8 +238,43 @@ const RegisterPage: React.FC = () => {
   const [currentMode, setCurrentMode] = useState<FormMode>("login");
   const [apiError, setApiError] = useState<string | null>(null);
   const [signUpApiErrors, setSignUpApiErrors] = useState<{ [key: string]: string }>({});
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
-  const { login, register: authRegister, isLoading } = useAuth();
+  const { login, register: authRegister, isLoading, isAuthenticated } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        // If user is authenticated, redirect to home
+        if (isAuthenticated) {
+          navigate("/");
+        }
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuthentication();
+  }, [isAuthenticated, navigate]);
+
+  // Show loading while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="login-container">
+        <div className="logo-container">
+          <img src={logo} alt="Logo" className="logo" />
+        </div>
+        <div className="login-card">
+          <div className="loading-container">
+            <p>در حال بررسی وضعیت ورود...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleLoginSubmit = async (data: LoginFormData) => {
     try {
@@ -249,13 +284,14 @@ const RegisterPage: React.FC = () => {
         password: data.password,
         rememberMe: data.rememberMe
       });
-      navigate("/");
     } catch (error: any) {
-      console.log(error)
-      setApiError(
-        error.response?.data?.ERROR || 
-        'خطا در ورود. لطفاً مجدداً تلاش کنید.'
-      );
+      console.log("Login error:", error);
+      
+      const errorMessage = error.response?.data?.message || 
+                          error.message || 
+                          'خطا در ورود. لطفاً مجدداً تلاش کنید.';
+      
+      setApiError(errorMessage);
     }
   };
 
@@ -265,17 +301,29 @@ const RegisterPage: React.FC = () => {
       setSignUpApiErrors({});
       const { repeatPassword, ...signUpData } = data;
       await authRegister(signUpData);
-      navigate("/"); //to be changed to Edit profile page
+      navigate("/"); // to be changed to Edit profile page
     } catch (error: any) {
-      // Extract field-specific errors from API response
+      console.log("Signup error:", error);
+      
       const fieldErrors: { [key: string]: string } = {};
       
-      if (error.response?.data) {
-        if (error.response.data.email) {
-          fieldErrors.email = error.response.data.email;
-        }
-        if (error.response.data.username) {
-          fieldErrors.username = error.response.data.username;
+      if (error.response?.data?.details) {
+        const details = error.response.data.details;
+        if (Array.isArray(details)) {
+          details.forEach((detail: any) => {
+            if (detail.field) {
+              fieldErrors[detail.field] = detail.message;
+            }
+          });
+        } else if (typeof details === 'object') {
+          // If details is an object with field names as keys
+          Object.keys(details).forEach(field => {
+            if (Array.isArray(details[field])) {
+              fieldErrors[field] = details[field].join(', ');
+            } else {
+              fieldErrors[field] = details[field];
+            }
+          });
         }
       }
 
@@ -283,10 +331,10 @@ const RegisterPage: React.FC = () => {
       if (Object.keys(fieldErrors).length > 0) {
         setSignUpApiErrors(fieldErrors);
       } else {
-        // Fallback to general error
-        setApiError(
-          'خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.'
-        );
+        // Fallback to general error from API message
+        const errorMessage = error.response?.data?.message || 
+                            'خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.';
+        setApiError(errorMessage);
       }
     }
   };

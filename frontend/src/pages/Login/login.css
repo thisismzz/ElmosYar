@@ -10,12 +10,19 @@
 }
 
 .logo-container {
-  padding: 10px;
+  width: 50px;
+  height: 50px;
+  margin-bottom: 10px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 
 .logo {
-  height: 100px;
-  width: 100px;
+  height: 100%;
+  width: 100%;
   object-fit: contain;
 }
 
