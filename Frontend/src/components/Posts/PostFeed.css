@@ -1,10 +1,5 @@
-/*PostFeed.css*/
-
 .post-feed {
-  max-width: 600px;
   width: 100%;
-  margin: 0 auto;
-  padding: 20px;
 }
 
 .post-list {
@@ -13,15 +8,32 @@
   gap: 16px;
 }
 
-
 .post-card {
   background: white;
   padding: 16px;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 12px;
+  box-shadow: 
+    0 1px 1px rgba(0, 0, 0, 0.1),
+    0 1px 1px rgba(0, 0, 0, 0.06);
   border: 1px solid #e1e8ed;
   direction: rtl;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 6px 15px rgba(0, 0, 0, 0.15),
+    0 5px 1px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 123, 255, 0.05);
+}
+
+.post-card:active {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 3px 10px rgba(0, 0, 0, 0.1),
+    0 3px 6px rgba(0, 0, 0, 0.05);
 }
 
 .post-header {
@@ -39,7 +51,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #F8DD2E 0%, #F07E74 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,7 +89,6 @@
   padding: 0 8px;
 }
 
-
 .post-actions {
   display: flex;
   gap: 20px;
@@ -94,24 +105,66 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: all 0.2s;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
   flex-direction: row-reverse;
   color: #65676b;
+  font-size: 14px;
 }
 
 .action-btn:hover {
   background-color: #f8f9fa;
-  color: #007bff;
+  transform: translateY(-1px);
 }
 
 .action-count {
   font-size: 14px;
   color: #65676b;
   font-weight: 500;
+  transition: color 0.2s ease;
 }
 
 .action-icon {
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+
+.action-btn.liked {
+  color: #4FCBE9;
+}
+
+.action-btn.disliked {
+  color: #F07E74;
+}
+
+.action-btn.liked .action-count {
+  color: #4FCBE9;
+  font-weight: 600;
+}
+
+.action-btn.disliked .action-count {
+  color: #F07E74;
+  font-weight: 600;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .post-card {
+    margin: 8px;
+    padding: 12px;
+  }
+  
+  .post-actions {
+    gap: 15px;
+  }
+  
+  .action-btn {
+    padding: 5px 10px;
+  }
 }
