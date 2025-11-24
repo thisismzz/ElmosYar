@@ -4,35 +4,48 @@ import { Card, CardContent } from "../components/UILib";
 import { Wallet, HelpCircle, Edit, ChevronLeft } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { UserProfile } from "../services/userProfileService";
+import { getUserProfile, UserProfile } from "../services/userProfileService";
 
 interface ProfilePageProps {
   onNavigate: (page: "profile" | "wallet" | "edit-profile") => void;
 }
 
 export function ProfilePage({ onNavigate }: ProfilePageProps) {
-  const [userProfile, setUserProfile] = useState<UserProfile>();
-  // useEffect(() => {
-  //   axios.get('idk') //! TODO
-  //     .then(response => setUserProfile(response.data))
-  //     .catch(error => console.error('Error fetching profile data:', error));
-  // }, []);
-
-  //mock user for testing
-	const mock_profile: UserProfile = {
-	  username: "باقر شمس",
-	  bio: "دوستدار طبیعت",
-	  avatar:
-		"https://preview.redd.it/z4t51ibk1is61.png?auto=webp&s=7a5d0dad617ed52dfe29a65b742bdc39c49b94b7",
-	  info: "انسانیت بساز، نه انسان. تولید مثل را هر حیوانی بلد است.",
-	  phoneNo: "09123456789",
-	  email: "shamsollah@bagher.com",
-	  studentId: "111111111"
-	};
+	const username = "باقر-شمس"; //! temporary
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setUserProfile(mock_profile);
-  });
+    const loadProfile = async () => {
+      try {
+        setLoading(true);
+        const data = await getUserProfile(username);
+        setUserProfile(data);
+      } catch (err: any) {
+        setError("Failed to load profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [username]);
+
+//   //mock user for testing
+// 	const mock_profile: UserProfile = {
+// 	  username: userProfile ? userProfile.username : "NOT FOUND",
+// 	  profilePicture:
+// 		"https://preview.redd.it/z4t51ibk1is61.png?auto=webp&s=7a5d0dad617ed52dfe29a65b742bdc39c49b94b7",
+// 	  bio: "انسانیت بساز، نه انسان. تولید مثل را هر حیوانی بلد است.",
+// 	  phoneNumber: "09123456789",
+// 	  email: "shamsollah@bagher.com",
+// 	  studentId: "402442252"
+// 	};
+
+//   useEffect(() => {
+//     setUserProfile(mock_profile);
+//   });
 
   if (!userProfile) return <div>Loading...</div>;
 
@@ -44,8 +57,8 @@ export function ProfilePage({ onNavigate }: ProfilePageProps) {
             <h1 className="mb-1" style={{ color: "#16519F" }}>
               {userProfile.username}
             </h1>
-            <p className="text-gray-600 mb-3">{userProfile.bio}</p>
-            <p className="text-gray-500 mb-4 max-w-2xl">{userProfile.info}</p>
+            <p className="text-gray-600 mb-3">{userProfile.studentId}</p>
+            <p className="text-gray-500 mb-4 max-w-2xl">{userProfile.bio}</p>
             <Button
               variant="outline"
               onClick={() => onNavigate("edit-profile")}
@@ -60,8 +73,8 @@ export function ProfilePage({ onNavigate }: ProfilePageProps) {
           <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-white shadow-lg">
             <AvatarImage
               src={
-                userProfile.avatar
-                  ? userProfile.avatar
+                userProfile.profilePicture
+                  ? userProfile.profilePicture
                   : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9kayreViIUlp8-GZFDlXdNHQc7Ckc8PpM0w&s"
               }
               alt="Profile"

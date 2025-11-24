@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getUserProfile, updateUserProfile, UserProfile } from "../services/userProfileService";
+import { updateUserProfile, getUserProfile, UserProfile } from "../services/userProfileService";
 import { Avatar, Card, CardContent } from '../components/UILib';
 import { Button } from '../components/UILib';
 import { Input } from '../components/UILib';
@@ -12,48 +12,74 @@ interface EditProfilePageProps {
 }
 
 export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
-	const userId = "123" //! change to useAuth()
-  const [userProfile, setUserProfile] = useState<UserProfile>();
-  const [form, setForm] = useState({ // default values for testing
-    username: "باقر شمس",
-    bio: "دوستدار طبیعت",
-    avatar:
-      "https://preview.redd.it/z4t51ibk1is61.png?auto=webp&s=7a5d0dad617ed52dfe29a65b742bdc39c49b94b7",
-    info: "انسانیت بساز، نه انسان. تولید مثل را هر حیوانی بلد است.",
-    phoneNo: "09123456789",
-    email: "shamsollah@bagher.com"
+	const username = "باقر-شمس";
+const [form, setForm] = useState({
+    username: "",
+    email: "",
+    studentId: "",
+    bio: "",
+    avatar: "",
+    mobile: ""
   });
 
+  const [loading, setLoading] = useState(false);
 
+  // ⬇ Load profile data when the component mounts
   useEffect(() => {
-    getUserProfile().then((u) => {
-      setUserProfile(u);
-      setForm({
-        username: u.username ?? "",
-        email: u.email ?? "",
-        info: u.info ?? "",
-        bio: u.bio ?? "",
-		avatar: u.avatar ?? "",
-		phoneNo: u.phoneNo ?? "",
-      });
-    });
-  }, [userId]);
+    const loadProfile = async () => {
+      try {
+        const data = await getUserProfile(username);   // GET from backend
+        setForm({
+          username: data.username,
+          email: data.email ?? "undefined",
+          studentId: data.studentId ?? "undefined",
+          bio: data.bio ?? "",
+          avatar: data.profilePicture ?? "https://preview.redd.it/fat-yoshi-in-hd-v0-aq4ls5wi0x0c1.png?width=530&format=png&auto=webp&s=c963b0791b77fc1e97318778adab1458ff773f80",
+          mobile: data.phoneNumber ?? "undefined"
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-  if (!userProfile) return <div>Loading...</div>;
+    loadProfile();
+  }, []);
+
+    const handleSave = async () => {
+    setLoading(true);
+    try {
+      await updateUserProfile(form);          // PUT request
+      alert("تغییرات ذخیره شد");
+    } catch (err) {
+      console.error(err);
+      alert("خطا در ذخیره تغییرات");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+//   useEffect(() => {
+//     getUserProfile().then((u) => {
+//       setUserProfile(u);
+//       setForm({
+//         username: u.username ?? "",
+//         email: u.email ?? "",
+//         studentId: u.studentId ?? "",
+//         bio: u.bio ?? "",
+// 		avatar: u.avatar ?? "",
+// 		phoneNo: u.phoneNo ?? "",
+//       });
+//     });
+//   }, [userId]);
+
+//   if (!userProfile) return <div>Loading...</div>;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNavigate('profile');
   };
 
-    const handleChange = (key: keyof typeof form, value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSave = async () => {
-    const saved = await updateUserProfile(form);
-    setUserProfile(saved);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 lg:pb-8">
@@ -109,7 +135,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                     <Input
                       id="username"
                       type="text"
-                      value={form.username?.toString()}
+                      value={form.username}
                       onChange={(e) => setForm({ ...form, username: e.target.value })}
                       placeholder="نام کاربری خود را وارد کنید"
                       className="mt-1.5 rounded-xl text-right"
@@ -132,7 +158,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                     <Label htmlFor="bio" className="text-right block">بیوگرافی</Label>
                     <Textarea
                       id="bio"
-                      value={form.bio?.toString()}
+                      value={form.bio}
                       onChange={(e) => setForm({ ...form, bio: e.target.value })}
                       placeholder="درباره خودتان بگویید"
                       className="mt-1.5 min-h-[80px] rounded-xl text-right"
@@ -156,8 +182,8 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                     <Input
                       id="phoneNo"
                       type="tel"
-                      value={form.phoneNo?.toString()}
-                      onChange={(e) => setForm({ ...form, phoneNo: e.target.value })}
+                      value={form.mobile}
+                      onChange={(e) => setForm({ ...form, mobile: e.target.value })}
                       placeholder="شماره تلفن خود را وارد کنید"
                       className="mt-1.5 rounded-xl text-right"
                     />
@@ -180,7 +206,7 @@ export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
                     <Input
                       id="email"
                       type="email"
-                      value={form.email?.toString()}
+                      value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
                       placeholder="ایمیل خود را وارد کنید"
                       className="mt-1.5 rounded-xl text-right"
