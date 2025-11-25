@@ -9,13 +9,18 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db.models import Q
+from datetime import timedelta
+import os
 import logging
+
 
 from .models import User
 from .serializers import UserSerializer, SignUpSerializer, LoginSerializer, ResendVerificationSerializer
 
 logger = logging.getLogger(__name__)
 
+MAX_PROFILE_PICTURE_SIZE = 1024 * 1024
 
 # ════════════════════════════════════════════════════════════
 # Tokens

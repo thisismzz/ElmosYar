@@ -14,8 +14,7 @@ curl -X POST http://89.106.206.119:8000/api/signup/ \
   -d '{
     "username": "johndoe",
     "email": "john@example.com",
-    "password": "securepassword123",
-    "password2": "securepassword123"
+    "password": "securepassword123"
   }'
 ```
 
