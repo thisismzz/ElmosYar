@@ -10,6 +10,7 @@ from django.db import transaction
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+from django.contrib.auth.hashers import make_password
 from datetime import timedelta
 import os
 import logging
@@ -150,7 +151,7 @@ def verify_email(request, token):
     """Verify user email"""
     try:
         with transaction.atomic():
-            user = get_object_or_404(User, email_verification_token=token)
+            user = get_object_or_404(User, email_verification_token=make_password(token))
             
             if user.is_email_verified:
                 return Response({
@@ -341,7 +342,7 @@ def reset_password(request, token):
     """Reset password with token"""
     try:
         with transaction.atomic():
-            user = get_object_or_404(User, password_reset_token=token)
+            user = get_object_or_404(User, password_reset_token=make_password(token))
 
             if not user.is_password_reset_token_valid():
                 return Response({
@@ -350,6 +351,14 @@ def reset_password(request, token):
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             password = request.data.get('password', '')
+
+            if not all([password]):
+                return Response({
+                    'success': False,
+                    'message': 'Password is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            """
             password_confirm = request.data.get('password_confirm', '')
 
             if not all([password, password_confirm]):
@@ -369,6 +378,7 @@ def reset_password(request, token):
                     'success': False,
                     'message': 'Password must be at least 8 characters'
                 }, status=status.HTTP_400_BAD_REQUEST)
+            """
 
             user.set_password(password)
             user.password_reset_token = None

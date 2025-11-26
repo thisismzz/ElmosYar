@@ -30,7 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id', 'username', 'email', 'first_name', 'last_name', 
             'profile_picture', 'bio', 'student_id', 'is_email_verified',
             'followers_count', 'following_count', 'posts_count',
-            'is_following', 'is_me', 'created_at'
+            'is_following', 'is_me', 'created_at', 'info', 'phone_number'
         ]
         extra_kwargs = {
             'email': {'required': True},
@@ -50,6 +50,13 @@ class UserSerializer(serializers.ModelSerializer):
             return request.user.id == obj.id
         return False
 
+    def validate_username(self, value):
+        if self.instance and self.instance.username == value:
+            return value            
+        if User.objects.filter(username=value).exists():
+            raise serializers.ValidationError('A user with that username already exists.')
+        return value
+
 class SignUpSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, min_length=8)
     #password2 = serializers.CharField(write_only=True, required=True)
@@ -64,10 +71,12 @@ class SignUpSerializer(serializers.ModelSerializer):
         return value
     
     def validate_password(self, value):
+        """
         try:
             validate_password(value)
         except ValidationError as e:
             raise serializers.ValidationError(e.messages)
+        """
         return value
             
     def validate(self, attrs):

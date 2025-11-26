@@ -6,10 +6,10 @@ import uuid
 import os
 from datetime import timedelta
 from django.utils import timezone
+from django.contrib.auth.hashers import make_password
 
 
 class User(AbstractUser):
-
     email = models.EmailField(unique=True)
     student_id = models.CharField(max_length=20, blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True, null=True)
@@ -23,6 +23,9 @@ class User(AbstractUser):
     password_reset_sent_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    info = models.CharField(max_length=255, blank=True, null=True, verbose_name='info')
+    phone_number = models.CharField(max_length=15, blank=True, null=True, verbose_name='phone_number')
 
     followers = models.ManyToManyField(
         'self', 
@@ -41,25 +44,27 @@ class User(AbstractUser):
         return self.username
 
     def generate_email_verification_token(self):
-        """تولید توکن برای تأیید ایمیل"""
-        self.email_verification_token = str(uuid.uuid4())
+        """تولید توکن برای تأیید ایمیل و هش کردن آن"""
+        token = str(uuid.uuid4())
+        self.email_verification_token = make_password(token)
         self.email_verification_sent_at = timezone.now()
         self.save()
-        return self.email_verification_token
+        return token
 
     def generate_password_reset_token(self):
-        """تولید توکن برای ریست پسورد"""
-        self.password_reset_token = str(uuid.uuid4())
+        """تولید توکن برای ریست پسورد و هش کردن آن"""
+        token = str(uuid.uuid4())
+        self.password_reset_token = make_password(token)
         self.password_reset_sent_at = timezone.now()
         self.save()
-        return self.password_reset_token
+        return token
 
     def verify_email(self):
-        """تأیید ایمیل کاربر"""
         self.is_email_verified = True
         self.email_verification_token = None
         self.email_verification_sent_at = None
         self.save()
+        return True
 
     def is_password_reset_token_valid(self):
         """بررسی معتبر بودن توکن ریست پسورد"""
@@ -67,11 +72,11 @@ class User(AbstractUser):
             return False
         return timezone.now() - self.password_reset_sent_at <= timedelta(hours=1)
 
-    def is_email_verification_token_valid(self):
+    def is_email_verification_token_valid(self, token):
         """بررسی معتبر بودن توکن تأیید ایمیل"""
         if not self.email_verification_sent_at:
-            return False
-        return timezone.now() - self.email_verification_sent_at <= timedelta(hours=24)
+            return False            
+        return timezone.now() - self.email_verification_sent_at <= timedelta(hours=1)
 
     def follow(self, user):
         """فالو کردن کاربر دیگر"""

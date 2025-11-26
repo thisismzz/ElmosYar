@@ -237,6 +237,8 @@ curl -X GET http://89.106.206.119:8000/api/profile/ \
     "last_name": "Doe",
     "profile_picture": "/media/profiles/john.jpg",
     "bio": "Software developer and tech enthusiast",
+    "info": "student",
+    "phone_number" : "29385930",
     "student_id": "12345",
     "is_email_verified": true,
     "followers_count": 15,
@@ -283,10 +285,13 @@ curl -X PUT http://89.106.206.119:8000/api/profile/update/ \
   -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
   -H "Content-Type: application/json" \
   -d '{
-    "first_name": "John",
-    "last_name": "Smith",
+    "username": "janedoe",
+    "first_name": "Jane",
+    "last_name": "Doe",
     "bio": "Senior software engineer at Tech Corp",
-    "student_id": "12345"
+    "student_id": "12345",
+    "info": "student",
+    "phone_number" : "29385930"
   }'
 ```
 
