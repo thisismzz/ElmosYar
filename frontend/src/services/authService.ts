@@ -81,13 +81,12 @@ export const removeTokens = (): void => {
 };
 
 // Auth functions
-export const login = async (credentials: { username: string; password: string; rememberMe: boolean }) => {
-  const response = await api.post('/accounts/login/', credentials);
+export const login = async (credentials: { username_or_email: string; password: string; rememberMe: boolean }) => {
+  const response = await api.post('/login/', credentials);
   
-  // UPDATED: Access tokens directly from data (not data.data)
-  if (response.data.error === false && response.data.data) {
-    setToken(response.data.data.access);
-    setRefreshToken(response.data.data.refresh);
+  if (response.data.success === true && response.data.tokens) {
+    setToken(response.data.tokens.access);
+    setRefreshToken(response.data.tokens.refresh);
   }
   
   return response.data;
@@ -98,9 +97,8 @@ export const register = async (userData: {
   username: string; 
   password: string; 
 }) => {
-  const response = await api.post('/accounts/signup/', userData);
+  const response = await api.post('/signup/', userData);
   
-  // UPDATED: Access tokens directly from data (not data.data)
   if (response.data.error === false && response.data.data) {
     setToken(response.data.data.access);
     setRefreshToken(response.data.data.refresh);
@@ -117,7 +115,7 @@ export const refreshToken = async (): Promise<string | null> => {
       throw new Error('No refresh token available');
     }
 
-    const response = await api.post('/accounts/token/refresh/', {
+    const response = await api.post('/token/refresh/', {
       refresh,
     });
 
@@ -139,12 +137,11 @@ export const logout = async (): Promise<void> => {
   const refreshTokenValue = getRefreshToken();
   if (refreshTokenValue) {
     try {
-      await api.post('/accounts/logout/', {
+      await api.post('/logout/', {
         refresh: refreshTokenValue,
       });
     } catch (error) {
       console.error('Logout error:', error);
-      // Continue with client-side logout even if server logout fails
     }
   }
   removeTokens();
@@ -155,7 +152,6 @@ export const isAuthenticated = (): boolean => {
   const token = getToken();
   if (!token) return false;
 
-  // Check if token is expired
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     return payload.exp * 1000 > Date.now();

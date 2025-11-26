@@ -1,129 +1,164 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   User, 
   PenSquare,
   Phone, 
-  MessageCircle,
   LogOut,
   Utensils,
   Star,
   MessageSquare
-  
 } from 'lucide-react';
 import './SideBars.css';
 import { logout } from '../../services/authService';
+import { useNavigate, useLocation } from 'react-router-dom';
 
+// Types
 interface SideBarProps {
   isOpen?: boolean;
-  onClose?: () => void;
-  onNewPost?: () => void;
-  onProfile?: () => void;
-  onContact?: () => void;
-  onLogout?: () => void;
 }
 
 interface NavItem {
   id: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  action?: () => void;
+  path?: string;
 }
 
-export const RightSideBar: React.FC<SideBarProps> = ({
-  isOpen = true,
-  onClose,
-  onNewPost,
-  onProfile,
-  onContact,
-  onLogout
-}) => {
-  const [activeNav, setActiveNav] = useState<string>('');
+// Common hook for active navigation
+const useActiveNav = (items: NavItem[], currentPath: string) => {
+  return useMemo(() => {
+    const exactMatch = items.find(item => item.path === currentPath);
+    if (exactMatch) return exactMatch.id;
 
+    const partialMatch = items.find(item => 
+      item.path && currentPath.startsWith(item.path)
+    );
+    return partialMatch?.id || '';
+  }, [currentPath, items]);
+};
+
+// Common sidebar header component
+const SidebarHeader: React.FC<{ title: string; subtitle: string }> = ({ 
+  title, 
+  subtitle 
+}) => (
+  <div className="sidebar-header">
+    <div className="sidebar-header-content">
+      <h2 className="sidebar-title">{title}</h2>
+      <p className="sidebar-subtitle">{subtitle}</p>
+    </div>
+    <div className="sidebar-header-decoration">
+      <div className="decoration-line"></div>
+    </div>
+  </div>
+);
+
+// Navigation item component
+interface NavItemProps {
+  item: NavItem;
+  isActive: boolean;
+  onClick: (item: NavItem) => void;
+  showDivider?: boolean;
+  activeIndicatorClass?: string;
+  itemClass?: string;
+}
+
+const NavItemComponent: React.FC<NavItemProps> = ({
+  item,
+  isActive,
+  onClick,
+  showDivider = false,
+  activeIndicatorClass = "nav-active-indicator",
+  itemClass = "nav-item"
+}) => {
+  const Icon = item.icon;
+  
+  return (
+    <div className="nav-item-wrapper">
+      <button
+        onClick={() => onClick(item)}
+        className={`${itemClass} ${isActive ? `${itemClass}-active` : ''}`}
+      >
+        {isActive && <div className={activeIndicatorClass} />}
+        <span className="nav-label">{item.label}</span>
+        <Icon className="nav-icon" />
+      </button>
+      {showDivider && <div className="nav-divider" />}
+    </div>
+  );
+};
+
+// Right Sidebar Component
+export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = true }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [activeNav, setActiveNav] = useState<string>('');
+  
   const navItems: NavItem[] = [
     {
       id: 'new-post',
       label: 'پست جدید',
       icon: PenSquare,
-      action: onNewPost
+      path: '/create-post'
     },
     {
       id: 'profile',
       label: 'پروفایل',
       icon: User,
-      action: onProfile
+      path: '/profile'
     },
     {
       id: 'contact',
       label: 'تماس و راهنما',
       icon: Phone,
-      action: onContact
+      path: '/contact'
     }
   ];
 
+  const computedActiveNav = useActiveNav(navItems, location.pathname);
+
+  useEffect(() => {
+    setActiveNav(computedActiveNav);
+  }, [computedActiveNav]);
+
   const handleNavClick = (item: NavItem) => {
     setActiveNav(item.id);
-    if (item.action) {
-      item.action();
-    }
+    if (item.path) navigate(item.path);
   };
 
   const handleLogout = () => {
     setActiveNav('logout');
-    logout()
+    logout();
   };
 
   if (!isOpen) return null;
 
   return (
     <aside className="sidebar">
-      {/* Panel Container with rounded corners and structure */}
       <div className="sidebar-panel">
-        {/* Section Header - Updated to match the image */}
-        <div className="sidebar-header">
-          <div className="sidebar-header-content">
-            <h2 className="sidebar-title">منوی اصلی</h2>
-            <p className="sidebar-subtitle">دسترسی سريع</p>
-          </div>
-          <div className="sidebar-header-decoration">
-            <div className="decoration-line"></div>
-          </div>
-        </div>
+        <SidebarHeader 
+          title="منوی اصلی" 
+          subtitle="دسترسی سريع" 
+        />
         
-        {/* Navigation Items */}
         <nav className="sidebar-nav">
-          {navItems.map((item, index) => {
-            const Icon = item.icon;
-            const isActive = activeNav === item.id;
-            
-            return (
-              <div key={item.id} className="nav-item-wrapper">
-                <button
-                  onClick={() => handleNavClick(item)}
-                  className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
-                >
-                  {isActive && (
-                    <div className="nav-active-indicator"></div>
-                  )}
-                  <span className="nav-label">{item.label}</span>
-                  <Icon className="nav-icon" />
-                </button>
-                {index < navItems.length - 1 && (
-                  <div className="nav-divider"></div>
-                )}
-              </div>
-            );
-          })}
+          {navItems.map((item, index) => (
+            <NavItemComponent
+              key={item.id}
+              item={item}
+              isActive={activeNav === item.id}
+              onClick={handleNavClick}
+              showDivider={index < navItems.length - 1}
+            />
+          ))}
         </nav>
 
-        {/* Logout Section at Bottom */}
         <div className="sidebar-footer">
           <button
             onClick={handleLogout}
             className={`nav-item ${activeNav === 'logout' ? 'nav-item-active' : 'nav-item-logout'}`}
           >
-            {activeNav === 'logout' && (
-              <div className="nav-active-indicator"></div>
-            )}
+            {activeNav === 'logout' && <div className="nav-active-indicator" />}
             <span className="nav-label">خروج</span>
             <LogOut className="nav-icon" />
           </button>
@@ -133,105 +168,76 @@ export const RightSideBar: React.FC<SideBarProps> = ({
   );
 };
 
-
-
-
-
+// Left Sidebar Component
 interface LeftSidebarProps {
   isOpen?: boolean;
-  onClose?: () => void;
   onTopicSelect?: (topic: string) => void;
 }
 
-interface TopicItem {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-export const LeftSidebar: React.FC<LeftSidebarProps> = ({
-  isOpen = true,
-  onClose,
-  onTopicSelect
+export const LeftSidebar: React.FC<LeftSidebarProps> = ({ 
+  isOpen = true 
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [activeTopic, setActiveTopic] = useState<string>('');
-  const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set(['1']));
 
-  const topics: TopicItem[] = [
+  const topics: NavItem[] = [
     {
       id: '1',
       label: 'تبادل غذا',
-      icon: Utensils
+      icon: Utensils,
+      path: '/topic/food'
     },
     {
       id: '2',
       label: 'نظرات استادان',
-      icon: Star
+      icon: Star,
+      path: '/topic/professors'
     },
     {
       id: '3',
       label: 'بحث و گفتگو',
-      icon: MessageSquare
+      icon: MessageSquare,
+      path: '/topic/discussion'
     }
   ];
 
-  const handleTopicClick = (topic: TopicItem) => {
-    setActiveTopic(topic.id);
-    if (onTopicSelect) {
-      onTopicSelect(topic.label);
-    }
-  };
+  const computedActiveTopic = useActiveNav(topics, location.pathname);
 
-  const toggleTopicExpansion = (topicId: string) => {
-    const newExpanded = new Set(expandedTopics);
-    if (newExpanded.has(topicId)) {
-      newExpanded.delete(topicId);
-    } else {
-      newExpanded.add(topicId);
-    }
-    setExpandedTopics(newExpanded);
+  useEffect(() => {
+    setActiveTopic(computedActiveTopic);
+  }, [computedActiveTopic]);
+
+  const handleTopicClick = (topic: NavItem) => {
+    setActiveTopic(topic.id);
+    if (topic.path) navigate(topic.path);
   };
 
   if (!isOpen) return null;
 
   return (
     <aside className="left-sidebar">
-      {/* Panel Container with rounded corners and structure */}
       <div className="left-sidebar-panel">
-        {/* Section Header - Matching the design */}
-        <div className="sidebar-header">
-          <div className="sidebar-header-content">
-            <h2 className="sidebar-title">دسته‌بندی‌ها</h2>
-            <p className="sidebar-subtitle">انتخاب موضوع مورد نظر</p>
-          </div>
-          <div className="sidebar-header-decoration">
-            <div className="decoration-line"></div>
-          </div>
-        </div>
+        <SidebarHeader 
+          title="دسته‌بندی‌ها" 
+          subtitle="انتخاب موضوع مورد نظر" 
+        />
         
-        {/* Topics List */}
-        <nav className="sidbar-nav">
-          {topics.map((topic) => {
-            const IconComponent = topic.icon;
-            return (
-              <div key={topic.id} className="topic-item-wrapper">
-                <div className="topic-main-item">
-                  <button
-                    onClick={() => handleTopicClick(topic)}
-                    className={`topic-item ${activeTopic === topic.id ? 'topic-item-active' : ''}`}
-                  >
-                    {activeTopic === topic.id && (
-                      <div className="topic-active-indicator"></div>
-                    )}
-                    <span className="nav-label">{topic.label}</span>
-                    <IconComponent className="nav-icon" />
-                  </button>
-                </div>
-
-                <div className="topic-divider"></div>
+        <nav className="sidebar-nav">
+          {topics.map((topic) => (
+            <div key={topic.id} className="topic-item-wrapper">
+              <div className="topic-main-item">
+                <NavItemComponent
+                  item={topic}
+                  isActive={activeTopic === topic.id}
+                  onClick={handleTopicClick}
+                  activeIndicatorClass="topic-active-indicator"
+                  itemClass="topic-item"
+                />
               </div>
-            );
-          })}
+              <div className="topic-divider" />
+            </div>
+          ))}
         </nav>
       </div>
     </aside>

@@ -280,7 +280,7 @@ const RegisterPage: React.FC = () => {
     try {
       setApiError(null);
       await login({
-        username: data.username,
+        username_or_email: data.username,
         password: data.password,
         rememberMe: data.rememberMe
       });
@@ -300,15 +300,15 @@ const RegisterPage: React.FC = () => {
       setApiError(null);
       setSignUpApiErrors({});
       const { repeatPassword, ...signUpData } = data;
-      await authRegister(signUpData);
+      await authRegister({"password":signUpData.password, "email": signUpData.email, "username": signUpData.username});
       navigate("/"); // to be changed to Edit profile page
     } catch (error: any) {
       console.log("Signup error:", error);
       
       const fieldErrors: { [key: string]: string } = {};
       
-      if (error.response?.data?.details) {
-        const details = error.response.data.details;
+      if (error.response?.data?.errors) {
+        const details = error.response.data.errors;
         if (Array.isArray(details)) {
           details.forEach((detail: any) => {
             if (detail.field) {
