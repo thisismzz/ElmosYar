@@ -164,49 +164,80 @@ def post_comment(request, post_id):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def like_comment(request, comment_id):
-    """Like/unlike a comment"""
+def _handle_comment_reaction(request, comment_id, reaction_type):
+    """Helper function to handle comment reactions (like/dislike)"""
     try:
         with transaction.atomic():
             comment = get_object_or_404(Comment, id=comment_id)
             
             if comment.user == request.user:
-                return Response({
+                return {
                     'success': False,
-                    'message': 'You cannot like your own comment'
-                }, status=status.HTTP_400_BAD_REQUEST)
+                    'message': f'You cannot {reaction_type} your own comment'
+                }, status.HTTP_400_BAD_REQUEST
             
-            if comment.likes.filter(id=request.user.id).exists():
-                comment.likes.remove(request.user)
-                action = 'unliked'
+            # Determine which field to work with
+            target_field = comment.likes if reaction_type == 'like' else comment.dislikes
+            opposite_field = comment.dislikes if reaction_type == 'like' else comment.likes
+            
+            # Check if user already has this reaction
+            if target_field.filter(id=request.user.id).exists():
+                # Remove reaction
+                target_field.remove(request.user)
+                action = f'un{reaction_type}d'
             else:
-                comment.likes.add(request.user)
-                action = 'liked'
+                # Remove opposite reaction if exists
+                opposite_field.remove(request.user)
+                # Add new reaction
+                target_field.add(request.user)
+                action = f'{reaction_type}d'
                 
                 # Create notification
                 if comment.user != request.user:
+                    notif_type = 'like_comment' if reaction_type == 'like' else 'dislike_comment'
                     Notification.objects.create(
                         recipient=comment.user,
                         sender=request.user,
-                        notif_type='like_comment',
+                        notif_type=notif_type,
                         comment=comment,
-                        message=f'{request.user.username} liked your comment'
+                        message=f'{request.user.username} {reaction_type}d your comment'
                     )
             
-            return Response({
+            # Get updated counts
+            likes_count = comment.likes.count()
+            dislikes_count = comment.dislikes.count()
+            
+            return {
                 'success': True,
-                'message': f'Comment {action}',
-                'likes_count': comment.likes.count(),
-                'is_liked': comment.likes.filter(id=request.user.id).exists()
-            }, status=status.HTTP_200_OK)
+                'message': action.capitalize(),
+                'likes_count': likes_count,
+                'dislikes_count': dislikes_count,
+                'is_liked': comment.likes.filter(id=request.user.id).exists(),
+                'is_disliked': comment.dislikes.filter(id=request.user.id).exists()
+            }, status.HTTP_200_OK
+            
     except Exception as e:
-        logger.error(f"Comment like failed: {str(e)}")
-        return Response({
+        logger.error(f"Comment reaction handling failed: {str(e)}")
+        return {
             'success': False,
-            'message': 'Failed to like comment'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            'message': 'Reaction operation failed'
+        }, status.HTTP_500_INTERNAL_SERVER_ERROR
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_comment(request, comment_id):
+    """Like/unlike a comment"""
+    result, status_code = _handle_comment_reaction(request, comment_id, 'like')
+    return Response(result, status=status_code)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def dislike_comment(request, comment_id):
+    """Dislike/remove dislike from a comment"""
+    result, status_code = _handle_comment_reaction(request, comment_id, 'dislike')
+    return Response(result, status=status_code)
 
 
 @api_view(['DELETE'])

@@ -31,8 +31,8 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
     
-    # فیچر جدید: سیستم لایک برای کامنت‌ها
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='liked_comments', blank=True)
+    dislikes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='disliked_comments', blank=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -44,6 +44,10 @@ class Comment(models.Model):
     @property
     def likes_count(self):
         return self.likes.count()
+
+    @property
+    def dislikes_count(self):
+        return self.dislikes.count()
 
     @property
     def replies_count(self):

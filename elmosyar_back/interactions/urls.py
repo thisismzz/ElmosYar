@@ -11,6 +11,7 @@ urlpatterns = [
     
     # Comment actions
     path('comments/<int:comment_id>/like/', views.like_comment, name='like_comment'),
+    path('comments/<int:comment_id>/dislike/', views.dislike_comment, name='dislike_comment'),
     path('comments/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
     path('comments/<int:comment_id>/update/', views.update_comment, name='update_comment'),
 ]
