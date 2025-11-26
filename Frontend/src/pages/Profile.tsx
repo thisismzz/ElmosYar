@@ -3,54 +3,38 @@ import { Button } from "../components/UILib";
 import { Card, CardContent } from "../components/UILib";
 import { Wallet, HelpCircle, Edit, ChevronLeft } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { getUserProfile, UserProfile } from "../services/userProfileService";
+import { getCurrentUserProfile, UserProfile } from "../services/userProfileService";
+import { useNavigate } from "react-router-dom";
 
-interface ProfilePageProps {
-  onNavigate: (page: "profile" | "wallet" | "edit-profile") => void;
-}
-
-export function ProfilePage({ onNavigate }: ProfilePageProps) {
-	const username = "باقر-شمس"; //! temporary
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+export function ProfilePage() {
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
         setLoading(true);
-        const data = await getUserProfile(username);
+        const data = await getCurrentUserProfile();
         setUserProfile(data);
       } catch (err: any) {
         setError("Failed to load profile");
+        console.error("Profile loading error:", err);
       } finally {
         setLoading(false);
       }
     };
 
     loadProfile();
-  }, [username]);
+  }, []);
 
-//   //mock user for testing
-// 	const mock_profile: UserProfile = {
-// 	  username: userProfile ? userProfile.username : "NOT FOUND",
-// 	  profilePicture:
-// 		"https://preview.redd.it/z4t51ibk1is61.png?auto=webp&s=7a5d0dad617ed52dfe29a65b742bdc39c49b94b7",
-// 	  bio: "انسانیت بساز، نه انسان. تولید مثل را هر حیوانی بلد است.",
-// 	  phoneNumber: "09123456789",
-// 	  email: "shamsollah@bagher.com",
-// 	  studentId: "402442252"
-// 	};
-
-//   useEffect(() => {
-//     setUserProfile(mock_profile);
-//   });
-
-  if (!userProfile) return <div>Loading...</div>;
+  if (loading) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  if (error) return <div className="flex justify-center items-center min-h-screen text-red-500">{error}</div>;
+  if (!userProfile) return <div className="flex justify-center items-center min-h-screen">No profile data found</div>;
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
           <div className="flex-1 text-center md:text-right">
@@ -59,9 +43,32 @@ export function ProfilePage({ onNavigate }: ProfilePageProps) {
             </h1>
             <p className="text-gray-600 mb-3">{userProfile.studentId}</p>
             <p className="text-gray-500 mb-4 max-w-2xl">{userProfile.bio}</p>
+            
+            {/* Display user stats */}
+            <div className="flex justify-center md:justify-end gap-6 mb-4">
+              <div className="text-center">
+                <div className="font-bold text-lg" style={{ color: "#16519F" }}>
+                  {userProfile.followersCount}
+                </div>
+                <div className="text-sm text-gray-500">دنبال‌کننده</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-lg" style={{ color: "#16519F" }}>
+                  {userProfile.followingCount}
+                </div>
+                <div className="text-sm text-gray-500">دنبال‌شونده</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-lg" style={{ color: "#16519F" }}>
+                  {userProfile.postsCount}
+                </div>
+                <div className="text-sm text-gray-500">پست</div>
+              </div>
+            </div>
+
             <Button
               variant="outline"
-              onClick={() => onNavigate("edit-profile")}
+              onClick={() => navigate("/profile/edit")}
               className="gap-2 rounded-xl border-2 hover:bg-red-50"
               style={{ borderColor: "#F07E74", color: "#F07E74" }}
             >
@@ -79,14 +86,16 @@ export function ProfilePage({ onNavigate }: ProfilePageProps) {
               }
               alt="Profile"
             />
-            <AvatarFallback>Profile</AvatarFallback>
+            <AvatarFallback>
+              {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
+            </AvatarFallback>
           </Avatar>
         </div>
 
         <div className="space-y-4">
           <Card
             className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md"
-            onClick={() => onNavigate("wallet")}
+            onClick={() => navigate("/profile/wallet")}
           >
             <CardContent className="flex items-center justify-between p-6 flex-row-reverse">
               <div className="flex items-center gap-4 flex-row-reverse">

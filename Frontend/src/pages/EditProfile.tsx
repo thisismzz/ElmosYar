@@ -1,85 +1,122 @@
 import { useState, useEffect } from 'react';
-import { updateUserProfile, getUserProfile, UserProfile } from "../services/userProfileService";
+import { 
+  updateUserProfile, 
+  getCurrentUserProfile, 
+  UserProfile,
+  updateProfilePicture,
+  deleteProfilePicture 
+} from "../services/userProfileService";
 import { Avatar, Card, CardContent } from '../components/UILib';
 import { Button } from '../components/UILib';
 import { Input } from '../components/UILib';
 import { Label } from '../components/UILib';
 import { Textarea } from '../components/UILib';
-import { ArrowLeft, User, Lock, Phone, Mail, Camera, FileText } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, Camera, FileText, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface EditProfilePageProps {
-  onNavigate: (page: 'profile' | 'wallet' | 'edit-profile') => void;
-}
-
-export function EditProfilePage({ onNavigate }: EditProfilePageProps) {
-	const username = "باقر-شمس";
-const [form, setForm] = useState({
-    username: "",
-    email: "",
+export function EditProfilePage() {
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
     studentId: "",
     bio: "",
-    avatar: "",
-    mobile: ""
   });
 
+  const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // ⬇ Load profile data when the component mounts
+  // Load profile data when the component mounts
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const data = await getUserProfile(username);   // GET from backend
+        const data = await getCurrentUserProfile();
         setForm({
-          username: data.username,
-          email: data.email ?? "undefined",
-          studentId: data.studentId ?? "undefined",
-          bio: data.bio ?? "",
-          avatar: data.profilePicture ?? "https://preview.redd.it/fat-yoshi-in-hd-v0-aq4ls5wi0x0c1.png?width=530&format=png&auto=webp&s=c963b0791b77fc1e97318778adab1458ff773f80",
-          mobile: data.phoneNumber ?? "undefined"
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          studentId: data.studentId || "",
+          bio: data.bio || "",
         });
+        setProfilePicture(data.profilePicture);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load profile:", err);
+        alert("خطا در بارگذاری پروفایل");
       }
     };
 
     loadProfile();
   }, []);
 
-    const handleSave = async () => {
+  const handleSave = async () => {
     setLoading(true);
     try {
-      await updateUserProfile(form);          // PUT request
+      await updateUserProfile(form);
       alert("تغییرات ذخیره شد");
+      navigate('/profile');
     } catch (err) {
-      console.error(err);
+      console.error("Update error:", err);
       alert("خطا در ذخیره تغییرات");
     } finally {
       setLoading(false);
     }
   };
 
-
-//   useEffect(() => {
-//     getUserProfile().then((u) => {
-//       setUserProfile(u);
-//       setForm({
-//         username: u.username ?? "",
-//         email: u.email ?? "",
-//         studentId: u.studentId ?? "",
-//         bio: u.bio ?? "",
-// 		avatar: u.avatar ?? "",
-// 		phoneNo: u.phoneNo ?? "",
-//       });
-//     });
-//   }, [userId]);
-
-//   if (!userProfile) return <div>Loading...</div>;
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onNavigate('profile');
+    handleSave();
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('لطفاً یک فایل تصویر انتخاب کنید');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('حجم فایل باید کمتر از ۵ مگابایت باشد');
+      return;
+    }
+
+    setImageLoading(true);
+    try {
+      const response = await updateProfilePicture(file);
+      setProfilePicture(response.profilePicture);
+      alert("عکس پروفایل با موفقیت بروزرسانی شد");
+    } catch (err) {
+      console.error("Image upload error:", err);
+      alert("خطا در آپلود عکس");
+    } finally {
+      setImageLoading(false);
+      // Clear the file input
+      e.target.value = '';
+    }
+  };
+
+  const handleDeleteImage = async () => {
+    if (!profilePicture) return;
+
+    if (!window.confirm('آیا از حذف عکس پروفایل مطمئن هستید؟')) {
+      return;
+    }
+
+    setImageLoading(true);
+    try {
+      await deleteProfilePicture();
+      setProfilePicture(null);
+      alert("عکس پروفایل با موفقیت حذف شد");
+    } catch (err) {
+      console.error("Image delete error:", err);
+      alert("خطا در حذف عکس");
+    } finally {
+      setImageLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 lg:pb-8">
@@ -88,7 +125,7 @@ const [form, setForm] = useState({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onNavigate('profile')}
+            onClick={() => navigate('/profile')}
             className="rounded-xl hover:bg-cyan-50"
             style={{ color: '#4FCBE9' }}
           >
@@ -101,25 +138,64 @@ const [form, setForm] = useState({
           {/* Profile Photo Upload */}
           <Card className="mb-6 rounded-2xl border-0 shadow-md">
             <CardContent className="p-6">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-6">
                 <div className="flex-1 text-right">
                   <h3 className="mb-1">تغییر عکس پروفایل</h3>
                   <p className="text-gray-500 mb-3">آپلود عکس پروفایل جدید</p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="rounded-xl border-2 hover:bg-cyan-50"
-                    style={{ borderColor: '#4FCBE9', color: '#4FCBE9' }}
-                  >
-                    انتخاب فایل
-                  </Button>
+                  <div className="flex gap-3">
+                    <label htmlFor="profile-picture">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="rounded-xl border-2 hover:bg-cyan-50 cursor-pointer"
+                        style={{ borderColor: '#4FCBE9', color: '#4FCBE9' }}
+                        disabled={imageLoading}
+                      >
+                        {imageLoading ? 'در حال آپلود...' : 'انتخاب فایل'}
+                      </Button>
+                    </label>
+                    <input
+                      id="profile-picture"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={imageLoading}
+                    />
+                    {profilePicture && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="rounded-xl border-2 hover:bg-red-50 gap-2"
+                        style={{ borderColor: '#F07E74', color: '#F07E74' }}
+                        onClick={handleDeleteImage}
+                        disabled={imageLoading}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        حذف عکس
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <div
-                  className="w-20 h-20 rounded-2xl flex items-center justify-center"
-                  style={{ backgroundColor: '#F07E7420' }}
-                >
-                  <Camera className="w-8 h-8" style={{ color: '#F07E74' }} />
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full border-4 border-white shadow-lg overflow-hidden">
+                    <img
+                      src={
+                        profilePicture ||
+                        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9kayreViIUlp8-GZFDlXdNHQc7Ckc8PpM0w&s"
+                      }
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div
+                    className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg"
+                    style={{ backgroundColor: '#F07E74' }}
+                  >
+                    <Camera className="w-4 h-4 text-white" />
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -127,17 +203,18 @@ const [form, setForm] = useState({
 
           {/* Form Fields */}
           <div className="space-y-4">
+            {/* First Name */}
             <Card className="rounded-2xl border-0 shadow-md">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="flex-1">
-                    <Label htmlFor="username" className="text-right block">نام کاربری</Label>
+                    <Label htmlFor="firstName" className="text-right block">نام</Label>
                     <Input
-                      id="username"
+                      id="firstName"
                       type="text"
-                      value={form.username}
-                      onChange={(e) => setForm({ ...form, username: e.target.value })}
-                      placeholder="نام کاربری خود را وارد کنید"
+                      value={form.firstName}
+                      onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                      placeholder="نام خود را وارد کنید"
                       className="mt-1.5 rounded-xl text-right"
                     />
                   </div>
@@ -151,6 +228,32 @@ const [form, setForm] = useState({
               </CardContent>
             </Card>
 
+            {/* Last Name */}
+            <Card className="rounded-2xl border-0 shadow-md">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <Label htmlFor="lastName" className="text-right block">نام خانوادگی</Label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      value={form.lastName}
+                      onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                      placeholder="نام خانوادگی خود را وارد کنید"
+                      className="mt-1.5 rounded-xl text-right"
+                    />
+                  </div>
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ backgroundColor: '#16519F20' }}
+                  >
+                    <User className="w-5 h-5" style={{ color: '#16519F' }} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Bio */}
             <Card className="rounded-2xl border-0 shadow-md">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
@@ -174,17 +277,18 @@ const [form, setForm] = useState({
               </CardContent>
             </Card>
 
+            {/* Student ID */}
             <Card className="rounded-2xl border-0 shadow-md">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="flex-1">
-                    <Label htmlFor="phoneNo" className="text-right block">شماره موبایل</Label>
+                    <Label htmlFor="studentId" className="text-right block">شماره دانشجویی</Label>
                     <Input
-                      id="phoneNo"
-                      type="tel"
-                      value={form.mobile}
-                      onChange={(e) => setForm({ ...form, mobile: e.target.value })}
-                      placeholder="شماره تلفن خود را وارد کنید"
+                      id="studentId"
+                      type="text"
+                      value={form.studentId}
+                      onChange={(e) => setForm({ ...form, studentId: e.target.value })}
+                      placeholder="شماره دانشجویی خود را وارد کنید"
                       className="mt-1.5 rounded-xl text-right"
                     />
                   </div>
@@ -192,32 +296,7 @@ const [form, setForm] = useState({
                     className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                     style={{ backgroundColor: '#4FCBE920' }}
                   >
-                    <Phone className="w-5 h-5" style={{ color: '#4FCBE9' }} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl border-0 shadow-md">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <Label htmlFor="email" className="text-right block">آدرس ایمیل</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      placeholder="ایمیل خود را وارد کنید"
-                      className="mt-1.5 rounded-xl text-right"
-                      dir="ltr"
-                    />
-                  </div>
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                    style={{ backgroundColor: '#4FCBE920' }}
-                  >
-                    <Mail className="w-5 h-5" style={{ color: '#4FCBE9' }} />
+                    <FileText className="w-5 h-5" style={{ color: '#4FCBE9' }} />
                   </div>
                 </div>
               </CardContent>
@@ -229,9 +308,9 @@ const [form, setForm] = useState({
             type="submit"
             className="w-full mt-8 rounded-xl shadow-lg hover:shadow-xl transition-all"
             style={{ background: 'linear-gradient(135deg, #16519F 0%, #4FCBE9 100%)' }}
-			onClick={handleSave}
-		  >
-            ذخیره تغییرات
+            disabled={loading}
+          >
+            {loading ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
           </Button>
         </form>
       </div>

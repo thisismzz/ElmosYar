@@ -1,12 +1,11 @@
 import { Card, CardContent } from '../components/UILib';
 import { Button } from '../components/UILib';
-import { ArrowLeft, ArrowRight, ArrowDownToLine, History, Plus, Wallet } from 'lucide-react';
+import { ArrowLeft, ArrowDownToLine, History, Plus, Wallet } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface WalletPageProps {
-  onNavigate: (page: 'profile' | 'wallet' | 'edit-profile') => void;
-}
+export function WalletPage() {
+  const navigate = useNavigate();
 
-export function WalletPage({ onNavigate }: WalletPageProps) {
   return (
     <div className="min-h-screen bg-gray-50 pb-20 lg:pb-8">
       <div className="max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
@@ -15,11 +14,11 @@ export function WalletPage({ onNavigate }: WalletPageProps) {
           <Button 
             variant="ghost" 
             size="icon"
-            onClick={() => onNavigate('profile')}
+            onClick={() => navigate('/profile')}
             className="rounded-xl hover:bg-cyan-50"
             style={{ color: '#4FCBE9' }}
           >
-		  <ArrowRight className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 style={{ color: '#16519F' }}>کیف پول</h1>
         </div>

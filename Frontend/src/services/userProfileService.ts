@@ -2,64 +2,109 @@
 import api from './authService';
 
 export interface UserProfile {
+  id: number;
   username: string;
-  email?: string;            // only present for own profile
-  bio: string | null;
+  email: string;
+  firstName: string;
+  lastName: string;
   profilePicture: string | null;
+  bio: string;
   studentId: string | null;
-  phoneNumber: string | null;
+  isEmailVerified: boolean;
+  followersCount: number;
+  followingCount: number;
+  postsCount: number;
+  isFollowing: boolean;
+  isMe: boolean;
+  createdAt: string;
 }
-
-export const getUserProfile = async (
-  username: string
-): Promise<UserProfile> => {
-  const response = await api.get(`/users/${username}/profile/`);
-
-  const user = response.data.user;
-
-  return {
-    username: user.username,
-    email: user.email ?? null, // backend removes for other users
-    bio: user.bio ?? null,
-    profilePicture: user.profile_picture ?? null,
-    studentId: user.student_id ?? null,
-    phoneNumber: user.mobile ?? null, // adjust if backend uses another field name
-  };
-};
 
 export interface UpdateProfilePayload {
-  username?: string;
-  email?: string;
+  firstName?: string;
+  lastName?: string;
   bio?: string;
   studentId?: string;
-  phoneNumber?: string;
 }
+
+export const getCurrentUserProfile = async (): Promise<UserProfile> => {
+  const response = await api.get('/profile/');
+  
+  const user = response.data.user;
+  return {
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    profilePicture: user.profile_picture,
+    bio: user.bio,
+    studentId: user.student_id,
+    isEmailVerified: user.is_email_verified,
+    followersCount: user.followers_count,
+    followingCount: user.following_count,
+    postsCount: user.posts_count,
+    isFollowing: user.is_following,
+    isMe: user.is_me,
+    createdAt: user.created_at,
+  };
+};
 
 export const updateUserProfile = async (
   data: UpdateProfilePayload
 ): Promise<UserProfile> => {
   const payload = {
-    username: data.username,
-    email: data.email,
+    first_name: data.firstName,
+    last_name: data.lastName,
     bio: data.bio,
     student_id: data.studentId,
-    mobile: data.phoneNumber,
   };
 
-  const response = await api.put("/profile/update/", payload);
-  const u = response.data.user;
+  const response = await api.put('/profile/update/', payload);
+  const user = response.data.user;
 
   return {
-    username: u.username,
-    email: u.email ?? null,
-    bio: u.bio ?? null,
-    profilePicture: u.profile_picture ?? null,
-    studentId: u.student_id ?? null,
-    phoneNumber: u.mobile ?? null,
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    profilePicture: user.profile_picture,
+    bio: user.bio,
+    studentId: user.student_id,
+    isEmailVerified: user.is_email_verified,
+    followersCount: user.followers_count,
+    followingCount: user.following_count,
+    postsCount: user.posts_count,
+    isFollowing: user.is_following,
+    isMe: user.is_me,
+    createdAt: user.created_at,
   };
 };
 
+export const updateProfilePicture = async (
+  profilePicture: File
+): Promise<{ profilePicture: string }> => {
+  const formData = new FormData();
+  formData.append('profile_picture', profilePicture);
+
+  const response = await api.post('/profile/update-picture/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return {
+    profilePicture: response.data.profile_picture,
+  };
+};
+
+export const deleteProfilePicture = async (): Promise<void> => {
+  await api.delete('/profile/delete-picture/');
+};
+
 export default {
-  getUserProfile,
+  getCurrentUserProfile,
   updateUserProfile,
+  updateProfilePicture,
+  deleteProfilePicture,
 };
