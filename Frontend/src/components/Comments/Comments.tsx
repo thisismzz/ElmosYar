@@ -34,7 +34,7 @@ interface PostHeaderProps {
   };
 }
 
-// کامپوننت PostHeader اضافه شد
+
 const PostHeader = ({ post }: PostHeaderProps) => {
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
