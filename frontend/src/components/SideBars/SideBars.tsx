@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  User, 
-  PenSquare,
-  Phone, 
-  LogOut,
-  Utensils,
-  Star,
-  MessageSquare
-} from 'lucide-react';
-import './SideBars.css';
-import { logout } from '../../services/authService';
+import { User, PenSquare, Phone, LogOut, Utensils, Star, MessageSquare } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { logout } from '../../services/authService';
+import './SideBars.css';
 
 // Types
 interface SideBarProps {
   isOpen?: boolean;
+}
+
+interface LeftSidebarProps extends SideBarProps {
+  onTopicSelect?: (topic: string) => void;
 }
 
 interface NavItem {
@@ -95,24 +91,9 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = true }) => {
   const [activeNav, setActiveNav] = useState<string>('');
   
   const navItems: NavItem[] = [
-    {
-      id: 'new-post',
-      label: 'پست جدید',
-      icon: PenSquare,
-      path: '/create-post'
-    },
-    {
-      id: 'profile',
-      label: 'پروفایل',
-      icon: User,
-      path: '/profile'
-    },
-    {
-      id: 'contact',
-      label: 'تماس و راهنما',
-      icon: Phone,
-      path: '/contact'
-    }
+    { id: 'new-post', label: 'پست جدید', icon: PenSquare, path: '/create-post' },
+    { id: 'profile', label: 'پروفایل', icon: User, path: '/profile' },
+    { id: 'contact', label: 'تماس و راهنما', icon: Phone, path: '/contact' }
   ];
 
   const computedActiveNav = useActiveNav(navItems, location.pathname);
@@ -131,15 +112,10 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = true }) => {
     logout();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       <div className="sidebar-panel">
-        <SidebarHeader 
-          title="منوی اصلی" 
-          subtitle="دسترسی سريع" 
-        />
+        <SidebarHeader title="منوی اصلی" subtitle="دسترسی سريع" />
         
         <nav className="sidebar-nav">
           {navItems.map((item, index) => (
@@ -169,37 +145,15 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = true }) => {
 };
 
 // Left Sidebar Component
-interface LeftSidebarProps {
-  isOpen?: boolean;
-  onTopicSelect?: (topic: string) => void;
-}
-
-export const LeftSidebar: React.FC<LeftSidebarProps> = ({ 
-  isOpen = true 
-}) => {
+export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen = true }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTopic, setActiveTopic] = useState<string>('');
 
   const topics: NavItem[] = [
-    {
-      id: '1',
-      label: 'تبادل غذا',
-      icon: Utensils,
-      path: '/topic/food'
-    },
-    {
-      id: '2',
-      label: 'نظرات استادان',
-      icon: Star,
-      path: '/topic/professors'
-    },
-    {
-      id: '3',
-      label: 'بحث و گفتگو',
-      icon: MessageSquare,
-      path: '/topic/discussion'
-    }
+    { id: '1', label: 'تبادل غذا', icon: Utensils, path: '/topic/food' },
+    { id: '2', label: 'نظرات استادان', icon: Star, path: '/topic/professors' },
+    { id: '3', label: 'بحث و گفتگو', icon: MessageSquare, path: '/topic/discussion' }
   ];
 
   const computedActiveTopic = useActiveNav(topics, location.pathname);
@@ -213,15 +167,10 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({
     if (topic.path) navigate(topic.path);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <aside className="left-sidebar">
+    <aside className={`left-sidebar ${isOpen ? 'left-sidebar-open' : 'left-sidebar-closed'}`}>
       <div className="left-sidebar-panel">
-        <SidebarHeader 
-          title="دسته‌بندی‌ها" 
-          subtitle="انتخاب موضوع مورد نظر" 
-        />
+        <SidebarHeader title="دسته‌بندی‌ها" subtitle="انتخاب موضوع مورد نظر" />
         
         <nav className="sidebar-nav">
           {topics.map((topic) => (

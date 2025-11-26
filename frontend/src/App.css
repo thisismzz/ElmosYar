@@ -19,7 +19,73 @@
   font-family: "MyFont", sans-serif;
 }
 
-
 .App {
   text-align: center;
+}
+
+/* New layout styles */
+.app-content {
+  display: flex;
+  min-height: calc(100vh - 70px);
+}
+
+.main-content {
+  flex: 1;
+  transition: all 0.3s ease;
+  min-height: calc(100vh - 70px);
+  padding: 1rem;
+}
+
+.main-content.with-left-sidebar {
+  margin-left: 0; /* Left sidebar is part of flex flow */
+}
+
+.main-content.with-right-sidebar {
+  margin-right: 0; /* Right sidebar is part of flex flow */
+}
+
+/* Loading container */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .app-content {
+    flex-direction: column;
+  }
+  
+  .sidebar,
+  .left-sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+  }
+  
+  .sidebar-open,
+  .left-sidebar-open {
+    width: 100%;
+  }
+  
+  .sidebar-closed,
+  .left-sidebar-closed {
+    width: 0;
+    height: 0;
+  }
+  
+  .main-content {
+    padding: 0.5rem;
+    margin: 0 !important;
+  }
+  
+  .sidebar-panel,
+  .left-sidebar-panel {
+    margin: 0.5rem;
+    min-width: calc(100% - 1rem);
+  }
 }
