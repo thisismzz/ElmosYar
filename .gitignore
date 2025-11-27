@@ -4,4 +4,3 @@
 */media/
 */.env
 *.log
-*/migrations/*
