@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/', include('interactions.urls')),
     path('api/notifications/', include('notifications.urls')),
     path('api/', include('messaging.urls')),
+    path('wallet/', include('wallet.urls')),
 ]
 
 if settings.DEBUG:
