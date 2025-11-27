@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "interactions",
     "notifications",
     "messaging",
+    "wallet",
 
     "django.contrib.admin",
     "django.contrib.auth",

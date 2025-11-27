@@ -27,12 +27,11 @@ class Transaction(models.Model):
     
     wallet = models.ForeignKey(UserWallet, on_delete=models.CASCADE, related_name='transactions')
     amount = models.IntegerField(blank=False, null=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    registered_in = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=STATUS, default='pending')
     type = models.CharField(max_length=10, choices=TYPE)
-    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True, related_name='paid_transactions')
-    to_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True, related_name='recieved_transactions')
+    from_ = models.ForeignKey(UserWallet, on_delete=models.SET_NULL, blank=True, null=True, related_name='paid_transactions')
+    to_ = models.ForeignKey(UserWallet, on_delete=models.SET_NULL, blank=True, null=True, related_name='recieved_transactions')
     
 
 class WalletService:
