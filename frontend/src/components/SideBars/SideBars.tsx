@@ -92,8 +92,7 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = true }) => {
   
   const navItems: NavItem[] = [
     { id: 'new-post', label: 'پست جدید', icon: PenSquare, path: '/create-post' },
-    { id: 'profile', label: 'پروفایل', icon: User, path: '/profile' },
-    { id: 'contact', label: 'تماس و راهنما', icon: Phone, path: '/contact' }
+    { id: 'profile', label: 'پروفایل', icon: User, path: '/profile' }
   ];
 
   const computedActiveNav = useActiveNav(navItems, location.pathname);
@@ -105,11 +104,6 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = true }) => {
   const handleNavClick = (item: NavItem) => {
     setActiveNav(item.id);
     if (item.path) navigate(item.path);
-  };
-
-  const handleLogout = () => {
-    setActiveNav('logout');
-    logout();
   };
 
   return (
@@ -128,17 +122,6 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = true }) => {
             />
           ))}
         </nav>
-
-        <div className="sidebar-footer">
-          <button
-            onClick={handleLogout}
-            className={`nav-item ${activeNav === 'logout' ? 'nav-item-active' : 'nav-item-logout'}`}
-          >
-            {activeNav === 'logout' && <div className="nav-active-indicator" />}
-            <span className="nav-label">خروج</span>
-            <LogOut className="nav-icon" />
-          </button>
-        </div>
       </div>
     </aside>
   );
@@ -156,7 +139,14 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen = true }) => {
     { id: '3', label: 'بحث و گفتگو', icon: MessageSquare, path: '/topic/discussion' }
   ];
 
-  const computedActiveTopic = useActiveNav(topics, location.pathname);
+  // Additional items for contact and logout
+  const additionalItems: NavItem[] = [
+    { id: 'contact', label: 'تماس و راهنما', icon: Phone, path: '/contact' },
+    { id: 'logout', label: 'خروج', icon: LogOut }
+  ];
+
+  const allItems = [...topics, ...additionalItems];
+  const computedActiveTopic = useActiveNav(allItems, location.pathname);
 
   useEffect(() => {
     setActiveTopic(computedActiveTopic);
@@ -164,7 +154,11 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen = true }) => {
 
   const handleTopicClick = (topic: NavItem) => {
     setActiveTopic(topic.id);
-    if (topic.path) navigate(topic.path);
+    if (topic.path) {
+      navigate(topic.path);
+    } else if (topic.id === 'logout') {
+      logout();
+    }
   };
 
   return (
@@ -187,6 +181,25 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen = true }) => {
               <div className="topic-divider" />
             </div>
           ))}
+          
+          {/* Additional items section */}
+          <div className="additional-items-section">
+            <div className="section-divider" />
+            {additionalItems.map((item) => (
+              <div key={item.id} className="topic-item-wrapper">
+                <div className="topic-main-item">
+                  <NavItemComponent
+                    item={item}
+                    isActive={activeTopic === item.id}
+                    onClick={handleTopicClick}
+                    activeIndicatorClass="topic-active-indicator"
+                    itemClass={`topic-item ${item.id === 'logout' ? 'topic-item-logout' : ''}`}
+                  />
+                </div>
+                {item.id !== 'logout' && <div className="topic-divider" />}
+              </div>
+            ))}
+          </div>
         </nav>
       </div>
     </aside>

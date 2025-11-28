@@ -11,6 +11,8 @@ import { WalletPage } from './pages/Wallet';
 import Header from './components/Header/Header';
 import PostFeed from './components/Posts/PostFeed';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
+import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
+import Food from './components/Food/Food';
 
 // PostFeed wrapper components for different routes
 const TopicPostFeed: React.FC = () => {
@@ -27,13 +29,79 @@ const GeneralPostFeed: React.FC = () => {
   return <PostFeed />;
 };
 
+// Custom hook to check if device is mobile
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return isMobile;
+};
+
+// Backdrop component for mobile sidebar
+interface BackdropProps {
+  isActive: boolean;
+  onClick: () => void;
+}
+
+const Backdrop: React.FC<BackdropProps> = ({ isActive, onClick }) => {
+  return (
+    <div 
+      className={`sidebar-backdrop ${isActive ? 'sidebar-backdrop-active' : ''}`}
+      onClick={onClick}
+    />
+  );
+};
+
 // Create a wrapper component to handle the layout
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
-  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const isMobile = useIsMobile();
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(!isMobile);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(!isMobile);
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+
+  // Prevent body scrolling when sidebar is open on mobile
+  useEffect(() => {
+    if (isMobile && isLeftSidebarOpen) {
+      document.body.classList.add('sidebar-open');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('sidebar-open');
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.classList.remove('sidebar-open');
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobile, isLeftSidebarOpen]);
+
+  // Auto-close left sidebar on mobile when route changes
+  useEffect(() => {
+    if (isMobile) {
+      setIsLeftSidebarOpen(false);
+    }
+  }, [location.pathname, isMobile]);
+
+  // Auto-open sidebars on desktop, close on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setIsLeftSidebarOpen(false);
+      setIsRightSidebarOpen(false);
+    } else {
+      setIsLeftSidebarOpen(true);
+      setIsRightSidebarOpen(true);
+    }
+  }, [isMobile]);
 
   const handleHomeClick = () => {
     navigate('/');
@@ -41,6 +109,16 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const handleToggleSidebar = (isOpen: boolean) => {
     setIsRightSidebarOpen(isOpen);
+  };
+
+  const handleToggleLeftSidebar = () => {
+    setIsLeftSidebarOpen(!isLeftSidebarOpen);
+  };
+
+  const handleCloseLeftSidebar = () => {
+    if (isMobile) {
+      setIsLeftSidebarOpen(false);
+    }
   };
 
   // Check if we're on the login page
@@ -73,12 +151,32 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             onToggleSidebar={handleToggleSidebar} 
           />
           <div className="app-content">
+            {/* Backdrop for mobile sidebar */}
+            {isMobile && (
+              <Backdrop 
+                isActive={isLeftSidebarOpen}
+                onClick={handleCloseLeftSidebar}
+              />
+            )}
             <LeftSidebar isOpen={isLeftSidebarOpen} />
-            <main className={`main-content ${isLeftSidebarOpen ? 'with-left-sidebar' : ''} ${isRightSidebarOpen ? 'with-right-sidebar' : ''}`}>
+            <main 
+              className={`main-content`}
+              // Close sidebar when clicking on main content on mobile
+              onClick={isMobile && isLeftSidebarOpen ? handleCloseLeftSidebar : undefined}
+            >
               {children}
             </main>
-            <RightSideBar isOpen={isRightSidebarOpen} />
+            {/* Hide RightSideBar on mobile */}
+            {!isMobile && <RightSideBar isOpen={isRightSidebarOpen} />}
           </div>
+          {/* Show MobileBottomNav only on mobile */}
+          {isMobile && (
+            <MobileBottomNav
+              isLeftSidebarOpen={isLeftSidebarOpen}
+              onLeftSidebarToggle={handleToggleLeftSidebar}
+              isDeactivated={isLeftSidebarOpen}
+            />
+          )}
         </>
       )}
       {isLoginPage && children}
@@ -112,6 +210,8 @@ const ProtectedRoutes: React.FC = () => {
       <Route path='/Discussion/PostFeed' element={<GeneralPostFeed />} />
       <Route path='/topic/:topicId' element={<TopicPostFeed />} />
       
+      <Route path = '/food' element= {<Food/>}/>
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
