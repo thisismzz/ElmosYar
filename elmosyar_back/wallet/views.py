@@ -16,3 +16,5 @@ def get_wallet(request):
                     "code": "USER_WALLET_FETCHED",
                     "data": serializer.data}, status=status.HTTP_200_OK)
 
+
+
