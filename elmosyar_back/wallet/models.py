@@ -63,7 +63,7 @@ class WalletService:
                 from_user=user
             )
             
-            return f"مبلغ {amount} به با موفقیت کیف پول شما اضافه شد"
+            return f"مبلغ {amount} به با موفقیت کیف پول شما اضافه شد", "DEPOSIT_SUCCESS", {"balance" : wallet.balance}
         
         except Exception as e:
             raise WalletError("مشکلی پیش آمده لطفا دوباره سعی کنید") from e
@@ -90,7 +90,7 @@ class WalletService:
                 from_user=user
             )
 
-            return f"مبلغ {amount} با موفقیت از کیف پول شما کسر شد"
+            return f"مبلغ {amount} با موفقیت از کیف پول شما کسر شد", "WITHDRAW_SUCCESS", {"balance" : wallet.balance}
 
         except InsufficientBalance:
             raise
@@ -135,7 +135,7 @@ class WalletService:
                 to_user=to_user
             )
             
-            return f"مبلغ {amount} با موفقیت منتقل شد"
+            return f"مبلغ {amount} با موفقیت منتقل شد", "TRANSFER_SUCCESS", {"balance" : sender_wallet.balance}
         
         except InsufficientBalance:
             raise
