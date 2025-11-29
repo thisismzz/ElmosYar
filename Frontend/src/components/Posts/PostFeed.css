@@ -65,6 +65,7 @@
 .user-info {
   display: flex;
   flex-direction: column;
+  text-align: right;
 }
 
 .user-name {
@@ -72,6 +73,7 @@
   font-size: 16px;
   color: #1c1e21;
   margin-bottom: 2px;
+  text-align: right;
 }
 
 .post-time {
@@ -166,5 +168,109 @@
   
   .action-btn {
     padding: 5px 10px;
+  }
+}
+
+
+.comments-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+}
+
+.comments-modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalAppear 0.3s ease-out;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.comments-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8f9fa;
+}
+
+.comments-modal-header h3 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.close-comments-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #718096;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close-comments-btn:hover {
+  background: #e2e8f0;
+  color: #e53e3e;
+}
+
+.comments-modal-body {
+  max-height: calc(80vh - 80px);
+  overflow-y: auto;
+}
+
+.comments-loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  z-index: 1001;
+}
+
+@media (max-width: 768px) {
+  .comments-modal-content {
+    max-width: 95%;
+    max-height: 90vh;
+  }
+  
+  .comments-modal-body {
+    max-height: calc(90vh - 80px);
+  }
+  
+  .comments-modal-header {
+    padding: 16px 20px;
   }
 }
