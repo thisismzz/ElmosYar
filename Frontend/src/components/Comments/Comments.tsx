@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Comment, CommentsProps } from '../../types/comments';
+import { ThumbsUp, ThumbsDown, MessageCircle, Edit, X } from 'lucide-react';
 import './Comments.css';
 
 const getInitials = (name: string): string => {
@@ -34,7 +35,6 @@ interface PostHeaderProps {
   };
 }
 
-
 const PostHeader = ({ post }: PostHeaderProps) => {
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
@@ -67,15 +67,21 @@ const PostHeader = ({ post }: PostHeaderProps) => {
 
       <div className="post-stats">
         <div className="stat-item">
-          <span className="stat-icon">👍</span>
+          <span className="stat-icon">
+            <ThumbsUp size={16} />
+          </span>
           <span className="stat-count">{post.likes}</span>
         </div>
         <div className="stat-item">
-          <span className="stat-icon">👎</span>
+          <span className="stat-icon">
+            <ThumbsDown size={16} />
+          </span>
           <span className="stat-count">{post.dislikes}</span>
         </div>
         <div className="stat-item">
-          <span className="stat-icon">💬</span>
+          <span className="stat-icon">
+            <MessageCircle size={16} />
+          </span>
           <span className="stat-count">{post.comments}</span>
         </div>
       </div>
@@ -110,13 +116,15 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onDislike })
           className="like-button"
           onClick={() => onLike(comment.id)}
         >
-          👍 {comment.likes}
+          <ThumbsUp size={16} />
+          {comment.likes}
         </button>
         <button 
           className="dislike-button"
           onClick={() => onDislike(comment.id)}
         >
-          👎 {comment.dislikes || 0}
+          <ThumbsDown size={16} />
+          {comment.dislikes || 0}
         </button>
       </div>
     </div>
@@ -152,7 +160,9 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
       <div className="modal">
         <div className="modal-header">
           <h3>نظر جدید</h3>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <button className="close-btn" onClick={onClose}>
+            <X size={20} />
+          </button>
         </div>
         <form onSubmit={handleSubmit} className="comment-form">
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '15px' }}>
@@ -181,7 +191,9 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
       </div>
     </div>
   );
-};const Comments: React.FC<CommentsProps> = ({ 
+};
+
+const Comments: React.FC<CommentsProps> = ({ 
   initialComments = [],
   comments: externalComments,
   setComments: externalSetComments,
@@ -240,7 +252,8 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
             className="add-comment-btn"
             onClick={() => setIsModalOpen(true)}
           >
-            ✏️ نظر خود را بنویسید
+            <Edit size={18} />
+            نظر خود را بنویسید
           </button>
         </div>
 
