@@ -34,7 +34,7 @@ export interface BackendPost {
   content: string;
   created_at: string;
   updated_at: string;
-  tags: string;
+  tags: string; 
   mentions: any[];
   media: Media[];
   category: string;
@@ -62,6 +62,7 @@ export interface Post {
   isDisliked?: boolean;
   category?: string;
   media?: Media[];
+  tags?: string[]; 
 }
 
 export interface PaginationInfo {
