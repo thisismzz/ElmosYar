@@ -46,7 +46,6 @@ class UltimatePostService {
       const response = await api.get(`/posts/?${queryParams}`);
       console.log('✅ اتصال به بک‌اند موفق!', response.data);
 
-      // تبدیل داده‌های بک‌اند به فرمت فرانت‌اند
       const backendPosts = this.extractPostsFromResponse(response.data);
       const formattedPosts = backendPosts.map(backendPost => 
         this.mapBackendPostToFrontend(backendPost)
@@ -102,7 +101,6 @@ class UltimatePostService {
     }
   }
 
-
   async removeReaction(postId: number): Promise<Post> {
     try {
       const response = await api.post(`/posts/${postId}/remove_reaction/`);
@@ -113,7 +111,6 @@ class UltimatePostService {
     }
   }
 
- 
   async createPost(postData: {
     content: string;
     category?: string;
@@ -152,7 +149,6 @@ class UltimatePostService {
       throw error;
     }
   }
-
 
   async getComments(postId: number, params: GetPostsParams = {}): Promise<{ comments: Comment[]; pagination: PaginationInfo }> {
     try {
@@ -222,7 +218,6 @@ class UltimatePostService {
     }
   }
 
-
   private extractPostsFromResponse(responseData: any): any[] {
     if (responseData.posts) return responseData.posts;
     if (Array.isArray(responseData)) return responseData;
@@ -270,7 +265,6 @@ class UltimatePostService {
 }
 
 export const postService = new UltimatePostService();
-
 
 export const fetchPosts = () => postService.fetchPosts();
 export const likePost = (postId: number) => postService.likePost(postId);
