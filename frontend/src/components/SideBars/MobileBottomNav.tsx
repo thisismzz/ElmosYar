@@ -18,18 +18,18 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 
   const navItems = [
     {
-      id: 'new-post',
-      label: 'پست جدید',
-      icon: PenSquare,
-      path: '/create-post',
-      isActive: location.pathname === '/create-post'
-    },
-    {
       id: 'profile',
       label: 'پروفایل',
       icon: User,
       path: '/profile',
       isActive: location.pathname === '/profile'
+    },
+    {
+      id: 'new-post',
+      label: 'پست جدید',
+      icon: PenSquare,
+      path: '/create-post',
+      isActive: location.pathname === '/create-post'
     },
     {
       id: 'menu',

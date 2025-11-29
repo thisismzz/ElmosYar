@@ -85,7 +85,7 @@ const NavItemComponent: React.FC<NavItemProps> = ({
 };
 
 // Right Sidebar Component
-export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = true }) => {
+export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeNav, setActiveNav] = useState<string>('');

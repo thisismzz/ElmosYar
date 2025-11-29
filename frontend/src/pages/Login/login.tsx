@@ -119,7 +119,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => {
 
       <button 
         type="submit" 
-        className="submit-button"
+        className="auth-submit-button"
         disabled={isLoading}
       >
         {isLoading ? 'در حال ورود...' : 'ورود'}
@@ -222,7 +222,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
 
       <button 
         type="submit" 
-        className="submit-button"
+        className="auth-submit-button"
         disabled={isLoading}
       >
         {isLoading ? 'در حال ثبت‌نام...' : 'ثبت‌نام'}

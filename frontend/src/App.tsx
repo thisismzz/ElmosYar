@@ -64,7 +64,7 @@ const Backdrop: React.FC<BackdropProps> = ({ isActive, onClick }) => {
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isMobile = useIsMobile();
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(!isMobile);
-  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(!isMobile);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(isMobile);
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -97,9 +97,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     if (isMobile) {
       setIsLeftSidebarOpen(false);
       setIsRightSidebarOpen(false);
-    } else {
-      setIsLeftSidebarOpen(true);
-      setIsRightSidebarOpen(true);
     }
   }, [isMobile]);
 
