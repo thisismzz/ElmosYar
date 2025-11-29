@@ -2,10 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { type PostFeedProps, type Post, type BackendPost } from '../../types/posts';
 import { postService, type GetPostsParams } from '../../services/PostService';
-import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MessageCircle, X } from 'lucide-react'; 
+import Comments from '../Comments/Comments';
+import { getCommentsForPost, getPostCard } from '../../services/commentService';
 import './PostFeed.css';
 
-// Helper function to map backend post to frontend post
+
 const mapBackendPostToPost = (backendPost: BackendPost): Post => ({
   id: backendPost.id,
   user: {
@@ -23,7 +25,9 @@ const mapBackendPostToPost = (backendPost: BackendPost): Post => ({
   isDisliked: backendPost.user_reaction === 'dislike',
   category: backendPost.category,
   media: backendPost.media,
+  tags: backendPost.tags ? backendPost.tags.split(',').map(tag => tag.trim()) : [],
 });
+
 
 const PostActions: React.FC<{
   postId: number;
@@ -82,7 +86,10 @@ const PostActions: React.FC<{
         <span className="action-count">{dislikes}</span>
       </button>
       
-      <button className="action-btn" onClick={() => onComment(postId)}>
+      <button 
+        className="action-btn" 
+        onClick={() => onComment(postId)}
+      >
         <span className="action-icon">
           <MessageCircle size={18} />
         </span>
@@ -91,6 +98,7 @@ const PostActions: React.FC<{
     </div>
   );
 };
+
 
 const PostCard: React.FC<{
   post: Post;
@@ -120,7 +128,6 @@ const PostCard: React.FC<{
             src={post.user.avatar} 
             alt={post.user.name}
             onError={(e) => {
-              // Fallback for broken images
               (e.target as HTMLImageElement).src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9kayreViIUlp8-GZFDlXdNHQc7Ckc8PpM0w&s";
             }}
           />
@@ -138,6 +145,16 @@ const PostCard: React.FC<{
         </div>
       )}
       
+      {post.tags && post.tags.length > 0 && (
+        <div className="post-tags">
+          {post.tags.map((tag, index) => (
+            <span key={index} className="post-tag">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+      
       {post.media && post.media.length > 0 && (
         <div className="post-media">
           {post.media.map(mediaItem => (
@@ -147,12 +164,10 @@ const PostCard: React.FC<{
                   src={mediaItem.url} 
                   alt={mediaItem.caption} 
                   onError={(e) => {
-                    // Hide broken images
                     (e.target as HTMLImageElement).style.display = 'none';
                   }}
                 />
               )}
-              {/* Add support for other media types if needed */}
             </div>
           ))}
         </div>
@@ -181,6 +196,12 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
     page: 1,
     hasNext: false,
   });
+  
+
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [showCommentsModal, setShowCommentsModal] = useState(false); 
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [postComments, setPostComments] = useState<any[]>([]);
 
   const fetchPosts = async (page: number = 1, append: boolean = false) => {
     try {
@@ -197,21 +218,19 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
       const response = await postService.getPosts(params);
       
       if (response.success) {
-        const mappedPosts = response.posts.map(mapBackendPostToPost);
-        
         if (append) {
-          setPosts(prev => [...prev, ...mappedPosts]);
+          setPosts(prev => [...prev, ...response.posts]);
         } else {
-          setPosts(mappedPosts);
+          setPosts(response.posts);
         }
         
         setPagination({
           page: response.pagination.page,
-          hasNext: response.pagination.has_next,
+          hasNext: response.pagination.has_next || response.pagination.total_pages > response.pagination.page,
         });
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to fetch posts';
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch posts';
       setError(errorMessage);
       console.error('Error fetching posts:', err);
     } finally {
@@ -230,18 +249,15 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
       const post = posts.find(p => p.id === postId);
       if (!post) return;
 
-      // Optimistic update
       setPosts(posts.map(post => {
         if (post.id === postId) {
           if (post.isLiked) {
-            // Unlike
             return {
               ...post,
               likes: post.likes - 1,
               isLiked: false
             };
           } else {
-            // Like
             const newPost = {
               ...post,
               likes: post.likes + 1,
@@ -257,15 +273,13 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
         return post;
       }));
 
-      // API call
       if (post.isLiked) {
         await postService.removeReaction(postId);
       } else {
         await postService.likePost(postId);
       }
     } catch (err) {
-      // Revert optimistic update on error
-      setPosts(posts);
+      fetchPosts(pagination.page, false);
       console.error('Error liking post:', err);
     }
   };
@@ -275,18 +289,15 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
       const post = posts.find(p => p.id === postId);
       if (!post) return;
 
-      // Optimistic update
       setPosts(posts.map(post => {
         if (post.id === postId) {
           if (post.isDisliked) {
-            // Remove dislike
             return {
               ...post,
               dislikes: post.dislikes - 1,
               isDisliked: false
             };
           } else {
-            // Dislike
             const newPost = {
               ...post,
               dislikes: post.dislikes + 1,
@@ -302,22 +313,52 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
         return post;
       }));
 
-      // API call
       if (post.isDisliked) {
         await postService.removeReaction(postId);
       } else {
         await postService.dislikePost(postId);
       }
     } catch (err) {
-      // Revert optimistic update on error
-      setPosts(posts);
+      fetchPosts(pagination.page, false);
       console.error('Error disliking post:', err);
     }
   };
 
-  const handleComment = (postId: number) => {
-    console.log('Comment on post:', postId);
-    // Add your comment logic here
+  const handleComment = async (postId: number) => {
+    try {
+      setCommentsLoading(true); 
+      
+      const [postDetails, comments] = await Promise.all([
+        getPostCard(postId),
+        getCommentsForPost(postId)
+      ]);
+      
+      setSelectedPost(postDetails);
+      setPostComments(comments);
+      setShowCommentsModal(true);
+      
+    } catch (err) {
+      console.error('Error loading post comments:', err);
+      try {
+        const postDetails = await postService.getPostById(postId);
+        setSelectedPost(postDetails);
+        setShowCommentsModal(true);
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError);
+      }
+    } finally {
+      setCommentsLoading(false); 
+    }
+  };
+
+  const handleCloseComments = () => {
+    setShowCommentsModal(false);
+    setSelectedPost(null);
+    setPostComments([]);
+  };
+
+  const handleModalContentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
   const loadMore = () => {
@@ -346,45 +387,84 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
   }
 
   return (
-    <div className="post-feed">
-      <div className="post-list">
-        {posts.map(post => (
-          <PostCard 
-            key={post.id}
-            post={post}
-            onLike={handleLike}
-            onDislike={handleDislike}
-            onComment={handleComment}
-          />
-        ))}
-      </div>
-      
-      {loading && posts.length > 0 && (
-        <div className="loading-more">Loading more posts...</div>
-      )}
-      
-      {pagination.hasNext && !loading && (
-        <button className="load-more-btn" onClick={loadMore}>
-          Load More
-        </button>
-      )}
-      
-      {error && posts.length > 0 && (
-        <div className="error">
-          <p>Error: {error}</p>
-          <button onClick={retryFetch} className="retry-btn">
-            Try Again
+    <>
+      <div className="post-feed">
+        <div className="post-list">
+          {posts.map(post => (
+            <PostCard 
+              key={post.id}
+              post={post}
+              onLike={handleLike}
+              onDislike={handleDislike}
+              onComment={handleComment}
+            />
+          ))}
+        </div>
+        
+        {loading && posts.length > 0 && (
+          <div className="loading-more">Loading more posts...</div>
+        )}
+        
+        {pagination.hasNext && !loading && (
+          <button className="load-more-btn" onClick={loadMore}>
+            Load More
           </button>
+        )}
+        
+        {error && posts.length > 0 && (
+          <div className="error">
+            <p>Error: {error}</p>
+            <button onClick={retryFetch} className="retry-btn">
+              Try Again
+            </button>
+          </div>
+        )}
+        
+        {!loading && posts.length === 0 && (
+          <div className="no-posts">
+            No posts found.
+          </div>
+        )}
+      </div>
+
+      {/* Modal کامنت‌ها */}
+      {showCommentsModal && (
+        <div className="comments-modal-overlay" onClick={handleCloseComments}>
+          <div className="comments-modal-content" onClick={handleModalContentClick}>
+            <div className="comments-modal-header">
+              <h3>نظرات پست</h3>
+              <button 
+                className="close-comments-btn"
+                onClick={handleCloseComments}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="comments-modal-body">
+              {selectedPost && (
+                <Comments 
+                  post={selectedPost}
+                  comments={postComments}
+                  setComments={setPostComments}
+                  currentUserName="" 
+                  title=""
+                />
+              )}
+            </div>
+          </div>
         </div>
       )}
-      
-      {!loading && posts.length === 0 && (
-        <div className="no-posts">
-          No posts found.
+
+      {/* اینجا خطا داشت - تصحیح شد */}
+      {commentsLoading && ( 
+        <div className="comments-loading">
+          در حال بارگذاری نظرات...
         </div>
       )}
-    </div>
+    </>
   );
 };
 
 export default PostFeed;
+
