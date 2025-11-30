@@ -255,8 +255,8 @@ class UltimatePostService {
       likes: backendPost.likes_count || backendPost.likes || backendPost.like_count || 0,
       dislikes: backendPost.dislikes_count || backendPost.dislikes || 0,
       comments: backendPost.comments_count || backendPost.comments || backendPost.comment_count || 0,
-      isLiked: backendPost.is_liked || backendPost.liked || false,
-      isDisliked: backendPost.is_disliked || backendPost.disliked || false,
+      isLiked: backendPost.user_reaction == "like" || false,
+      isDisliked: backendPost.user_reaction == "dislike" || false,
       media: backendPost.media || backendPost.attachments || [],
       category: backendPost.category,
       tags: backendPost.tags ? (Array.isArray(backendPost.tags) ? backendPost.tags : backendPost.tags.split(',')) : []
