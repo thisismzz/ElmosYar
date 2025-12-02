@@ -7,8 +7,6 @@ import os
 class Post(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
     content = models.TextField(max_length=5000)
-    image = models.ImageField(upload_to='posts/images/', blank=True, null=True)
-    video = models.FileField(upload_to='posts/videos/', blank=True, null=True)
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='replies')
     category = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -81,3 +79,26 @@ class PostMedia(models.Model):
                 os.remove(self.file.path)
         super().delete(*args, **kwargs)
 
+# ════════════════════════════════════════════════════════════
+# 📁 Category Format Model
+# ════════════════════════════════════════════════════════════
+
+class CategoryFormat(models.Model):
+    category = models.CharField(max_length=255, unique=True, db_index=True)
+    format_file = models.FileField(upload_to='category_formats/')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'category_format'
+
+    def __str__(self):
+        return f"Format for {self.category}"
+
+    def delete(self, *args, **kwargs):
+        """حذف فایل فیزیکی هنگام حذف فرمت"""
+        if self.format_file:
+            if os.path.isfile(self.format_file.path):
+                os.remove(self.format_file.path)
+        super().delete(*args, **kwargs)

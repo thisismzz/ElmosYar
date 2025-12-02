@@ -6,11 +6,12 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.core.paginator import Paginator
 import logging
+import json
 import mimetypes
 
 import settings
-from .models import Post, PostMedia
-from .serializers import PostSerializer, PostMediaSerializer
+from .models import Post, PostMedia, CategoryFormat
+from .serializers import PostSerializer, PostMediaSerializer, CategoryFormatSerializer
 from notifications.models import Notification
 
 from interactions.models import Comment
@@ -166,7 +167,7 @@ def posts_list_create(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def post_detail(request, post_id):
     """Get single post details with comments and replies"""
     post = get_object_or_404(
@@ -518,4 +519,164 @@ def saved_posts(request):
             'has_previous': saved_posts_page.has_previous(),
         }
     }, status=status.HTTP_200_OK)
+
+
+# ════════════════════════════════════════════════════════════
+# 📁 Category Format Endpoints
+# ════════════════════════════════════════════════════════════
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_category_format(request):
+    """آپلود فایل فرمت برای یک دسته‌بندی (فقط سوپر یوزرها)"""
+    if not request.user.is_superuser:
+        return Response({
+            'success': False,
+            'message': 'Only superusers can upload format files'
+        }, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        category = request.data.get('category', '').strip()
+        format_file = request.FILES.get('format_file')
+
+        if not category:
+            return Response({
+                'success': False,
+                'message': 'Category is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if not format_file:
+            return Response({
+                'success': False,
+                'message': 'Format file is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # بررسی نوع فایل
+        if not format_file.name.endswith('.json'):
+            return Response({
+                'success': False,
+                'message': 'Only JSON files are allowed'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # بررسی valid بودن JSON
+        try:
+            format_file.seek(0)
+            json.load(format_file)
+            format_file.seek(0)  # بازگشت به ابتدای فایل
+        except json.JSONDecodeError:
+            return Response({
+                'success': False,
+                'message': 'Invalid JSON file'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # ایجاد یا آپدیت فرمت
+        format_obj, created = CategoryFormat.objects.update_or_create(
+            category=category,
+            defaults={
+                'format_file': format_file,
+                'created_by': request.user
+            }
+        )
+
+        serializer = CategoryFormatSerializer(format_obj, context={'request': request})
+        
+        return Response({
+            'success': True,
+            'message': 'Format uploaded successfully' if created else 'Format updated successfully',
+            'format': serializer.data
+        }, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        logger.error(f"Format upload failed: {str(e)}")
+        return Response({
+            'success': False,
+            'message': 'Failed to upload format'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_category_format(request, cat):
+    """حذف فایل فرمت یک دسته‌بندی (فقط سوپر یوزرها)"""
+    if not request.user.is_superuser:
+        return Response({
+            'success': False,
+            'message': 'Only superusers can delete format files'
+        }, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        format_obj = CategoryFormat.objects.filter(category=cat).first()
+        
+        if not format_obj:
+            return Response({
+                'success': False,
+                'message': f'No format found for category: {cat}'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        format_obj.delete()
+        
+        return Response({
+            'success': True,
+            'message': 'Format deleted successfully'
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logger.error(f"Format deletion failed: {str(e)}")
+        return Response({
+            'success': False,
+            'message': 'Failed to delete format'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_format(request, cat):
+    """دریافت فایل فرمت برای یک دسته‌بندی (برای همه کاربران)"""
+    try:
+        format_obj = CategoryFormat.objects.filter(category=cat).first()
+        
+        if not format_obj or not format_obj.format_file:
+            return Response({
+                'success': False,
+                'message': f'No format found for category: {cat}'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # خواندن محتوای فایل JSON
+        try:
+            with open(format_obj.format_file.path, 'r', encoding='utf-8') as f:
+                format_data = json.load(f)
+        except Exception as e:
+            logger.error(f"Error reading format file: {str(e)}")
+            return Response({
+                'success': False,
+                'message': 'Error reading format file'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({
+            'success': True,
+            'category': cat,
+            'format': format_data,
+            'last_updated': format_obj.updated_at
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logger.error(f"Get format failed: {str(e)}")
+        return Response({
+            'success': False,
+            'message': 'Failed to get format'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def get_format_data(cat):
+    """تابع کمکی برای دریافت داده‌های فرمت از هر جای برنامه"""
+    try:
+        format_obj = CategoryFormat.objects.filter(category=cat).first()
+        if format_obj and format_obj.format_file:
+            with open(format_obj.format_file.path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return None
+    except Exception as e:
+        logger.error(f"Error in get_format_data for {cat}: {str(e)}")
+        return None
+
 

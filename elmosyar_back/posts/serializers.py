@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from accounts.serializers import UserSerializer
-from .models import Post, PostMedia
+from .models import Post, PostMedia, CategoryFormat
 
 
 class PostMediaSerializer(serializers.ModelSerializer):
@@ -66,3 +66,16 @@ class PostSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.saved_by.filter(id=request.user.id).exists()
         return False
+
+
+class CategoryFormatSerializer(serializers.ModelSerializer):
+    created_by_info = UserSerializer(source='created_by', read_only=True)
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CategoryFormat
+        fields = ['id', 'category', 'format_file', 'file_url', 'created_by', 'created_by_info', 'created_at', 'updated_at']
+        read_only_fields = ['created_by', 'created_at', 'updated_at']
+
+    def get_file_url(self, obj):
+        return obj.format_file.url if obj.format_file else ''

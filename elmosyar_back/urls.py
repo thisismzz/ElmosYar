@@ -13,8 +13,8 @@ from django.http import JsonResponse
 def api_root(request):
     return JsonResponse({
         'message': 'Welcome to Elmosyar API',
-        'version': '1.0.1',
-        'apps': ['accounts', 'social', 'posts', 'interactions', 'notifications', 'messaging']
+        'version': '1.0.2',
+        'apps': ['accounts', 'social', 'posts', 'interactions', 'notifications', 'messaging', 'wallet']
     })
 
 urlpatterns = [
