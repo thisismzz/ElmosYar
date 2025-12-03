@@ -1,40 +1,27 @@
 import api from "./authService";
-import { Comment as FrontendComment } from "../types/comments";
-import { Post } from "../types/posts";
-/**
- * Get full post details including comments from backend
- */
+import { Comment as FrontendComment } from "../types/discussion_comments";
+import { Post } from "../types/discussion_posts";
+
+
 export const fetchPostWithComments = async (postId: number) => {
 	const response = await api.get(`/posts/${postId}/`);
-	return response.data; // Django returns: { success, post: { ... } }
+	return response.data; 
 };
 
 
-/**
- * Convert backend comment objects → frontend <Comment[]> interface
- *
- * Backend 
- *
- * Frontend needs:
- * {
- *   id: number;
- *   name: string;
- *   time: string;
- *   text: string;
- *   likes: number;
- *   dislikes?: number;
- * }
- */
 export const mapBackendCommentsToFrontend = (
 	backendComments: any[]
 ): FrontendComment[] => {
+	console.log("backend comments: ", backendComments)
 	return backendComments.map((c) => ({
 		id: c.id,
-		name: c.user?.username || "Unknown",               // backend: user.username
-		time: new Date(c.created_at).toISOString(),        // normalized timestamp
+		name: c.user?.username || "Unknown",               
+		time: new Date(c.created_at).toISOString(),        
 		text: c.content,
-		likes: c.likes ? c.likes.length : 0,               // backend returns array of users
-		dislikes: 0,                                       // backend does NOT support comment dislikes
+		likes: c.likes_count,           
+		dislikes: c.dislikes_count,                                      
+		is_liked: c.is_liked,
+		is_disliked: c.is_disliked,
 	}));
 };
 
@@ -53,14 +40,12 @@ export const mapBackendPostToFrontendPostCard = (
 		timestamp: backendPost.created_at,
 		likes: backendPost.likes_count,
 		dislikes: backendPost.dislikes_count,
-		comments: backendPost.comments_count,// backend does NOT support comment dislikes
+		comments: backendPost.comments_count,
 	});
 };
 
 
-/**
- * Get Post + convert comments → frontend format
- */
+
 export const getCommentsForPost = async (
 	postId: number
 ): Promise<FrontendComment[]> => {
@@ -77,6 +62,28 @@ export const getPostCard = async (
 	const backendPost = data?.post || undefined;
 	return mapBackendPostToFrontendPostCard(backendPost);
 };
+
+
+export const likeComment = async (commentId: number) => {
+	try {
+		const response = await api.post(`/comments/${commentId}/like/`);
+
+		return response.data;
+	} catch (error: any) {
+		throw error;
+	}
+}
+
+
+export const dislikeComment = async (commentId: number) => {
+	try {
+		const response = await api.post(`/comments/${commentId}/dislike/`);
+
+		return response.data;
+	} catch (error: any) {
+		throw error;
+	}
+}
 
 
 

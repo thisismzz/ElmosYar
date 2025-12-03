@@ -9,24 +9,24 @@ import { ProfilePage } from './pages/Profile';
 import { EditProfilePage } from './pages/EditProfile';
 import { WalletPage } from './pages/Wallet';
 import Header from './components/Header/Header';
-import PostFeed from './components/Posts/PostFeed';
+import DiscussionPage from './pages/Discussion/DiscussionPage'
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
-import Food from './components/Food/Food';
+import Food from './pages/FoodExchange/Food';
 
 // PostFeed wrapper components for different routes
-const TopicPostFeed: React.FC = () => {
+const TopicDiscussion: React.FC = () => {
   const { topicId } = useParams<{ topicId: string }>();
-  return <PostFeed category={topicId} />;
+  return <DiscussionPage category={topicId} />;
 };
 
-const UserPostFeed: React.FC = () => {
+const UserDiscussion: React.FC = () => {
   const { username } = useParams<{ username: string }>();
-  return <PostFeed username={username} />;
+  return <DiscussionPage username={username} />;
 };
 
-const GeneralPostFeed: React.FC = () => {
-  return <PostFeed />;
+const GeneralDiscussion: React.FC = () => {
+  return <DiscussionPage />;
 };
 
 // Custom hook to check if device is mobile
@@ -199,13 +199,13 @@ const ProtectedRoutes: React.FC = () => {
       <Route path='/profile/edit' element={<EditProfilePage />} />
       
       {/* Post Feed Routes */}
-      <Route path='/feed' element={<GeneralPostFeed />} />
-      <Route path='/feed/topic/:topicId' element={<TopicPostFeed />} />
-      <Route path='/feed/user/:username' element={<UserPostFeed />} />
+      <Route path='/feed' element={<GeneralDiscussion />} />
+      <Route path='/feed/topic/:topicId' element={<TopicDiscussion />} />
+      <Route path='/feed/user/:username' element={<UserDiscussion />} />
       
       {/* Legacy routes for backward compatibility */}
-      <Route path='/Discussion/PostFeed' element={<GeneralPostFeed />} />
-      <Route path='/topic/:topicId' element={<TopicPostFeed />} />
+      <Route path='/Discussion/PostFeed' element={<GeneralDiscussion />} />
+      <Route path='/topic/:topicId' element={<TopicDiscussion />} />
       
       <Route path = '/food' element= {<Food/>}/>
 

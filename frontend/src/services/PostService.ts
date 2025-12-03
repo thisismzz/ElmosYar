@@ -1,6 +1,6 @@
 // services/postService.ts
 import api from "./authService";
-import { type Post, BackendPost, PaginationInfo } from "../types/posts";
+import { type Post, BackendPost, PaginationInfo } from "../types/discussion_posts";
 
 export interface GetPostsParams {
   page?: number;
@@ -225,43 +225,25 @@ class UltimatePostService {
     return [];
   }
 
-  private mapBackendPostToFrontend(backendPost: any): Post {
-    return {
-      id: backendPost.id,
-      user: {
-        id: backendPost.author?.id || 
-             backendPost.user?.id || 
-             backendPost.author_info?.id || 
-             backendPost.user_id ||
-             1,
-        name: backendPost.author?.first_name || 
-              backendPost.user?.name || 
-              backendPost.author_info?.first_name || 
-              (backendPost.user?.first_name ? 
-                `${backendPost.user.first_name} ${backendPost.user.last_name || ''}`.trim() 
-                : "کاربر ناشناس"),
-        avatar: backendPost.author?.profile_picture || 
-                backendPost.user?.avatar || 
-                backendPost.author_info?.profile_picture || 
-                backendPost.profile_picture ||
-                "",
-        username: backendPost.author?.username || 
-                  backendPost.user?.username || 
-                  backendPost.author_info?.username ||
-                  "user"
-      },
-      content: backendPost.content || backendPost.text || backendPost.body || "محتوای پست",
-      timestamp: backendPost.created_at || backendPost.timestamp || backendPost.date || new Date().toISOString(),
-      likes: backendPost.likes_count || backendPost.likes || backendPost.like_count || 0,
-      dislikes: backendPost.dislikes_count || backendPost.dislikes || 0,
-      comments: backendPost.comments_count || backendPost.comments || backendPost.comment_count || 0,
-      isLiked: backendPost.user_reaction == "like" || false,
-      isDisliked: backendPost.user_reaction == "dislike" || false,
-      media: backendPost.media || backendPost.attachments || [],
-      category: backendPost.category,
-      tags: backendPost.tags ? (Array.isArray(backendPost.tags) ? backendPost.tags : backendPost.tags.split(',')) : []
-    };
-  }
+mapBackendPostToFrontend = (backendPost: BackendPost): Post => ({
+  id: backendPost.id,
+  user: {
+    id: backendPost.author_info.id,
+    name: `${backendPost.author_info.first_name} ${backendPost.author_info.last_name}`.trim() || backendPost.author_info.username,
+    avatar: backendPost.author_info.profile_picture || '/default-avatar.png',
+    username: backendPost.author_info.username,
+  },
+  content: backendPost.content,
+  timestamp: backendPost.created_at,
+  likes: backendPost.likes_count,
+  dislikes: backendPost.dislikes_count,
+  comments: backendPost.comments_count,
+  isLiked: backendPost.user_reaction === 'like',
+  isDisliked: backendPost.user_reaction === 'dislike',
+  category: backendPost.category,
+  media: backendPost.media,
+  tags: backendPost.tags ? backendPost.tags.split(',').map(tag => tag.trim()) : [],
+});
 }
 
 export const postService = new UltimatePostService();

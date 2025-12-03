@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Comment, CommentsProps } from '../../types/comments';
-import './Comments.css';
+import { Comment, CommentsProps, PostHeaderProps, CommentItemProps, CommentModalProps} from '../../../types/discussion_comments';
+import { likeComment, dislikeComment } from '../../../services/commentService';
+import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
+import './DiscussionComments.css';
 
 const getInitials = (name: string): string => {
   return name
@@ -20,27 +22,13 @@ const getAvatarColor = (name: string): string => {
   return colors[index];
 };
 
-interface PostHeaderProps {
-  post: {
-    id: number;
-    content: string;
-    timestamp: string;
-    user: {
-      name: string;
-    };
-    likes: number;
-    dislikes: number;
-    comments: number;
-  };
-}
-
 
 const PostHeader = ({ post }: PostHeaderProps) => {
   const formatTimeAgo = (timestamp: string) => {
     const now = new Date();
     const postDate = new Date(timestamp);
     const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
-    
+
     if (diffInHours < 1) return 'همین حالا';
     if (diffInHours === 1) return '1 ساعت پیش';
     return `${diffInHours} ساعت پیش`;
@@ -60,22 +48,30 @@ const PostHeader = ({ post }: PostHeaderProps) => {
           <span className="post-time">{formatTimeAgo(post.timestamp)}</span>
         </div>
       </div>
-      
+
       <div className="post-content-wrapper">
         <p className="post-content-text">{post.content}</p>
       </div>
 
       <div className="post-stats">
         <div className="stat-item">
-          <span className="stat-icon">👍</span>
+          <span className="stat-icon">
+            <span className="action-icon">
+              <ThumbsUp size={18} fill={false ? "currentColor" : "none"} />
+            </span>
+          </span>
           <span className="stat-count">{post.likes}</span>
         </div>
         <div className="stat-item">
-          <span className="stat-icon">👎</span>
+          <span className="stat-icon">
+            <span className="action-icon">
+              <ThumbsDown size={18} fill={false ? "currentColor" : "none"} />
+            </span>
+          </span>
           <span className="stat-count">{post.dislikes}</span>
         </div>
         <div className="stat-item">
-          <span className="stat-icon">💬</span>
+          <span className="stat-icon"><MessageCircle size={18} /></span>
           <span className="stat-count">{post.comments}</span>
         </div>
       </div>
@@ -83,13 +79,13 @@ const PostHeader = ({ post }: PostHeaderProps) => {
   );
 };
 
-interface CommentItemProps {
-  comment: Comment;
-  onLike: (commentId: number) => void;
-  onDislike: (commentId: number) => void;
-}
 
-const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onDislike }) => {
+
+const CommentItem: React.FC<CommentItemProps> = ({
+  comment,
+  onLike = (commentId) => likeComment(commentId),
+  onDislike = (commentId) => dislikeComment(commentId),
+}) => {
   const initials = getInitials(comment.name);
   const avatarColor = getAvatarColor(comment.name);
 
@@ -105,30 +101,32 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, onLike, onDislike })
         </div>
       </div>
       <p className="comment-content">{comment.text}</p>
-      <div className="comment-footer">
-        <button 
-          className="like-button"
+      <div className="post-actions">
+        <button
+          className={`action-btn ${comment.is_liked ? 'liked' : ''}`}
           onClick={() => onLike(comment.id)}
+          // disabled={isLoading}
         >
-          👍 {comment.likes}
+          <span className="action-icon">
+            <ThumbsUp size={18} fill={comment.is_liked ? "currentColor" : "none"} />
+          </span><span className="action-count">{comment.likes}</span>
         </button>
-        <button 
-          className="dislike-button"
+
+        <button
+          className={`action-btn ${comment.is_disliked ? 'disliked' : ''}`}
           onClick={() => onDislike(comment.id)}
+          // disabled={isLoading}
         >
-          👎 {comment.dislikes || 0}
+          <span className="action-icon">
+            <ThumbsDown size={18} fill={comment.is_disliked ? "currentColor" : "none"} />
+          </span><span className="action-count">{comment.dislikes}</span>
         </button>
       </div>
     </div>
   );
 };
 
-interface CommentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (comment: { text: string }) => void;
-  currentUserName: string;
-}
+
 
 const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, currentUserName }) => {
   const [text, setText] = useState('');
@@ -142,7 +140,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
     }
   };
 
-  const initials = getInitials(currentUserName); 
+  const initials = getInitials(currentUserName);
   const avatarColor = getAvatarColor(currentUserName);
 
   if (!isOpen) return null;
@@ -181,7 +179,9 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
       </div>
     </div>
   );
-};const Comments: React.FC<CommentsProps> = ({ 
+};
+
+const Comments: React.FC<CommentsProps> = ({
   initialComments = [],
   comments: externalComments,
   setComments: externalSetComments,
@@ -206,27 +206,41 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
       time: 'همین الان',
       text: newComment.text,
       likes: 0,
-      dislikes: 0
+      dislikes: 0,
+      is_liked: false,
+      is_disliked: false,
     };
     setComments(prev => [addedComment, ...prev]);
   };
 
-  const handleLike = (commentId: number) => {
-    setComments(prev => prev.map(comment => 
-      comment.id === commentId 
-        ? { ...comment, likes: comment.likes + 1 }
+  const handleLike = async (commentId: number) => {
+    const like_result = await likeComment(commentId);
+    setComments(prev => prev.map(comment =>
+      comment.id === commentId
+        ? {
+          ...comment,
+          likes: like_result.likes_count,
+          dislikes: like_result.dislikes_count,
+          is_liked: like_result.is_liked,
+          is_disliked: like_result.is_disliked,
+        }
         : comment
     ));
   };
 
-  const handleDislike = (commentId: number): void => {
-    setComments(prevComments => 
-      prevComments.map(comment =>
-        comment.id === commentId
-          ? { ...comment, dislikes: (comment.dislikes || 0) + 1 }
-          : comment
-      )
-    );
+  const handleDislike = async (commentId: number) => {
+    const dislike_result = await dislikeComment(commentId);
+    setComments(prev => prev.map(comment =>
+      comment.id === commentId
+        ? {
+          ...comment,
+          likes: dislike_result.likes_count,
+          dislikes: dislike_result.dislikes_count,
+          is_liked: dislike_result.is_liked,
+          is_disliked: dislike_result.is_disliked,
+        }
+        : comment
+    ));
   };
 
   return (
@@ -236,7 +250,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
 
         <div className="comments-header">
           <h2 className="comments-title">{title}</h2>
-          <button 
+          <button
             className="add-comment-btn"
             onClick={() => setIsModalOpen(true)}
           >
@@ -250,7 +264,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
               key={comment.id}
               comment={comment}
               onLike={handleLike}
-              onDislike={handleDislike} 
+              onDislike={handleDislike}
             />
           ))}
 

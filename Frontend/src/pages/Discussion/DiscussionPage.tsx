@@ -1,194 +1,14 @@
 // components/PostFeed.tsx
 import React, { useState, useEffect } from 'react';
-import { type PostFeedProps, type Post, type BackendPost } from '../../types/posts';
+import { type PostFeedProps, type Post, type BackendPost } from '../../types/discussion_posts';
 import { postService, type GetPostsParams } from '../../services/PostService';
 import { ThumbsUp, ThumbsDown, MessageCircle, X } from 'lucide-react'; 
-import Comments from '../Comments/Comments';
+import Comments from '../../components/Discussion/Comments/DiscussionComments';
+import { PostCard }  from '../../components/Discussion/Posts/DiscussionPostFeed';
 import { getCommentsForPost, getPostCard } from '../../services/commentService';
-import './PostFeed.css';
+import './DiscussionPage.css';
 
-
-const mapBackendPostToPost = (backendPost: BackendPost): Post => ({
-  id: backendPost.id,
-  user: {
-    id: backendPost.author_info.id,
-    name: `${backendPost.author_info.first_name} ${backendPost.author_info.last_name}`.trim() || backendPost.author_info.username,
-    avatar: backendPost.author_info.profile_picture || '/default-avatar.png',
-    username: backendPost.author_info.username,
-  },
-  content: backendPost.content,
-  timestamp: backendPost.created_at,
-  likes: backendPost.likes_count,
-  dislikes: backendPost.dislikes_count,
-  comments: backendPost.comments_count,
-  isLiked: backendPost.user_reaction === 'like',
-  isDisliked: backendPost.user_reaction === 'dislike',
-  category: backendPost.category,
-  media: backendPost.media,
-  tags: backendPost.tags ? backendPost.tags.split(',').map(tag => tag.trim()) : [],
-});
-
-
-const PostActions: React.FC<{
-  postId: number;
-  likes: number;
-  dislikes: number;
-  comments: number;
-  isLiked: boolean;
-  isDisliked: boolean;
-  onLike: (postId: number) => Promise<void>;
-  onDislike: (postId: number) => Promise<void>;
-  onComment: (postId: number) => void;
-}> = ({ postId, likes, dislikes, comments, isLiked, isDisliked, onLike, onDislike, onComment }) => {
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleLike = async () => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      await onLike(postId);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDislike = async () => {
-    if (isLoading) return;
-    setIsLoading(true);
-    try {
-      await onDislike(postId);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="post-actions">
-      <button 
-        className={`action-btn ${isLiked ? 'liked' : ''} ${isLoading ? 'loading' : ''}`} 
-        onClick={handleLike}
-        disabled={isLoading}
-      >
-        <span className="action-icon">
-          <ThumbsUp size={18} fill={isLiked ? "currentColor" : "none"} />
-        </span>
-        <span className="action-count">{likes}</span>
-      </button>
-      
-      <button 
-        className={`action-btn ${isDisliked ? 'disliked' : ''} ${isLoading ? 'loading' : ''}`} 
-        onClick={handleDislike}
-        disabled={isLoading}
-      >
-        <span className="action-icon">
-          <ThumbsDown size={18} fill={isDisliked ? "currentColor" : "none"} />
-        </span>
-        <span className="action-count">{dislikes}</span>
-      </button>
-      
-      <button 
-        className="action-btn" 
-        onClick={() => onComment(postId)}
-      >
-        <span className="action-icon">
-          <MessageCircle size={18} />
-        </span>
-        <span className="action-count">{comments}</span>
-      </button>
-    </div>
-  );
-};
-
-
-const PostCard: React.FC<{
-  post: Post;
-  onLike: (postId: number) => Promise<void>;
-  onDislike: (postId: number) => Promise<void>;
-  onComment: (postId: number) => void;
-}> = ({ post, onLike, onDislike, onComment }) => {
-  const formatTimeAgo = (timestamp: string) => {
-    const now = new Date();
-    const postDate = new Date(timestamp);
-    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
-    
-    if (diffInHours < 1) return 'همین حالا';
-    if (diffInHours === 1) return '1 ساعت پیش';
-    if (diffInHours < 24) return `${diffInHours} ساعت پیش`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return '1 روز پیش';
-    return `${diffInDays} روز پیش`;
-  };
-
-  return (
-    <div className="post-card">
-      <div className="post-header">
-        <div className="user-avatar">
-          <img 
-            src={post.user.avatar} 
-            alt={post.user.name}
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9kayreViIUlp8-GZFDlXdNHQc7Ckc8PpM0w&s";
-            }}
-          />
-        </div>
-        <div className="user-info">
-          <div className="user-name">{post.user.name}</div>
-          <div className="user-username">@{post.user.username}</div>
-          <div className="post-time">{formatTimeAgo(post.timestamp)}</div>
-        </div>
-      </div>
-      
-      {post.content && (
-        <div className="post-content">
-          {post.content}
-        </div>
-      )}
-      
-      {post.tags && post.tags.length > 0 && (
-        <div className="post-tags">
-          {post.tags.map((tag, index) => (
-            <span key={index} className="post-tag">
-              #{tag}
-            </span>
-          ))}
-        </div>
-      )}
-      
-      {post.media && post.media.length > 0 && (
-        <div className="post-media">
-          {post.media.map(mediaItem => (
-            <div key={mediaItem.id} className="media-item">
-              {mediaItem.media_type === 'image' && (
-                <img 
-                  src={mediaItem.url} 
-                  alt={mediaItem.caption} 
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-      
-      <PostActions
-        postId={post.id}
-        likes={post.likes}
-        dislikes={post.dislikes}
-        comments={post.comments}
-        isLiked={post.isLiked || false}
-        isDisliked={post.isDisliked || false}
-        onLike={onLike}
-        onDislike={onDislike}
-        onComment={onComment}
-      />
-    </div>
-  );
-};
-
-const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = [] }) => {
+const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPosts = [] }) => {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [loading, setLoading] = useState(!initialPosts.length);
   const [error, setError] = useState<string | null>(null);
@@ -273,11 +93,8 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
         return post;
       }));
 
-      if (post.isLiked) {
-        await postService.removeReaction(postId);
-      } else {
+
         await postService.likePost(postId);
-      }
     } catch (err) {
       fetchPosts(pagination.page, false);
       console.error('Error liking post:', err);
@@ -313,17 +130,15 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
         return post;
       }));
 
-      if (post.isDisliked) {
-        await postService.removeReaction(postId);
-      } else {
+
         await postService.dislikePost(postId);
-      }
     } catch (err) {
       fetchPosts(pagination.page, false);
       console.error('Error disliking post:', err);
     }
   };
 
+  // Executes when clicking the comments button. Gets comments and post card, and updates postComments.
   const handleComment = async (postId: number) => {
     try {
       setCommentsLoading(true); 
@@ -391,10 +206,10 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
       <div className="post-feed">
         <div className="post-list">
           {posts.map(post => (
-            <PostCard 
+            <PostCard
               key={post.id}
-              post={post}
               onLike={handleLike}
+              post={post}
               onDislike={handleDislike}
               onComment={handleComment}
             />
@@ -466,5 +281,4 @@ const PostFeed: React.FC<PostFeedProps> = ({ category, username, initialPosts = 
   );
 };
 
-export default PostFeed;
-
+export default DiscussionPage;
