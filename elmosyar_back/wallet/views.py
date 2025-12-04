@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.conf import settings
+from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -7,10 +7,19 @@ from .models import UserWallet, Transaction, WalletService, WalletError, Insuffi
 from .serializer import UserWalletSerializer, TransactionSerializer
 from rest_framework import status
 
+User = get_user_model()
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_wallet(request):
-    wallet = UserWallet.objects.get(user=request.user)
+    try:
+        wallet = UserWallet.objects.get(user=request.user)
+    except UserWallet.DoesNotExist:
+        return Response({"error": True,
+                         "message": "کیف پول یافت نشد",
+                         "code": "USER_WALLET_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+        
     serializer = UserWalletSerializer(wallet)
     return Response({"error": False,
                     "message": "کیف پول با موفقیت دریافت شد",
@@ -64,10 +73,33 @@ def transfer(request):
     amount = request.data.get("amount")
     
     try :
-        to_user = settings.AUTH_USER_MODEL.objects.get(pk=to_user_id)
-    except settings.AUTH_USER_MODEL.DoesNotExists:
+        to_user = User.objects.get(pk=to_user_id)
+    except User.DoesNotExists:
         return Response({"error": True,
                          "message": "کاربر وارد شده یافت نشد",
                          "code": "USER_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
         
     return wallet_service_handler(WalletService.transfer, request.user, to_user, amount)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_transactions(request):
+    try:
+        wallet = UserWallet.objects.get(user=request.user)
+    except UserWallet.DoesNotExist:
+        return Response({"error": True,
+                         "message": "کیف پول یافت نشد",
+                         "code": "USER_WALLET_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+        
+    transactions = Transaction.objects.filter(wallet=wallet).order_by('-registered_in')
+    if not transactions.exists():
+        return Response({"error": True,
+                         "message": "تراکنشی وجود ندارد",
+                         "code": "USER_TRANSACTION_NOT_EXIST"}, status=status.HTTP_200_OK)
+    
+    serializer = TransactionSerializer(transactions, many=True)
+    return Response({"error": False,
+                     "message": "تراکنش های کاربر یافت شد",
+                     "code": "USER_TRANSACTION_FETCHED",
+                     "data": serializer.data}, status=status.HTTP_200_OK)
