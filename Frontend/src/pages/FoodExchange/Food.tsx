@@ -12,7 +12,8 @@ const Food: React.FC = () => {
       location: 'کافه دانشکده مدیریت',
       date: 'سه شنبه، ۲۳ آبان',
       price: 5.5,
-      isSoldOut: true
+      isSoldOut: true,
+      day: undefined
     },	
     {
       id: '2',
@@ -21,7 +22,8 @@ const Food: React.FC = () => {
       location: 'سلف دانشکده مهندسی',
       date: 'سه شنبه، ۲۳ آبان',
       price: 9,
-      isSoldOut: true
+      isSoldOut: true,
+      day: undefined
     },
     {
       id: '3',
@@ -30,7 +32,8 @@ const Food: React.FC = () => {
       location: 'سلف مرکزی',
       date: 'سه شنبه، ۲۳ آبان',
       price: 4.5,
-      isSoldOut: false
+      isSoldOut: false,
+      day: undefined
     },
     {
       id: '4',
@@ -39,7 +42,8 @@ const Food: React.FC = () => {
       location: 'رستوران دانشکده فنی',
       date: 'سه شنبه، ۲۳ آبان',
       price: 12,
-      isSoldOut: false
+      isSoldOut: false,
+      day: undefined
     }
   ];
 
