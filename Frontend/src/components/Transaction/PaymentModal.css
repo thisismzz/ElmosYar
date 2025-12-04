@@ -1,0 +1,249 @@
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  font-family: 'Vazirmatn', sans-serif;
+  direction: rtl;
+}
+
+.payment-modal {
+  background-color: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 25px 25px 20px 25px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  position: relative;
+}
+
+.modal-title {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #333333;
+  text-align: center;
+}
+
+.modal-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #666666;
+  text-align: center;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666666;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: #e9ecef;
+}
+
+.payment-options {
+  padding: 25px;
+  padding-bottom: 15px;
+}
+
+.payment-option {
+  background-color: #ffffff;
+  border: 2px solid #e9ecef;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.payment-option:hover {
+  border-color: #4a6cf7;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(74, 108, 247, 0.1);
+}
+
+.payment-option.selected {
+  border-color: #4a6cf7;
+  background-color: rgba(74, 108, 247, 0.05);
+}
+
+.option-content {
+  flex: 1;
+}
+
+.option-title {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.wallet-details {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-row span:first-child {
+  color: #666666;
+}
+
+.amount {
+  font-weight: 600;
+  font-family: 'Vazirmatn', sans-serif;
+  direction: ltr;
+  display: inline-block;
+}
+
+.amount.negative {
+  color: #f44336;
+}
+
+.amount.positive {
+  color: #4caf50;
+}
+
+.online-details {
+  padding: 10px 0;
+}
+
+.online-details .detail-row {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  border-radius: 10px;
+  margin: 0;
+}
+
+.option-selector {
+  margin-right: 10px;
+  margin-top: 5px;
+}
+
+.radio-button {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.radio-button.checked {
+  border-color: #4a6cf7;
+  background-color: #4a6cf7;
+}
+
+.radio-inner {
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.payment-action {
+  padding: 20px 25px 25px 25px;
+  border-top: 1px solid #e9ecef;
+}
+
+.pay-button {
+  width: 100%;
+  padding: 16px 20px;
+  background-color: #4a6cf7;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Vazirmatn', sans-serif;
+}
+
+.pay-button:hover:not(.disabled) {
+  background-color: #3a5ce5;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
+}
+
+.pay-button.disabled {
+  background-color: #9e9e9e;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .payment-modal {
+    max-width: 100%;
+    margin: 10px;
+  }
+  
+  .modal-header {
+    padding: 20px 20px 15px 20px;
+  }
+  
+  .payment-options {
+    padding: 20px;
+    padding-bottom: 10px;
+  }
+  
+  .payment-option {
+    padding: 15px;
+  }
+  
+  .wallet-details {
+    padding: 12px;
+  }
+  
+  .detail-row {
+    font-size: 13px;
+  }
+  
+  .pay-button {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+}
