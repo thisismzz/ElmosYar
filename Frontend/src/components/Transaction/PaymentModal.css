@@ -46,7 +46,7 @@
 /* Header */
 .modal-header {
   padding: 25px 25px 20px 25px;
-  background: linear-gradient(135deg, #4a6cf7 0%, #3a5ce5 100%);
+  background: linear-gradient(135deg, #16519f 0%, #3a5ce5 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
 }
@@ -162,23 +162,23 @@
 }
 
 .payment-option:hover {
-  border-color: #4a6cf7;
+  border-color: #16519f;
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(74, 108, 247, 0.15);
 }
 
 .payment-option:hover::before {
-  background: linear-gradient(to left, #4a6cf7, #3a5ce5);
+  background: linear-gradient(to left, #16519f, #3a5ce5);
 }
 
 .payment-option.selected {
-  border-color: #4a6cf7;
+  border-color: #16519f;
   background-color: rgba(74, 108, 247, 0.05);
   box-shadow: 0 8px 25px rgba(74, 108, 247, 0.1);
 }
 
 .payment-option.selected::before {
-  background: linear-gradient(to left, #4a6cf7, #3a5ce5);
+  background: linear-gradient(to left, #16519f, #3a5ce5);
 }
 
 .payment-option.insufficient {
@@ -233,7 +233,7 @@
   background: rgba(74, 108, 247, 0.05);
   padding: 8px 12px;
   border-radius: 8px;
-  border-right: 3px solid #4a6cf7;
+  border-right: 3px solid #16519f;
 }
 
 .detail-row {
@@ -315,8 +315,8 @@
 }
 
 .radio-button.checked {
-  border-color: #4a6cf7;
-  background-color: #4a6cf7;
+  border-color: #16519f;
+  background-color: #16519f;
   animation: radioCheck 0.2s ease;
   box-shadow: 0 0 0 4px rgba(74, 108, 247, 0.1);
 }
@@ -355,7 +355,7 @@
 }
 
 .radio-button:hover {
-  border-color: #4a6cf7;
+  border-color: #16519f;
   transform: scale(1.05);
 }
 
@@ -369,7 +369,7 @@
 .pay-button {
   width: 100%;
   padding: 18px 20px;
-  background: linear-gradient(135deg, #4a6cf7 0%, #3a5ce5 100%);
+  background: linear-gradient(135deg, #16519f 0%, #3a5ce5 100%);
   border: none;
   border-radius: 12px;
   font-size: 16px;
