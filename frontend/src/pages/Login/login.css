@@ -171,13 +171,13 @@
   flex: 1;
 }
 
-.submit-button:hover {
+.auth-submit-button:hover {
   opacity: 90%;
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
 }
 
-.submit-button:active {
+.auth-submit-button:active {
   transform: translateY(0);
 }
 
@@ -196,14 +196,14 @@
 }
 
 .tab-button:disabled,
-.submit-button:disabled {
+.auth-submit-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
   box-shadow: none !important;
 }
 
-.submit-button:disabled:hover {
+.auth-submit-button:disabled:hover {
   opacity: 0.6;
   transform: none;
   box-shadow: none;
@@ -239,16 +239,16 @@
   box-shadow: 0 0 0 3px rgba(22, 81, 159, 0.1);
 }
 
-.submit-button:focus-visible {
+.auth-submit-button:focus-visible {
   outline: 2px solid #16519F;
   outline-offset: 2px;
 }
 
-.submit-button:disabled {
+.auth-submit-button:disabled {
   position: relative;
 }
 
-.submit-button:disabled::after {
+.auth-submit-button:disabled::after {
   position: absolute;
   width: 16px;
   height: 16px;

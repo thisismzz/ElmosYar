@@ -3,6 +3,8 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider } from './components/AuthProvider';
 import { useAuth } from './contexts/AuthContext';
+import useIsMobile from './hooks/useIsMobile';
+import Backdrop from './components/Backdrop/Backdrop';
 import { Main } from './pages/Main/main';
 import RegisterPage from './pages/Login/login';
 import { ProfilePage } from './pages/Profile';
@@ -17,54 +19,23 @@ import Food from './pages/FoodExchange/Food';
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
   const { topicId } = useParams<{ topicId: string }>();
-  return <DiscussionPage category={topicId} />;
-};
 
-const UserDiscussion: React.FC = () => {
-  const { username } = useParams<{ username: string }>();
-  return <DiscussionPage username={username} />;
+  // Use Food only for the 'food' topic, and DiscussionPage only for 'discussion'.
+  if (topicId === 'food') return <Food />;
+  if (topicId === 'discussion') return <DiscussionPage category={topicId} />;
+
+  // For all other topics, show the general discussion feed.
+  return <GeneralDiscussion />;
 };
 
 const GeneralDiscussion: React.FC = () => {
   return <DiscussionPage />;
 };
 
-// Custom hook to check if device is mobile
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return isMobile;
-};
-
-// Backdrop component for mobile sidebar
-interface BackdropProps {
-  isActive: boolean;
-  onClick: () => void;
-}
-
-const Backdrop: React.FC<BackdropProps> = ({ isActive, onClick }) => {
-  return (
-    <div 
-      className={`sidebar-backdrop ${isActive ? 'sidebar-backdrop-active' : ''}`}
-      onClick={onClick}
-    />
-  );
-};
-
-// Create a wrapper component to handle the layout
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const isMobile = useIsMobile();
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(!isMobile);
-  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(isMobile);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -96,6 +67,10 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useEffect(() => {
     if (isMobile) {
       setIsLeftSidebarOpen(false);
+      setIsRightSidebarOpen(false);
+    }
+    else {
+      setIsLeftSidebarOpen(true);
       setIsRightSidebarOpen(false);
     }
   }, [isMobile]);
@@ -156,8 +131,12 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               />
             )}
             <LeftSidebar isOpen={isLeftSidebarOpen} />
-            <main 
-              className={`main-content`}
+            <main
+              className={[
+                'main-content',
+                isLeftSidebarOpen ? 'left-open' : 'left-closed',
+                isRightSidebarOpen ? 'right-open' : 'right-closed'
+              ].join(' ')}
               // Close sidebar when clicking on main content on mobile
               onClick={isMobile && isLeftSidebarOpen ? handleCloseLeftSidebar : undefined}
             >
@@ -198,17 +177,10 @@ const ProtectedRoutes: React.FC = () => {
       <Route path='/profile/wallet' element={<WalletPage />} />
       <Route path='/profile/edit' element={<EditProfilePage />} />
       
-      {/* Post Feed Routes */}
-      <Route path='/feed' element={<GeneralDiscussion />} />
-      <Route path='/feed/topic/:topicId' element={<TopicDiscussion />} />
-      <Route path='/feed/user/:username' element={<UserDiscussion />} />
-      
       {/* Legacy routes for backward compatibility */}
       <Route path='/Discussion/PostFeed' element={<GeneralDiscussion />} />
       <Route path='/topic/:topicId' element={<TopicDiscussion />} />
       
-      <Route path = '/food' element= {<Food/>}/>
-
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
