@@ -17,6 +17,7 @@ class PostMediaSerializer(serializers.ModelSerializer):
     def get_file_size(self, obj):
         return obj.file.size if obj.file else 0
 
+
 class PostSerializer(serializers.ModelSerializer):
     author_info = UserSerializer(source='author', read_only=True)
     media = PostMediaSerializer(many=True, read_only=True)
@@ -28,6 +29,7 @@ class PostSerializer(serializers.ModelSerializer):
     replies_count = serializers.SerializerMethodField()
     user_reaction = serializers.SerializerMethodField()
     is_saved = serializers.SerializerMethodField()
+    attributes = serializers.JSONField(default=dict, required=False)  # اضافه کردن فیلد attributes
 
     class Meta:
         model = Post
@@ -35,7 +37,7 @@ class PostSerializer(serializers.ModelSerializer):
             'id', 'author', 'author_info', 'content', 'created_at', 'updated_at',
             'tags', 'mentions', 'media', 'category', 'parent', 'is_repost',
             'original_post', 'likes_count', 'dislikes_count', 'comments_count',
-            'reposts_count', 'replies_count', 'user_reaction', 'is_saved'
+            'reposts_count', 'replies_count', 'user_reaction', 'is_saved', 'attributes'
         ]
         read_only_fields = ['author', 'created_at', 'updated_at']
 

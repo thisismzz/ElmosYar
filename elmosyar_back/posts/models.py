@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-import settings
 import os
 
 
@@ -18,6 +17,9 @@ class Post(models.Model):
     
     # فیچر جدید: سیستم ذخیره پست‌ها
     saved_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='saved_posts', blank=True)
+    
+    # فیلد جدید برای ذخیره داده‌های JSON ساختاریافته
+    attributes = models.JSONField(default=dict, blank=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -78,6 +80,7 @@ class PostMedia(models.Model):
             if os.path.isfile(self.file.path):
                 os.remove(self.file.path)
         super().delete(*args, **kwargs)
+
 
 # ════════════════════════════════════════════════════════════
 # 📁 Category Format Model

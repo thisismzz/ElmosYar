@@ -5,9 +5,11 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
 import logging
 import json
 import mimetypes
+import re
 
 import settings
 from .models import Post, PostMedia, CategoryFormat
@@ -25,6 +27,157 @@ MAX_MEDIA_FILE_SIZE = 10 * 1024 * 1024
 
 
 # ════════════════════════════════════════════════════════════
+# 🛠️ Helper Functions
+# ════════════════════════════════════════════════════════════
+
+def apply_advanced_search_filter(queryset, search_json, category):
+    """
+    اعمال فیلترهای پیشرفته بر اساس JSON جستجو و فرمت دسته‌بندی
+    """
+    try:
+        search_criteria = json.loads(search_json)
+        
+        # بررسی اینکه search_criteria یک دیکشنری است
+        if not isinstance(search_criteria, dict):
+            raise ValidationError('Search criteria must be a JSON object')
+        
+        # اگر دسته‌بندی مشخص نشده، خطا برگردان
+        if not category:
+            raise ValidationError('Category is required for advanced search')
+        
+        # دریافت فرمت JSON مربوط به این دسته‌بندی
+        format_obj = CategoryFormat.objects.filter(category=category).first()
+        
+        if not format_obj:
+            raise ValidationError(f'No format found for category: {category}')
+        
+        # خواندن فرمت JSON از فایل
+        try:
+            with open(format_obj.format_file.path, 'r', encoding='utf-8') as f:
+                format_data = json.load(f)
+        except Exception as e:
+            logger.error(f"Error reading format file: {str(e)}")
+            raise ValidationError('Error reading format file')
+        
+        # فیلتر کردن پست‌ها بر اساس معیارهای جستجو
+        filtered_posts = []
+        for post in queryset:
+            post_attributes = post.attributes or {}
+            match_all_criteria = True
+            
+            for key, regex_pattern in search_criteria.items():
+                # بررسی وجود کلید در attributes پست
+                if key not in post_attributes:
+                    match_all_criteria = False
+                    break
+                
+                # بررسی وجود کلید در فرمت
+                if key not in format_data:
+                    match_all_criteria = False
+                    break
+                
+                # اعتبارسنجی مقدار با regex فرمت
+                value = str(post_attributes[key])
+                try:
+                    if not re.match(format_data[key], value):
+                        match_all_criteria = False
+                        break
+                except re.error:
+                    logger.error(f"Invalid regex pattern in format for key {key}: {format_data[key]}")
+                    match_all_criteria = False
+                    break
+                
+                # اعمال regex جستجوی کاربر (اگر در search_criteria آمده باشد)
+                if regex_pattern:
+                    try:
+                        if not re.match(regex_pattern, value):
+                            match_all_criteria = False
+                            break
+                    except re.error:
+                        logger.error(f"Invalid regex pattern in search for key {key}: {regex_pattern}")
+                        match_all_criteria = False
+                        break
+            
+            if match_all_criteria:
+                filtered_posts.append(post.id)
+        
+        # فیلتر کردن پست‌ها بر اساس IDهای فیلتر شده
+        return queryset.filter(id__in=filtered_posts)
+        
+    except json.JSONDecodeError:
+        raise ValidationError('Invalid JSON in search parameter')
+    except ValidationError as e:
+        raise e
+    except Exception as e:
+        logger.error(f"Advanced search error: {str(e)}")
+        raise ValidationError('Error in advanced search')
+
+
+def validate_post_attributes(attributes, category):
+    """
+    اعتبارسنجی attributes پست بر اساس فرمت دسته‌بندی
+    """
+    if not attributes or not category:
+        return True, None
+    
+    format_obj = CategoryFormat.objects.filter(category=category).first()
+    if not format_obj:
+        return True, None  # اگر فرمتی وجود ندارد، اعتبارسنجی نکن
+    
+    try:
+        with open(format_obj.format_file.path, 'r', encoding='utf-8') as f:
+            format_data = json.load(f)
+        
+        for key, value in attributes.items():
+            if key in format_data:
+                # اعتبارسنجی با regex فرمت
+                if not re.match(format_data[key], str(value)):
+                    return False, f'Attribute "{key}" does not match format pattern'
+        
+        return True, None
+    except Exception as e:
+        logger.error(f"Format validation error: {str(e)}")
+        return False, f'Error validating format: {str(e)}'
+
+
+def validate_post_update_attributes(post, attributes, category):
+    """
+    اعتبارسنجی attributes برای به‌روزرسانی پست
+    """
+    if not category:
+        return True, None
+    
+    format_obj = CategoryFormat.objects.filter(category=category).first()
+    if not format_obj:
+        return True, None
+    
+    try:
+        with open(format_obj.format_file.path, 'r', encoding='utf-8') as f:
+            format_data = json.load(f)
+        
+        # اگر attributes جدید ارسال شده
+        if attributes is not None:
+            post_attributes = post.attributes or {}
+            merged_attributes = {**post_attributes, **attributes}
+            
+            for key, value in merged_attributes.items():
+                if key in format_data:
+                    # اعتبارسنجی با regex فرمت
+                    if not re.match(format_data[key], str(value)):
+                        return False, f'Attribute "{key}" does not match format pattern'
+            
+            # بررسی کلیدهای اجباری در فرمت
+            for key, pattern in format_data.items():
+                if key not in merged_attributes:
+                    return False, f'Attribute "{key}" is required and cannot be removed'
+        
+        return True, None
+    except Exception as e:
+        logger.error(f"Format validation error for update: {str(e)}")
+        return False, f'Error validating format: {str(e)}'
+
+
+# ════════════════════════════════════════════════════════════
 # 📝 Post Endpoints
 # ════════════════════════════════════════════════════════════
 
@@ -37,11 +190,12 @@ def posts_list_create(request):
         # Search parameters
         category = request.GET.get('category')
         username = request.GET.get('username')
+        search_json = request.GET.get('search')
         page = int(request.GET.get('page', 1))
         per_page = min(int(request.GET.get('per_page', 20)), 100)
-        
+
         # Build query
-        posts = Post.objects.filter(parent=None)
+        posts = Post.objects.all()
         
         if category:
             posts = posts.filter(category=category)
@@ -49,6 +203,16 @@ def posts_list_create(request):
         if username:
             user = get_object_or_404(settings.AUTH_USER_MODEL, username=username)
             posts = posts.filter(author=user)
+        
+        # اگر پارامتر search وجود داشت، فیلترهای پیشرفته را اعمال کن
+        if search_json:
+            try:
+                posts = apply_advanced_search_filter(posts, search_json, category)
+            except ValidationError as e:
+                return Response({
+                    'success': False,
+                    'message': str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
         
         # Optimize queries
         posts = posts.select_related('author').prefetch_related(
@@ -85,12 +249,13 @@ def posts_list_create(request):
             mentions_raw = request.data.get('mentions', '').strip()
             parent_id = request.data.get('parent')
             category = request.data.get('category', '').strip()
+            attributes = request.data.get('attributes', {})
 
             # Validation
-            if not content and not request.FILES:
+            if not content and not request.FILES and not attributes:
                 return Response({
                     'success': False,
-                    'message': 'Post content or media required'
+                    'message': 'Post content, media or attributes required'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             if len(content) > MAX_POST_CONTENT_LENGTH:
@@ -110,12 +275,22 @@ def posts_list_create(request):
                     'message': 'Room/Category is required'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
+            # اعتبارسنجی attributes بر اساس فرمت دسته‌بندی
+            if attributes and category:
+                is_valid, error_message = validate_post_attributes(attributes, category)
+                if not is_valid:
+                    return Response({
+                        'success': False,
+                        'message': error_message
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
             post = Post.objects.create(
                 author=request.user,
                 content=content,
                 tags=tags,
                 parent=parent,
-                category=category
+                category=category,
+                attributes=attributes
             )
 
             # Handle mentions
@@ -239,6 +414,22 @@ def update_post(request, post_id):
                     'message': 'You can only edit your own posts'
                 }, status=status.HTTP_403_FORBIDDEN)
             
+            # دریافت داده‌های به‌روزرسانی
+            content = request.data.get('content')
+            tags = request.data.get('tags')
+            category = request.data.get('category')
+            attributes = request.data.get('attributes')
+            
+            # اعتبارسنجی attributes بر اساس فرمت دسته‌بندی
+            if category or post.category:
+                current_category = category or post.category
+                is_valid, error_message = validate_post_update_attributes(post, attributes, current_category)
+                if not is_valid:
+                    return Response({
+                        'success': False,
+                        'message': error_message
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            
             # Use serializer for validation
             serializer = PostSerializer(post, data=request.data, partial=True, context={'request': request})
             
@@ -298,7 +489,8 @@ def post_repost(request, post_id):
                 is_repost=True,
                 original_post=original_post,
                 tags=original_post.tags,
-                category=original_post.category
+                category=original_post.category,
+                attributes=original_post.attributes  # کپی کردن attributes
             )
             
             # Copy mentions
@@ -678,5 +870,3 @@ def get_format_data(cat):
     except Exception as e:
         logger.error(f"Error in get_format_data for {cat}: {str(e)}")
         return None
-
-
