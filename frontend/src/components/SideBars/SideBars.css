@@ -500,10 +500,15 @@
 
 /* Desktop Styles - Left Sidebar always open, Right Sidebar visible */
 @media (min-width: 769px) {
+  /* Desktop: make sidebars fixed so only main content scrolls */
   .left-sidebar {
     width: 240px;
-    position: static;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    bottom: 0;
     transform: none;
+    z-index: 50;
   }
 
   .left-sidebar-closed {
@@ -512,6 +517,17 @@
 
   .sidebar {
     display: flex;
+    position: fixed;
+    top: 70px;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+  }
+
+  /* Ensure the panels inside fill the fixed sidebar height */
+  .sidebar-panel,
+  .left-sidebar-panel {
+    height: 100%;
   }
 }
 
@@ -560,7 +576,6 @@
     width: 100%;
   }
 
-  /* Prevent scrolling when sidebar is open */
   .sidebar-open body {
     overflow: hidden;
   }
