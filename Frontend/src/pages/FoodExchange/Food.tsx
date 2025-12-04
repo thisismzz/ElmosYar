@@ -44,7 +44,7 @@ const Food: React.FC = () => {
   ];
 
   return (
-    FoodPostFeed(foodItems)
+    <FoodPostFeed items={foodItems} />
   );
 };
 

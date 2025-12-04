@@ -1,16 +1,14 @@
-import { FoodItem } from "../../../types/food_posts"
-import { Sun, Moon } from 'lucide-react'
+import React, { useState } from 'react';
+import { FoodItem } from "../../../types/food_posts";
+import { Sun, Moon } from 'lucide-react';
+import PaymentModal from '../../Transaction/PaymentModal';
 
+interface FoodPostCardProps {
+	item: FoodItem;
+	onBuy: (item: FoodItem) => void;
+}
 
-export const FoodPostCard = (item: FoodItem) => {
-	const handleBuyFood = (item: FoodItem) => {
-		if (item.isSoldOut) {
-			alert(`متاسفانه ${item.name} تمام شده است!`);
-			return;
-		}
-		alert(`سفارش ${item.name} با موفقیت ثبت شد! مبلغ: $${item.price}`);
-	};
-
+export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 	const formatPrice = (price: number): string => {
 		return `$${price}`;
 	};
@@ -38,7 +36,6 @@ export const FoodPostCard = (item: FoodItem) => {
 			</div>
 
 			<div className="card-body">
-
 				<div className="food-details">
 					<div className="detail-item">
 						<span className="detail-icon">⏰</span>
@@ -75,7 +72,7 @@ export const FoodPostCard = (item: FoodItem) => {
 				) : (
 					<button
 						className="buy-button"
-						onClick={() => handleBuyFood(item)}
+						onClick={() => onBuy(item)}
 					>
 						<span className="button-text">خرید</span>
 					</button>
@@ -91,9 +88,37 @@ export const FoodPostCard = (item: FoodItem) => {
 	)
 }
 
+interface FoodPostFeedProps {
+	items: FoodItem[];
+}
 
-//! add props
-export const FoodPostFeed = (foodItems: FoodItem[]) => {
+export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems }) => {
+	const [items, setItems] = useState<FoodItem[]>(initialItems || []);
+	const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	const walletBalance = 50000; // placeholder; replace with real balance from context/service
+
+	const handleBuyFood = (item: FoodItem) => {
+		if (item.isSoldOut) {
+			alert(`متاسفانه ${item.name} تمام شده است!`);
+			return;
+		}
+
+		setSelectedItem(item);
+		setIsModalOpen(true);
+	};
+
+	const handleCloseModal = () => {
+		setIsModalOpen(false);
+		setSelectedItem(null);
+	};
+
+	const handlePaymentSuccess = (_method: any, foodItem: FoodItem) => {
+		// mark item as sold out (or remove) after successful payment
+		setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
+	};
+
 	return (
 		<div className="food-order-container">
 			<div className="food-header">
@@ -102,11 +127,20 @@ export const FoodPostFeed = (foodItems: FoodItem[]) => {
 			</div>
 
 			<div className="food-items-grid">
-				{foodItems.map((item) => (
-					FoodPostCard(item)
+				{items.map((item) => (
+					<FoodPostCard key={item.id} item={item} onBuy={handleBuyFood} />
 				))}
-
 			</div>
+
+			{selectedItem && (
+				<PaymentModal
+					isOpen={isModalOpen}
+					onClose={handleCloseModal}
+					onPaymentSuccess={handlePaymentSuccess}
+					foodItem={selectedItem}
+					walletBalance={walletBalance}
+				/>
+			)}
 		</div>
 	)
 }
