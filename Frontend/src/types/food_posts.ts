@@ -1,6 +1,9 @@
+import { ReactNode } from "react";
+
 export type PaymentMethod = 'wallet' | 'online';
 
 export interface FoodItem {
+  day: ReactNode;
   id: string;
   name: string;
   mealType: string;
