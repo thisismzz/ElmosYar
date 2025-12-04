@@ -1,39 +1,54 @@
 import React, { useState } from 'react';
 import './PaymentModal.css';
-
-type PaymentMethod = 'wallet' | 'online';
-
-interface PaymentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  foodCost: number;
-  walletBalance: number;
-}
+import { PaymentModalProps, PaymentMethod, FoodItem } from '../../types/food_posts';
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
   isOpen,
   onClose,
-  foodCost,
+  onPaymentSuccess,
+  foodItem,
   walletBalance
 }) => {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const formatNumber = (num: number): string => {
     return new Intl.NumberFormat('fa-IR').format(num);
   };
 
-  const afterPaymentBalance = walletBalance - foodCost;
+  const afterPaymentBalance = walletBalance - foodItem.price;
+  const hasSufficientBalance = afterPaymentBalance >= 0;
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!selectedMethod) return;
     
-    if (selectedMethod === 'wallet') {
-      alert(`پرداخت با کیف پول انجام شد. مبلغ ${formatNumber(foodCost)} تومان کسر شد.`);
-    } else {
-      alert('به صفحه پرداخت آنلاین منتقل می‌شوید...');
+    if (selectedMethod === 'wallet' && !hasSufficientBalance) {
+      alert('موجودی کیف پول شما کافی نیست. لطفا روش دیگری انتخاب کنید.');
+      return;
     }
+
+    setIsProcessing(true);
     
-    onClose();
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      if (selectedMethod === 'wallet') {
+        alert(`پرداخت با کیف پول انجام شد. مبلغ ${formatNumber(foodItem.price)} تومان کسر شد.`);
+      } else {
+        alert('به صفحه پرداخت آنلاین منتقل می‌شوید...');
+      }
+      
+      if (onPaymentSuccess) {
+        onPaymentSuccess(selectedMethod, foodItem);
+      }
+      
+      onClose();
+    } catch (error) {
+      console.error('Payment failed:', error);
+      alert('پرداخت با خطا مواجه شد. لطفا مجددا تلاش کنید.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -54,7 +69,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         <div className="payment-options">
           {/* گزینه ۱: ولت */}
           <div 
-            className={`payment-option ${selectedMethod === 'wallet' ? 'selected' : ''}`}
+            className={`payment-option ${selectedMethod === 'wallet' ? 'selected' : ''} ${
+              !hasSufficientBalance ? 'insufficient' : ''
+            }`}
             onClick={() => setSelectedMethod('wallet')}
           >
             <div className="option-content">
@@ -67,12 +84,20 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 </div>
                 <div className="detail-row">
                   <span>هزینه غذا:</span>
-                  <span className="amount negative">{formatNumber(foodCost)}</span>
+                  <span className="amount negative">{formatNumber(foodItem.price)}</span>
                 </div>
                 <div className="detail-row">
                   <span>موجودی پس از پرداخت:</span>
-                  <span className="amount positive">{formatNumber(afterPaymentBalance)}</span>
+                  <span className={`amount ${!hasSufficientBalance ? 'insufficient' : 'positive'}`}>
+                    {formatNumber(afterPaymentBalance)}
+                  </span>
                 </div>
+                
+                {!hasSufficientBalance && (
+                  <div className="insufficient-warning">
+                    ⚠️ موجودی کیف پول کافی نیست
+                  </div>
+                )}
               </div>
             </div>
             
@@ -94,7 +119,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <div className="online-details">
                 <div className="detail-row">
                   <span>هزینه غذا:</span>
-                  <span className="amount">{formatNumber(foodCost)} تومان</span>
+                  <span className="amount">{formatNumber(foodItem.price)} تومان</span>
                 </div>
               </div>
             </div>
@@ -110,11 +135,20 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         {/* دکمه پرداخت */}
         <div className="payment-action">
           <button
-            className={`pay-button ${!selectedMethod ? 'disabled' : ''}`}
+            className={`pay-button ${!selectedMethod || isProcessing ? 'disabled' : ''}`}
             onClick={handlePayment}
-            disabled={!selectedMethod}
+            disabled={!selectedMethod || isProcessing}
           >
-            {selectedMethod === 'wallet' ? 'پرداخت با کیف پول' : 'رفتن به صفحه پرداخت آنلاین'}
+            {isProcessing ? (
+              <>
+                <span className="spinner"></span>
+                در حال پردازش...
+              </>
+            ) : selectedMethod === 'wallet' ? (
+              'پرداخت با کیف پول'
+            ) : (
+              'رفتن به صفحه پرداخت آنلاین'
+            )}
           </button>
         </div>
       </div>
