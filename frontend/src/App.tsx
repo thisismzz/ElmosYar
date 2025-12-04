@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider } from './components/AuthProvider';
+import { FilterProvider } from './contexts/FilterContext';
 import { useAuth } from './contexts/AuthContext';
 import useIsMobile from './hooks/useIsMobile';
 import Backdrop from './components/Backdrop/Backdrop';
@@ -11,17 +12,75 @@ import { ProfilePage } from './pages/Profile';
 import { EditProfilePage } from './pages/EditProfile';
 import { WalletPage } from './pages/Wallet';
 import Header from './components/Header/Header';
-import DiscussionPage from './pages/Discussion/DiscussionPage'
+import DiscussionPage from './pages/Discussion/DiscussionPage';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
-import Food from './pages/FoodExchange/Food';
+import { FoodPostFeed } from './components/Food/Posts/Filter/FoodPostFeed';
+import FoodFilters from './components/Food/FoodFilters';
+
+
+const FoodPage: React.FC = () => {
+ 
+  const [foodItems, setFoodItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  
+  useEffect(() => {
+    const fetchFoodItems = async () => {
+      try {
+        setLoading(true);
+        // مثال: const response = await foodService.getFoodItems();
+        // setFoodItems(response.data);
+        
+        setFoodItems([]);
+      } catch (err) {
+        setError('خطا در دریافت اطلاعات غذاها');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFoodItems();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="food-page-container">
+        <div className="loading-state">
+          <p>در حال دریافت اطلاعات غذاها...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="food-page-container">
+        <div className="error-state">
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="food-page-container">
+      <div className="food-page-header">
+      </div>
+      <FoodFilters />
+      <FoodPostFeed items={foodItems} />
+    </div>
+  );
+};
 
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
   const { topicId } = useParams<{ topicId: string }>();
 
-  // Use Food only for the 'food' topic, and DiscussionPage only for 'discussion'.
-  if (topicId === 'food') return <Food />;
+  // Use FoodPage for the 'food' topic
+  if (topicId === 'food') return <FoodPage />;
   if (topicId === 'discussion') return <DiscussionPage category={topicId} />;
 
   // For all other topics, show the general discussion feed.
@@ -93,13 +152,12 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     }
   };
 
-  // Check if we're on the login page
-  const isLoginPage = location.pathname === '/Login';
+  const isLoginPage = location.pathname === '/login';
 
   // Redirect to login if not authenticated and not already on login page
   useEffect(() => {
     if (!isAuthenticated && !isLoginPage) {
-      navigate('/Login', { replace: true });
+      navigate('/login', { replace: true });
     }
   }, [isAuthenticated, isLoginPage, navigate]);
 
@@ -122,6 +180,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             onHomeClick={handleHomeClick} 
             onToggleSidebar={handleToggleSidebar} 
           />
+          
           <div className="app-content">
             {/* Backdrop for mobile sidebar */}
             {isMobile && (
@@ -166,13 +225,13 @@ const ProtectedRoutes: React.FC = () => {
   const location = useLocation();
 
   if (!isAuthenticated) {
-    // Redirect to login page with return url
-    return <Navigate to="/Login" state={{ from: location }} replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return (
     <Routes>
       <Route path='/' element={<Main />} />
+      <Route path='/food' element={<FoodPage />} />
       <Route path='/profile' element={<ProfilePage />} />
       <Route path='/profile/wallet' element={<WalletPage />} />
       <Route path='/profile/edit' element={<EditProfilePage />} />
@@ -180,8 +239,6 @@ const ProtectedRoutes: React.FC = () => {
       {/* Legacy routes for backward compatibility */}
       <Route path='/Discussion/PostFeed' element={<GeneralDiscussion />} />
       <Route path='/topic/:topicId' element={<TopicDiscussion />} />
-      
-      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
@@ -190,30 +247,40 @@ const ProtectedRoutes: React.FC = () => {
 const PublicRoutes: React.FC = () => {
   return (
     <Routes>
-      <Route path='/Login' element={<RegisterPage />} />
-      <Route path="*" element={<Navigate to="/Login" replace />} />
+      <Route path='/login' element={<RegisterPage />} /> {/* تغییر به حروف کوچک */}
+      <Route path="*" element={<Navigate to="/login" replace />} /> {/* تغییر به حروف کوچک */}
     </Routes>
   );
 };
 
 // Main App Content that uses authentication
 const AppContent: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="auth-loading">
+        <p>در حال بررسی وضعیت احراز هویت...</p>
+      </div>
+    );
+  }
 
   return (
-    <Router>
-      <AppLayout>
-        {isAuthenticated ? <ProtectedRoutes /> : <PublicRoutes />}
-      </AppLayout>
-    </Router>
+    <AppLayout>
+      {isAuthenticated ? <ProtectedRoutes /> : <PublicRoutes />}
+    </AppLayout>
   );
 };
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <FilterProvider>
+          <AppContent />
+        </FilterProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
