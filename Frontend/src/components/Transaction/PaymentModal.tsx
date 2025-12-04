@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './PaymentModal.css';
-import { PaymentModalProps, PaymentMethod, FoodItem } from '../../types/payment';
+import { PaymentModalProps, PaymentMethod, FoodItem } from '../../types/food_posts';
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
   isOpen,
