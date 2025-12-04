@@ -15,8 +15,8 @@ import Header from './components/Header/Header';
 import DiscussionPage from './pages/Discussion/DiscussionPage';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
-import { FoodPostFeed } from './components/Food/Posts/Filter/FoodPostFeed';
-import FoodFilters from './components/Food/FoodFilters';
+import { FoodPostFeed } from './components/Food/Posts/FoodPostFeed';
+import FoodFilters from './components/Food/Filter/FoodFilters';
 
 
 const FoodPage: React.FC = () => {
