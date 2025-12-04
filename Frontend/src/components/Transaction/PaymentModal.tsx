@@ -1,54 +1,39 @@
 import React, { useState } from 'react';
 import './PaymentModal.css';
-import { PaymentModalProps, PaymentMethod, FoodItem } from '../../types/food_posts';
+
+type PaymentMethod = 'wallet' | 'online';
+
+interface PaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  foodCost: number;
+  walletBalance: number;
+}
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
   isOpen,
   onClose,
-  onPaymentSuccess,
-  foodItem,
+  foodCost,
   walletBalance
 }) => {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   const formatNumber = (num: number): string => {
     return new Intl.NumberFormat('fa-IR').format(num);
   };
 
-  const afterPaymentBalance = walletBalance - foodItem.price;
-  const hasSufficientBalance = afterPaymentBalance >= 0;
+  const afterPaymentBalance = walletBalance - foodCost;
 
-  const handlePayment = async () => {
+  const handlePayment = () => {
     if (!selectedMethod) return;
     
-    if (selectedMethod === 'wallet' && !hasSufficientBalance) {
-      alert('موجودی کیف پول شما کافی نیست. لطفا روش دیگری انتخاب کنید.');
-      return;
+    if (selectedMethod === 'wallet') {
+      alert(`پرداخت با کیف پول انجام شد. مبلغ ${formatNumber(foodCost)} تومان کسر شد.`);
+    } else {
+      alert('به صفحه پرداخت آنلاین منتقل می‌شوید...');
     }
-
-    setIsProcessing(true);
     
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      if (selectedMethod === 'wallet') {
-        alert(`پرداخت با ولت انجام شد. مبلغ ${formatNumber(foodItem.price)} تومان کسر شد.`);
-      } else {
-        alert('به صفحه پرداخت آنلاین منتقل می‌شوید...');
-      }
-      
-      if (onPaymentSuccess) {
-        onPaymentSuccess(selectedMethod, foodItem);
-      }
-      
-      onClose();
-    } catch (error) {
-      console.error('Payment failed:', error);
-      alert('پرداخت با خطا مواجه شد. لطفا مجددا تلاش کنید.');
-    } finally {
-      setIsProcessing(false);
-    }
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -65,62 +50,29 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           </button>
         </div>
 
-        {/* اطلاعات غذا */}
-        <div className="food-info-section">
-          <div className="food-name-display">{foodItem.name}</div>
-          <div className="food-details-grid">
-            <div className="food-detail">
-              <span className="detail-label">نوع وعده:</span>
-              <span className="detail-value">{foodItem.mealType}</span>
-            </div>
-            <div className="food-detail">
-              <span className="detail-label">مکان:</span>
-              <span className="detail-value">{foodItem.location}</span>
-            </div>
-            <div className="food-detail">
-              <span className="detail-label">قیمت:</span>
-              <span className="detail-value price">{formatNumber(foodItem.price)} تومان</span>
-            </div>
-            <div className="food-detail">
-              <span className="detail-label">کد غذا:</span>
-              <span className="detail-value food-id">#{foodItem.id}</span>
-            </div>
-          </div>
-        </div>
-
         {/* گزینه‌های پرداخت */}
         <div className="payment-options">
           {/* گزینه ۱: ولت */}
           <div 
-            className={`payment-option ${selectedMethod === 'wallet' ? 'selected' : ''} ${
-              !hasSufficientBalance ? 'insufficient' : ''
-            }`}
+            className={`payment-option ${selectedMethod === 'wallet' ? 'selected' : ''}`}
             onClick={() => setSelectedMethod('wallet')}
           >
             <div className="option-content">
-              <h3 className="option-title">استفاده از ولت</h3>
+              <h3 className="option-title">استفاده از کیف پول</h3>
               
               <div className="wallet-details">
                 <div className="detail-row">
-                  <span>موجودی ولت:</span>
+                  <span>موجودی کیف پول:</span>
                   <span className="amount">{formatNumber(walletBalance)}</span>
                 </div>
                 <div className="detail-row">
                   <span>هزینه غذا:</span>
-                  <span className="amount negative">{formatNumber(foodItem.price)}</span>
+                  <span className="amount negative">{formatNumber(foodCost)}</span>
                 </div>
                 <div className="detail-row">
                   <span>موجودی پس از پرداخت:</span>
-                  <span className={`amount ${!hasSufficientBalance ? 'insufficient' : 'positive'}`}>
-                    {formatNumber(afterPaymentBalance)}
-                  </span>
+                  <span className="amount positive">{formatNumber(afterPaymentBalance)}</span>
                 </div>
-                
-                {!hasSufficientBalance && (
-                  <div className="insufficient-warning">
-                    ⚠️ موجودی کیف پول کافی نیست
-                  </div>
-                )}
               </div>
             </div>
             
@@ -142,7 +94,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
               <div className="online-details">
                 <div className="detail-row">
                   <span>هزینه غذا:</span>
-                  <span className="amount">{formatNumber(foodItem.price)} تومان</span>
+                  <span className="amount">{formatNumber(foodCost)} تومان</span>
                 </div>
               </div>
             </div>
@@ -158,20 +110,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         {/* دکمه پرداخت */}
         <div className="payment-action">
           <button
-            className={`pay-button ${!selectedMethod || isProcessing ? 'disabled' : ''}`}
+            className={`pay-button ${!selectedMethod ? 'disabled' : ''}`}
             onClick={handlePayment}
-            disabled={!selectedMethod || isProcessing}
+            disabled={!selectedMethod}
           >
-            {isProcessing ? (
-              <>
-                <span className="spinner"></span>
-                در حال پردازش...
-              </>
-            ) : selectedMethod === 'wallet' ? (
-              'پرداخت با ولت'
-            ) : (
-              'رفتن به صفحه پرداخت آنلاین'
-            )}
+            {selectedMethod === 'wallet' ? 'پرداخت با کیف پول' : 'رفتن به صفحه پرداخت آنلاین'}
           </button>
         </div>
       </div>
