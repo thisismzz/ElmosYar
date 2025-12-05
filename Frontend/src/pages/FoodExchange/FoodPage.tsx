@@ -79,7 +79,7 @@ const FoodPage: React.FC = () => {
 					{
 						filters: {
 							mealType: filters.mealType == "all" ? undefined : filters.mealType,
-							location: filters.location,
+							location: filters.location == "all" ? undefined : filters.location,
 							day: filters.day == 'all' ? undefined : parseDay(filters.day),
 						},
 						search_bar: "", // to be implemented
