@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 export type PaymentMethod = 'wallet' | 'online';
 
 export interface FoodItem {
-  day: ReactNode;
+//   day: ReactNode; //??
   id: string;
   name: string;
   mealType: string;
@@ -34,4 +34,15 @@ export interface FoodOrderProps {
   items?: FoodItem[];
   onBuyFood?: (item: FoodItem) => void;
   className?: string;
+}
+
+
+export type FoodPostSearchProps = {
+	day?: "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday",
+	name?: string,
+	mealType?: string,
+	location?: string,
+	date?: string,
+	price?: [number, number],
+	isSoldOut?: boolean,
 }

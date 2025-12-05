@@ -13,7 +13,7 @@ import { EditProfilePage } from './pages/EditProfile';
 import { WalletPage } from './pages/Wallet';
 import Header from './components/Header/Header';
 import DiscussionPage from './pages/Discussion/DiscussionPage';
-import FoodPage from './pages/FoodExchange/Food';
+import FoodPage from './pages/FoodExchange/FoodPage';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
 // import { FoodPostFeed } from './components/Food/Posts/FoodPostFeed';

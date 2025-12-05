@@ -245,6 +245,114 @@ mapBackendPostToFrontend = (backendPost: BackendPost): Post => ({
   tags: backendPost.tags ? backendPost.tags.split(',').map(tag => tag.trim()) : [],
 });
 }
+/*
+* search helpers
+*/
+
+type Day = "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
+
+export type SearchValue =
+  | string //substring regex
+  | number //exact match
+  | boolean //exact boolean match
+  | null //will be ignored
+  | undefined //will bei gnored
+  | Date //exact match
+  | Day //a day
+  | [number, number] //range
+  | [Date, Date] //range
+  | string[]; //OR regex match
+
+/*
+search method describes how to search posts in the backend. 
+	in "specified_fields", the backend is given a json with the same keys as what is shown in the 
+	frontend posts (e.g. name, mealType, location and etc for food posts.). This method is used for 
+	filters. 
+	in "any", the backend is given a string which should be present somewhere in the post's content. 
+	This is used for the search bar. 
+	either of the two fields can be null, which means nothing is specified for that method of search.
+*/
+export interface PostSearchQuery<T> {
+	filters: T;
+	search_bar: string;
+}
+
+
+export function containsRegex(value: string): string {
+  const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return `.*${escaped}.*`;
+}
+
+function escapeRegex(value: unknown): string {
+  if (value === null || value === undefined) return "";
+
+  const str = String(value);
+
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function toContainsRegex(value: unknown): string {
+  const str = String(value ?? ""); // safely convert to string
+  return `.*${escapeRegex(str)}.*`;
+}
+
+
+export function makeSearchQuery(
+  fields: Record<string, SearchValue>
+): Record<string, any> {
+  const query: Record<string, any> = {};
+
+  for (const [key, value] of Object.entries(fields)) {
+    if (value === "" || value === null || value === undefined) continue;
+
+    if (typeof value === "string") {
+      query[key] = toContainsRegex(value);
+      continue;
+    }
+
+    if (typeof value === "number") {
+      query[key] = value;
+      continue;
+    }
+
+    if (typeof value === "boolean") {
+      query[key] = value;
+      continue;
+    }
+
+    if (value instanceof Date) {
+      query[key] = value.toISOString();
+      continue;
+    }
+
+    if (Array.isArray(value) && value.length === 2 && typeof value[0] === "number") {
+      const [min, max] = value as [number, number];
+      query[key] = { $range: [min, max] };
+      continue;
+    }
+
+    if (
+      Array.isArray(value) &&
+      value.length === 2 &&
+      value[0] instanceof Date &&
+      value[1] instanceof Date
+    ) {
+      query[key] = {
+        $range: [value[0].toISOString(), value[1].toISOString()]
+      };
+      continue;
+    }
+
+    if (Array.isArray(value) && typeof value[0] === "string") {
+      const patterns = value.map(v => toContainsRegex(v));
+      query[key] = { $or: patterns };
+      continue;
+    }
+  }
+
+  return query;
+}
+
 
 export const postService = new UltimatePostService();
 
@@ -257,3 +365,4 @@ export const getComments = (postId: number, params?: GetPostsParams) => postServ
 export const createComment = (postId: number, content: string) => postService.createComment(postId, content);
 
 export default UltimatePostService;
+
