@@ -13,67 +13,14 @@ import { EditProfilePage } from './pages/EditProfile';
 import { WalletPage } from './pages/Wallet';
 import Header from './components/Header/Header';
 import DiscussionPage from './pages/Discussion/DiscussionPage';
+import FoodPage from './pages/FoodExchange/Food';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
-import { FoodPostFeed } from './components/Food/Posts/FoodPostFeed';
-import FoodFilters from './components/Food/Filter/FoodFilters';
+// import { FoodPostFeed } from './components/Food/Posts/FoodPostFeed';
+// import FoodFilters from './components/Food/Filter/FoodFilters';
 
 
-const FoodPage: React.FC = () => {
- 
-  const [foodItems, setFoodItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  
-  useEffect(() => {
-    const fetchFoodItems = async () => {
-      try {
-        setLoading(true);
-        // مثال: const response = await foodService.getFoodItems();
-        // setFoodItems(response.data);
-        
-        setFoodItems([]);
-      } catch (err) {
-        setError('خطا در دریافت اطلاعات غذاها');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFoodItems();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="food-page-container">
-        <div className="loading-state">
-          <p>در حال دریافت اطلاعات غذاها...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="food-page-container">
-        <div className="error-state">
-          <p>{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="food-page-container">
-      <div className="food-page-header">
-      </div>
-      <FoodFilters />
-      <FoodPostFeed items={foodItems} />
-    </div>
-  );
-};
 
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
