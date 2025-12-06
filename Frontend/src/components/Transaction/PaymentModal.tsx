@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './PaymentModal.css';
 import { PaymentModalProps, PaymentMethod, FoodItem } from '../../types/food_posts';
+import { getWalletData, depositToWallet, withdrawFromWallet } from '../../services/paymentService';
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
   isOpen,
   onClose,
   onPaymentSuccess,
   foodItem,
-  walletBalance
+//   walletBalance
 }) => {
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
+
+	const getWalletBalance = async () => {
+		const result = await getWalletData();
+		console.log(result)
+		return result.balance;
+	}
+
+	useEffect( () => {
+		const fetchWalletBalance = async () =>{
+		try {
+				const response = await getWalletBalance();
+
+				console.log(response.data)
+
+				setWalletBalance(response);
+				
+			} catch (err) {
+				console.error(err);
+			} 
+		}
+		fetchWalletBalance();
+	}, [])
 
   const formatNumber = (num: number): string => {
     return new Intl.NumberFormat('fa-IR').format(num);
@@ -30,9 +54,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     setIsProcessing(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
       
       if (selectedMethod === 'wallet') {
+		await withdrawFromWallet(walletBalance);
         alert(`پرداخت با کیف پول انجام شد. مبلغ ${formatNumber(foodItem.price)} تومان کسر شد.`);
       } else {
         alert('به صفحه پرداخت آنلاین منتقل می‌شوید...');

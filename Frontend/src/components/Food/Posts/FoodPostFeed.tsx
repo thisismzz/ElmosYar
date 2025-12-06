@@ -116,7 +116,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 
 	const handlePaymentSuccess = (_method: any, foodItem: FoodItem) => {
 		// mark item as sold out (or remove) after successful payment
-		setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
+		// setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
 	};
 
 	return (
