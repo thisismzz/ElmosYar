@@ -48,6 +48,7 @@ export interface BackendPost {
   replies_count: number;
   user_reaction: 'like' | 'dislike' | null;
   is_saved: boolean;
+  attributes: any;
 }
 
 export interface Post {
@@ -63,6 +64,7 @@ export interface Post {
   category?: string;
   media?: Media[];
   tags?: string[]; 
+  attributes: any;
 }
 
 export interface PaginationInfo {

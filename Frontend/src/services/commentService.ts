@@ -37,6 +37,7 @@ export const mapBackendPostToFrontendPostCard = (
 			username: backendPost.author_info.username,
 		},
 		content: backendPost.content,
+		attributes: backendPost.attributes,
 		timestamp: backendPost.created_at,
 		likes: backendPost.likes_count,
 		dislikes: backendPost.dislikes_count,

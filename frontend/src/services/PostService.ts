@@ -243,6 +243,7 @@ mapBackendPostToFrontend = (backendPost: BackendPost): Post => ({
   category: backendPost.category,
   media: backendPost.media,
   tags: backendPost.tags ? backendPost.tags.split(',').map(tag => tag.trim()) : [],
+  attributes: backendPost.attributes,
 });
 }
 /*
@@ -272,7 +273,7 @@ search method describes how to search posts in the backend.
 	This is used for the search bar. 
 	either of the two fields can be null, which means nothing is specified for that method of search.
 */
-export interface PostSearchQuery<T> {
+export interface PostSearchParameters<T extends Record<string, SearchValue>> {
 	filters: T;
 	search_bar: string;
 }
@@ -299,7 +300,7 @@ function toContainsRegex(value: unknown): string {
 
 export function makeSearchQuery(
   fields: Record<string, SearchValue>
-): Record<string, any> {
+): Record<string, RegExp> {
   const query: Record<string, any> = {};
 
   for (const [key, value] of Object.entries(fields)) {
@@ -324,13 +325,14 @@ export function makeSearchQuery(
       query[key] = value.toISOString();
       continue;
     }
-
+	//* will be changed to be all regex
     if (Array.isArray(value) && value.length === 2 && typeof value[0] === "number") {
       const [min, max] = value as [number, number];
       query[key] = { $range: [min, max] };
       continue;
     }
 
+	//* also will be changed to regex
     if (
       Array.isArray(value) &&
       value.length === 2 &&
@@ -343,6 +345,7 @@ export function makeSearchQuery(
       continue;
     }
 
+	//* also hould be changed to regex
     if (Array.isArray(value) && typeof value[0] === "string") {
       const patterns = value.map(v => toContainsRegex(v));
       query[key] = { $or: patterns };
@@ -352,6 +355,24 @@ export function makeSearchQuery(
 
   return query;
 }
+
+
+export const makeSearchQueryFromSearchParameters = <T extends Record<string, SearchValue>>(search_parameters : PostSearchParameters<T>) => {
+	// gives a json with keys of the filters, but appended to that is the searchbar string. 
+	const filter_expressions = makeSearchQuery(search_parameters.filters)
+	if (search_parameters.search_bar == "") return filter_expressions;
+	const escaped = escapeRegex(search_parameters.search_bar)
+	const result: Record<string, RegExp> = {};
+
+    for (const key in filter_expressions) {
+        const r = filter_expressions[key];
+        const source = r.source;
+        result[key] = new RegExp(`^(?:${source}|${escaped})$`, r.flags);
+    }
+
+	return result;
+}
+
 
 
 export const postService = new UltimatePostService();

@@ -3,7 +3,7 @@ import './FoodPage.css';
 import { FoodItem } from '../../types/food_posts';
 import { FoodPostFeed } from '../../components/Food/Posts/FoodPostFeed';
 import FoodFilters from '../../components/Food/Filter/FoodFilters';
-import { makeSearchQuery, PostSearchQuery, postService } from '../../services/PostService';
+import { makeSearchQueryFromSearchParameters, PostSearchParameters, postService } from '../../services/PostService';
 import { useFilters } from '../../contexts/FilterContext';
 import { FoodPostSearchProps } from '../../types/food_posts';
 
@@ -16,23 +16,33 @@ const FoodPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const { filters, updateFilter, resetFilters } = useFilters();
 
-	const getFoodPosts = async (search_parameters?: PostSearchQuery<FoodPostSearchProps>): Promise<FoodItem[]> => {
-		const query_parameters = search_parameters ? JSON.stringify(
+	const getFoodPosts = async (search_parameters?: PostSearchParameters<FoodPostSearchProps>): Promise<FoodItem[]> => {
+		// const query_parameters = search_parameters ? JSON.stringify(
+		// 	{
+		// 		...search_parameters,
+		// 		filters: makeSearchQueryFromSearchParameters(search_parameters),
+		// 	}
+		// ) : undefined;
+
+		// const query_parameters = search_parameters ? JSON.stringify(
+		// 	JSON.stringify(makeSearchQueryFromSearchParameters(search_parameters))
+		// ) : undefined;
+
+		const query_parameters = JSON.stringify(
 			{
-				...search_parameters,
-				filters: makeSearchQuery(search_parameters.filters),
+				name: "Chicken Sandwich"
 			}
-		) : null;
+		)
 
 		const food_posts = await postService.getPosts({
 			category: "food",
-			search: query_parameters ?? undefined,
+			search: query_parameters,
 		});
 
 		var result: FoodItem[] = [];
 
 		for (var post of food_posts.posts) {
-			const post_content_json = JSON.parse(post.content);
+			const post_content_json = post.attributes;
 			result.push({
 				id: post_content_json.id,
 				name: post_content_json.name,
@@ -40,7 +50,7 @@ const FoodPage: React.FC = () => {
 				location: post_content_json.location,
 				date: post_content_json.date,
 				price: post_content_json.price,
-				isSoldOut: post_content_json.isSoldOut,
+				isSoldOut: post_content_json.isSoldOut == "true",
 			})
 		}
 
@@ -85,9 +95,9 @@ const FoodPage: React.FC = () => {
 						search_bar: "", // to be implemented
 					}
 				);
-				setFoodItems(response);
 
-				setFoodItems([]);
+				setFoodItems(response);
+				
 			} catch (err) {
 				setError('خطا در دریافت اطلاعات غذاها');
 				console.error(err);
