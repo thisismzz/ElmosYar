@@ -36,3 +36,14 @@ export const depositToWallet = async (amount: number) => {
 export const getUserTransactions = async () => {
 	//TODO
 }
+
+export const walletPurchase = async (postId: string) => {
+	const response = await api.post(`/wallet/purchase/${postId}`);
+
+	//TODO: change so it returns the message and things
+	console.log(response.data.message)
+	return {
+		successful: !response.data.error,
+		message: response.data.message
+	}
+}

@@ -7,7 +7,7 @@ export function WalletPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 lg:pb-8">
+    <div className="min-h-screen pb-20 lg:pb-8">
       <div className="max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
         {/* Header with Back Button */}
         <div className="flex items-center gap-4 mb-8 flex-row-reverse">
@@ -24,7 +24,7 @@ export function WalletPage() {
         </div>
 
         {/* Balance Card */}
-        <Card className="mb-8 border-0 rounded-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #16519F 0%, #4FCBE9 100%)' }}>
+        <Card className="mb-8 border-0 rounded-2xl shadow-lg bg-gray-50" style={{ background: 'linear-gradient(135deg, #16519F 0%, #4FCBE9 100%)' }}>
           <CardContent className="p-8 md:p-10 text-white">
             <div className="flex items-center gap-2 mb-2 justify-end">
               <p className="text-blue-50">موجودی فعلی</p>
@@ -39,7 +39,7 @@ export function WalletPage() {
 
         {/* Action Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md">
+          <Card className="cursor-pointer hover:shadow-lg transition-all rounded-2xl bg-gray-50 border-0 shadow-md">
             <CardContent className="p-6 text-center">
               <div 
                 className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4"
@@ -52,7 +52,7 @@ export function WalletPage() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md">
+          <Card className="cursor-pointer hover:shadow-lg transition-all rounded-2xl bg-gray-50 border-0 shadow-md">
             <CardContent className="p-6 text-center">
               <div 
                 className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4"
@@ -65,7 +65,7 @@ export function WalletPage() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md">
+          <Card className="cursor-pointer hover:shadow-lg transition-all bg-gray-50 rounded-2xl border-0 shadow-md">
             <CardContent className="p-6 text-center">
               <div 
                 className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4"
