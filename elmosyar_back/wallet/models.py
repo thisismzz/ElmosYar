@@ -52,7 +52,7 @@ class WalletService:
     @transaction.atomic
     def deposit(user, amount):
         try:
-            wallet = UserWallet.objects.select_for_update().get(user=user)
+            wallet, _ = UserWallet.objects.select_for_update().get_or_create(user=user)
             wallet.balance += amount
             wallet.save()
 
@@ -75,7 +75,7 @@ class WalletService:
     @transaction.atomic
     def withdraw(user, amount):
         try:
-            wallet = UserWallet.objects.select_for_update().get(user=user)
+            wallet, _ = UserWallet.objects.select_for_update().get_or_create(user=user)
 
             if wallet.balance < amount:
                 raise InsufficientBalance("موجودی کافی نمیباشد")
@@ -104,11 +104,10 @@ class WalletService:
     @staticmethod
     @transaction.atomic
     def purchase_or_transfer(from_user, to_user, amount, is_purchase=False):
-        print("hi")
         try:
-            wallets = (UserWallet.objects.select_for_update().filter(user_id__in=sorted([from_user.id, to_user.id])))
-            sender_wallet = next(w for w in wallets if w.user.id == from_user.id)
-            receiver_wallet = next(w for w in wallets if w.user.id != from_user.id)
+            # اطمینان از وجود کیف پول فرستنده و گیرنده
+            sender_wallet, _ = UserWallet.objects.select_for_update().get_or_create(user=from_user)
+            receiver_wallet, _ = UserWallet.objects.select_for_update().get_or_create(user=to_user)
 
             if sender_wallet.balance < amount:
                 raise InsufficientBalance("موجودی کافی نمیباشد")
@@ -137,10 +136,10 @@ class WalletService:
                 to_user=to_user
             )
             if is_purchase:
-                return f"خرید با موفقیت انجام شد", "PURCHASE_SUCCESS", {"balance" : sender_wallet.balance}
-            
-            return f"مبلغ {amount} با موفقیت منتقل شد", "TRANSFER_SUCCESS", {"balance" : sender_wallet.balance}
-        
+                return f"خرید با موفقیت انجام شد", "PURCHASE_SUCCESS", {"balance": sender_wallet.balance}
+
+            return f"مبلغ {amount} با موفقیت منتقل شد", "TRANSFER_SUCCESS", {"balance": sender_wallet.balance}
+
         except InsufficientBalance:
             raise
         except Exception as e:

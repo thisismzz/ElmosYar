@@ -1696,195 +1696,107 @@ curl -X DELETE http://89.106.206.119:8000/api/formats/programming/delete/ \
 }
 ```
 
-## 🏦 Wallet Endpoints
+## 🏦 Wallet API Documentation
 
-### Get User Wallet
+### 📊 Get User Wallet Balance
+
+#### Request
 ```bash
 curl -X GET http://89.106.206.119:8000/api/wallet/mywallet/ \
   -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
 ```
 
-**Successful Response:**
+#### Response
 ```json
 {
   "error": false,
   "message": "کیف پول با موفقیت دریافت شد",
   "code": "USER_WALLET_FETCHED",
   "data": {
-    "id": 1,
-    "user": 1,
-    "balance": 150000,
-    "created_at": "2024-01-15T10:30:00Z",
-    "updated_at": "2024-01-15T14:30:00Z"
+    "user": 123,
+    "balance": 150000
   }
 }
 ```
 
-**Error Response (Wallet Not Found):**
-```json
-{
-  "error": true,
-  "message": "کیف پول یافت نشد",
-  "code": "USER_WALLET_NOT_FOUND"
-}
-```
+### 💰 Deposit Funds
 
-### Deposit Funds (Increase Balance)
+#### Request
 ```bash
 curl -X POST http://89.106.206.119:8000/api/wallet/deposit/ \
   -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
   -H "Content-Type: application/json" \
-  -d '{
-    "amount": 50000
-  }'
+  -d '{"amount": 50000}'
 ```
 
-**Successful Response:**
+#### Response
 ```json
 {
   "error": false,
-  "message": "موجودی با موفقیت افزایش یافت",
-  "code": "WALLET_DEPOSIT_SUCCESSFUL",
+  "message": "مبلغ 50000 به با موفقیت کیف پول شما اضافه شد",
+  "code": "DEPOSIT_SUCCESS",
   "data": {
-    "transaction_id": 123,
-    "new_balance": 200000,
-    "previous_balance": 150000,
-    "amount": 50000,
-    "timestamp": "2024-01-15T15:30:00Z"
+    "balance": 200000
   }
 }
 ```
 
-**Error Responses:**
+### 💳 Withdraw Funds
 
-**Invalid Amount:**
-```json
-{
-  "error": true,
-  "message": "مقدار وارد شده نامعتبر است",
-  "code": "WALLET_INVALID_AMOUNT"
-}
-```
-
-**Server Error:**
-```json
-{
-  "error": true,
-  "message": "خطای داخلی سرور",
-  "code": "SERVER_ERROR"
-}
-```
-
-### Withdraw Funds (Decrease Balance)
+#### Request
 ```bash
 curl -X POST http://89.106.206.119:8000/api/wallet/withdraw/ \
   -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
   -H "Content-Type: application/json" \
-  -d '{
-    "amount": 20000
-  }'
+  -d '{"amount": 20000}'
 ```
 
-**Successful Response:**
+#### Response
 ```json
 {
   "error": false,
-  "message": "برداشت با موفقیت انجام شد",
-  "code": "WALLET_WITHDRAW_SUCCESSFUL",
+  "message": "مبلغ 20000 با موفقیت از کیف پول شما کسر شد",
+  "code": "WITHDRAW_SUCCESS",
   "data": {
-    "transaction_id": 124,
-    "new_balance": 180000,
-    "previous_balance": 200000,
-    "amount": 20000,
-    "timestamp": "2024-01-15T15:45:00Z"
+    "balance": 180000
   }
 }
 ```
 
-**Error Responses:**
+### 🔄 Transfer Funds
 
-**Insufficient Balance:**
-```json
-{
-  "error": true,
-  "message": "موجودی کافی نیست",
-  "code": "INSUFFICIENT_BALANCE"
-}
-```
-
-**Invalid Amount:**
-```json
-{
-  "error": true,
-  "message": "مقدار وارد شده نامعتبر است",
-  "code": "WALLET_INVALID_AMOUNT"
-}
-```
-
-### Transfer Funds to Another User
+#### Request
 ```bash
 curl -X POST http://89.106.206.119:8000/api/wallet/transfer/ \
   -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
   -H "Content-Type: application/json" \
   -d '{
-    "to_user_id": 2,
+    "to_user_id": 456,
     "amount": 30000
   }'
 ```
 
-**Successful Response:**
+#### Response
 ```json
 {
   "error": false,
-  "message": "انتقال با موفقیت انجام شد",
-  "code": "WALLET_TRANSFER_SUCCESSFUL",
+  "message": "مبلغ 30000 با موفقیت منتقل شد",
+  "code": "TRANSFER_SUCCESS",
   "data": {
-    "transaction_id": 125,
-    "sender_new_balance": 150000,
-    "receiver_new_balance": 80000,
-    "amount": 30000,
-    "receiver_username": "janedoe",
-    "timestamp": "2024-01-15T16:00:00Z"
+    "balance": 150000
   }
 }
 ```
 
-**Error Responses:**
+### 📜 Transaction History
 
-**User Not Found:**
-```json
-{
-  "error": true,
-  "message": "کاربر وارد شده یافت نشد",
-  "code": "USER_NOT_FOUND"
-}
-```
-
-**Insufficient Balance:**
-```json
-{
-  "error": true,
-  "message": "موجودی کافی نیست",
-  "code": "INSUFFICIENT_BALANCE"
-}
-```
-
-**Invalid Amount:**
-```json
-{
-  "error": true,
-  "message": "مقدار وارد شده نامعتبر است",
-  "code": "WALLET_INVALID_AMOUNT"
-}
-```
-
-### Get User Transactions (History)
+#### Request
 ```bash
 curl -X GET http://89.106.206.119:8000/api/wallet/transactions/ \
   -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
 ```
 
-**Successful Response:**
+#### Response
 ```json
 {
   "error": false,
@@ -1892,56 +1804,82 @@ curl -X GET http://89.106.206.119:8000/api/wallet/transactions/ \
   "code": "USER_TRANSACTION_FETCHED",
   "data": [
     {
-      "id": 123,
       "wallet": 1,
       "amount": 50000,
-      "transaction_type": "deposit",
-      "status": "completed",
-      "description": "افزایش موجودی",
-      "related_user": null,
+      "status": "success",
+      "type": "deposit",
+      "from_user": 123,
+      "to_user": null,
       "registered_in": "2024-01-15T15:30:00Z"
     },
     {
-      "id": 124,
       "wallet": 1,
       "amount": 20000,
-      "transaction_type": "withdraw",
-      "status": "completed",
-      "description": "برداشت وجه",
-      "related_user": null,
+      "status": "success",
+      "type": "withdraw",
+      "from_user": 123,
+      "to_user": null,
       "registered_in": "2024-01-15T15:45:00Z"
     },
     {
-      "id": 125,
       "wallet": 1,
       "amount": 30000,
-      "transaction_type": "transfer",
-      "status": "completed",
-      "description": "انتقال به janedoe",
-      "related_user": 2,
+      "status": "success",
+      "type": "payment",
+      "from_user": 123,
+      "to_user": 456,
       "registered_in": "2024-01-15T16:00:00Z"
     }
   ]
 }
 ```
 
-**Error Responses:**
-
-**Wallet Not Found:**
-```json
-{
-  "error": true,
-  "message": "کیف پول یافت نشد",
-  "code": "USER_WALLET_NOT_FOUND"
-}
-```
-
-**No Transactions:**
+- **200 OK** - No transactions (special case)
 ```json
 {
   "error": true,
   "message": "تراکنشی وجود ندارد",
   "code": "USER_TRANSACTION_NOT_EXIST"
+}
+```
+
+---
+
+### 🛒 Purchase Post/Item
+
+#### Request
+```bash
+curl -X POST http://89.106.206.119:8000/api/wallet/purchase/8/ \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+```
+*Note: No request body needed. Price is taken from post attributes.*
+
+#### Response
+```json
+{
+  "error": false,
+  "message": "خرید با موفقیت انجام شد",
+  "code": "PURCHASE_SUCCESS",
+  "data": {
+    "balance": 120000
+  }
+}
+```
+
+### 📝 Post Attributes Schema
+
+Posts being purchased must have the following attributes structure:
+
+```json
+{
+  "id": "^[0-9]+$",
+  "name": "^[a-zA-Z0-9\\s\\-]{3,100}$",
+  "mealType": "^(breakfast|lunch|dinner|snack)$",
+  "location": "^[a-zA-Z0-9\\s\\-,]{2,100}$",
+  "date": "^\\d{4}-\\d{2}-\\d{2}$",
+  "price": "^[0-9]+(\\.[0-9]{1,2})?$",
+  "isSoldOut": "^(true|false)$",
+  "day": "^(saturday|sunday|monday|tuesday|wednesday|thursday|friday|)$"
 }
 ```
 

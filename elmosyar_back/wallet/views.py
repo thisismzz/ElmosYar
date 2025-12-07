@@ -1,5 +1,4 @@
 from django.shortcuts import render
-from django.contrib.auth import get_user_model
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -7,9 +6,9 @@ from .models import UserWallet, Transaction, WalletService, WalletError, Insuffi
 from .serializer import UserWalletSerializer, TransactionSerializer
 from rest_framework import status
 from posts.models import Post, PostMedia
+from django.conf import settings
 
-User = get_user_model()
-
+User = settings.AUTH_USER_MODEL
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -39,7 +38,7 @@ def wallet_service_handler(service, *args, **kwargs):
     except InsufficientBalance as e:
         return Response({"error": True,
                          "message": str(e),
-                         "code": "INSUFFICIENT_BALANCE"}, status=status.HTTP_400_BAD_REQUEST)
+                         "code": "INSUFFICIENT_BALANCE"}, status=status.HTTP_409_CONFLICT)
         
     except WalletError as e:
         return Response({"error": True,
@@ -111,7 +110,7 @@ def user_transactions(request):
 def purchase(request, post_id):
 
     try:
-        post = Post.objects.get(pk=post_id)
+        post = Post.objects.get(id=post_id)
     except Post.DoesNotExist:
         return Response({"error": True,
                          "message": "پست مورد نظر یافت نشد",
@@ -120,12 +119,12 @@ def purchase(request, post_id):
     if post.author.id == request.user.id:
         return Response({"error": True,
                          "message": "امکان خرید توسط فروشنده وجود ندارد",
-                         "code": "POST_PURCHASE_NOT_ALLOWED"}, status=status.HTTP_400_BAD_REQUEST)
+                         "code": "POST_PURCHASE_NOT_ALLOWED"}, status=status.HTTP_409_CONFLICT)
         
-    if post.attributes.get('is_sold'):
+    if post.attributes.get('isSoldOut') == True:
         return Response({"error": True,
                          "message": "این آیتم قبلا به فروش رفته است",
-                         "code": "POST_SOLD"}, status=status.HTTP_400_BAD_REQUEST)
+                         "code": "POST_SOLD"}, status=status.HTTP_410_GONE)
         
     price = post.attributes.get('price')
     if price is None:
@@ -145,7 +144,7 @@ def purchase(request, post_id):
 
     if response.status_code == 200:
         attrs = post.attributes.copy()
-        attrs["is_sold"] = True
+        attrs["isSoldOut"] = True
 
         post.attributes = attrs
         post.save(update_fields=["attributes"])
