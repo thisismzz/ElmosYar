@@ -116,7 +116,12 @@ def purchase(request, post_id):
         return Response({"error": True,
                          "message": "پست مورد نظر یافت نشد",
                          "code": "POST_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
-
+        
+    if post.author.id == request.user.id:
+        return Response({"error": True,
+                         "message": "امکان خرید توسط فروشنده وجود ندارد",
+                         "code": "POST_PURCHASE_NOT_ALLOWED"}, status=status.HTTP_400_BAD_REQUEST)
+        
     if post.attributes.get('is_sold'):
         return Response({"error": True,
                          "message": "این آیتم قبلا به فروش رفته است",
