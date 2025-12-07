@@ -100,3 +100,7 @@ export interface PostActionsProps {
   onDislike: (postId: number) => void;
   onComment: (postId: number) => void;
 }
+
+export type DiscussionSearchProps = {
+	body?: string
+}

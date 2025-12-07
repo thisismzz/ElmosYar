@@ -233,7 +233,7 @@ mapBackendPostToFrontend = (backendPost: BackendPost): Post => ({
     avatar: backendPost.author_info.profile_picture || '/default-avatar.png',
     username: backendPost.author_info.username,
   },
-  content: backendPost.content,
+  content: backendPost.attributes.body,
   timestamp: backendPost.created_at,
   likes: backendPost.likes_count,
   dislikes: backendPost.dislikes_count,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FoodItem } from "../../../types/food_posts";
 import { Sun, Moon } from 'lucide-react';
 import PaymentModal from '../../Transaction/PaymentModal';
@@ -9,6 +9,11 @@ interface FoodPostCardProps {
 }
 
 export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
+
+	useEffect(() => {
+		console.log(item.isSoldOut)
+	})
+	
 	const formatPrice = (price: number): string => {
 		return `$${price}`;
 	};
@@ -97,7 +102,6 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
-	const walletBalance = 50000; // placeholder; replace with real balance from context/service
 
 	const handleBuyFood = (item: FoodItem) => {
 		if (item.isSoldOut) {
@@ -138,7 +142,6 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 					onClose={handleCloseModal}
 					onPaymentSuccess={handlePaymentSuccess}
 					foodItem={selectedItem}
-					walletBalance={walletBalance}
 				/>
 			)}
 		</div>

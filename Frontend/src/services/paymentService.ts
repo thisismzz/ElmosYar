@@ -38,7 +38,7 @@ export const getUserTransactions = async () => {
 }
 
 export const walletPurchase = async (postId: string) => {
-	const response = await api.post(`/wallet/purchase/${postId}`);
+	const response = await api.post(`/wallet/purchase/${postId}/`);
 
 	//TODO: change so it returns the message and things
 	console.log(response.data.message)

@@ -18,7 +18,6 @@ export interface PaymentModalProps {
   onClose: () => void;
   onPaymentSuccess?: (method: PaymentMethod, foodItem: FoodItem) => void;
   foodItem: FoodItem;
-  walletBalance: number;
 }
 
 export interface FoodOrder {
