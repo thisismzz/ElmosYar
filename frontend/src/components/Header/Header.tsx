@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search } from 'lucide-react'; 
 import logo from "../../assets/logo.svg";
 import './Header.css';
+import { useSearch } from '../../contexts/SearchContext';
 
 interface HeaderProps {
   onHomeClick: () => void;
@@ -9,12 +10,13 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const {query, setQuery} = useSearch();
+  const [searchString, setSearchString] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Search query:', searchQuery);
+	setQuery(searchString);
   };
 
   const handleToggleSidebar = () => {
@@ -34,8 +36,8 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
             <form onSubmit={handleSearch} className="search-form">
               <input
                 type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={searchString}
+                onChange={(e) => setSearchString(e.target.value)}
                 placeholder="Search..."
                 className="search-input"
               />
@@ -75,8 +77,8 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
           <form onSubmit={handleSearch} className="mobile-search-form">
             <input
               type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchString}
+              onChange={(e) => setSearchString(e.target.value)}
               placeholder="Search..."
               className="mobile-search-input"
             />

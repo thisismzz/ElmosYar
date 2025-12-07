@@ -6,10 +6,12 @@ import FoodFilters from '../../components/Food/Filter/FoodFilters';
 import { makeSearchQueryFromSearchParameters, PostSearchParameters, postService } from '../../services/PostService';
 import { useFilters } from '../../contexts/FilterContext';
 import { FoodPostSearchProps } from '../../types/food_posts';
+import { useSearch } from '../../contexts/SearchContext';
 
 
 
 const FoodPage: React.FC = () => {
+	const {query, setQuery} = useSearch();
 
 	const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -17,22 +19,25 @@ const FoodPage: React.FC = () => {
 	const { filters, updateFilter, resetFilters } = useFilters();
 
 	const getFoodPosts = async (search_parameters?: PostSearchParameters<FoodPostSearchProps>): Promise<FoodItem[]> => {
-		// const query_parameters = search_parameters ? JSON.stringify(
-		// 	{
-		// 		...search_parameters,
-		// 		filters: makeSearchQueryFromSearchParameters(search_parameters),
-		// 	}
-		// ) : undefined;
+		const query_parameters = search_parameters
+      ? (() => {
+          const filtersExpr = makeSearchQueryFromSearchParameters(search_parameters);
 
-		// const query_parameters = search_parameters ? JSON.stringify(
-		// 	JSON.stringify(makeSearchQueryFromSearchParameters(search_parameters))
-		// ) : undefined;
+		  console.log(filtersExpr)
 
-		const query_parameters = JSON.stringify(
-			{
-				name: "Chicken Sandwich"
-			}
-		)
+          const serializeFilters = (obj: Record<string, any>) => {
+            const out: Record<string, any> = {};
+            for (const k in obj) {
+              const v = obj[k];
+              if (v instanceof RegExp) out[k] = v.source;
+              else out[k] = v;
+            }
+            return out;
+          };
+
+          return JSON.stringify(serializeFilters(filtersExpr));
+        })()
+      : undefined;
 
 		const food_posts = await postService.getPosts({
 			category: "food",
@@ -88,6 +93,7 @@ const FoodPage: React.FC = () => {
 				const response = await getFoodPosts(
 					{
 						filters: {
+							name: query == "" ? undefined : query,
 							mealType: filters.mealType == "all" ? undefined : filters.mealType,
 							location: filters.location == "all" ? undefined : filters.location,
 							day: filters.day == 'all' ? undefined : parseDay(filters.day),
@@ -107,7 +113,7 @@ const FoodPage: React.FC = () => {
 		};
 
 		fetchFoodItems();
-	}, [filters]);
+	}, [filters, query]);
 
 	if (loading) {
 		return (

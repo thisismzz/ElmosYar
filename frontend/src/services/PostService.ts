@@ -361,13 +361,12 @@ export const makeSearchQueryFromSearchParameters = <T extends Record<string, Sea
 	// gives a json with keys of the filters, but appended to that is the searchbar string. 
 	const filter_expressions = makeSearchQuery(search_parameters.filters)
 	if (search_parameters.search_bar == "") return filter_expressions;
-	const escaped = escapeRegex(search_parameters.search_bar)
+	const escaped = containsRegex(search_parameters.search_bar)
 	const result: Record<string, RegExp> = {};
 
     for (const key in filter_expressions) {
-        const r = filter_expressions[key];
-        const source = r.source;
-        result[key] = new RegExp(`^(?:${source}|${escaped})$`, r.flags);
+		const r = filter_expressions[key];
+        result[key] = new RegExp(`^(?:${r}|${escaped})$`, r.flags);
     }
 
 	return result;
