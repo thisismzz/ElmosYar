@@ -106,10 +106,11 @@ class WalletService:
     @staticmethod
     @transaction.atomic
     def purchase_or_transfer(from_user, to_user, amount, is_purchase=False):
+        print("hi")
         try:
-            wallets = (UserWallet.objects.select_for_update().filter(user_id__in=sorted([from_user, to_user])))
-            sender_wallet = next(w for w in wallets if w.user_id == from_user.id)
-            receiver_wallet = next(w for w in wallets if w.user_id != from_user.id)
+            wallets = (UserWallet.objects.select_for_update().filter(user_id__in=sorted([from_user.id, to_user.id])))
+            sender_wallet = next(w for w in wallets if w.user.id == from_user.id)
+            receiver_wallet = next(w for w in wallets if w.user.id != from_user.id)
 
             if sender_wallet.balance < amount:
                 raise InsufficientBalance("موجودی کافی نمیباشد")
@@ -145,4 +146,5 @@ class WalletService:
         except InsufficientBalance:
             raise
         except Exception as e:
+            print("REAL ERROR:", type(e), e)
             raise WalletError("مشکلی پیش آمده لطفا دوباره سعی کنید") from e

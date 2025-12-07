@@ -117,6 +117,11 @@ def purchase(request, post_id):
                          "message": "پست مورد نظر یافت نشد",
                          "code": "POST_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
 
+    if post.attributes.get('is_sold'):
+        return Response({"error": True,
+                         "message": "این آیتم قبلا به فروش رفته است",
+                         "code": "POST_SOLD"}, status=status.HTTP_400_BAD_REQUEST)
+        
     price = post.attributes.get('price')
     if price is None:
         return Response({"error": True,
@@ -125,4 +130,19 @@ def purchase(request, post_id):
 
     price = int(price)
     
-    return wallet_service_handler(WalletService.purchase_or_transfer, request.user, post.author, price, True)
+    response = wallet_service_handler(
+        WalletService.purchase_or_transfer,
+        request.user,
+        post.author,
+        price,
+        True
+    )
+
+    if response.status_code == 200:
+        attrs = post.attributes.copy()
+        attrs["is_sold"] = True
+
+        post.attributes = attrs
+        post.save(update_fields=["attributes"])
+
+    return response
