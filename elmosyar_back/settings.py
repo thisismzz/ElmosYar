@@ -1,4 +1,3 @@
-
 """
 Django settings for elmosyar_back project.
 Optimized for Pure REST API - Allow all origins
@@ -11,6 +10,122 @@ from datetime import timedelta
 
 # Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+# نام فایل لاگ با تاریخ روز
+LOG_FILE = os.path.join(LOG_DIR, f'django_{datetime.now().strftime("%Y-%m-%d")}.log')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    
+    'formatters': {
+        'verbose': {
+            'format': '[{asctime}] [{levelname}] [{name}:{lineno}] - {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{',
+        },
+        'detailed': {
+            'format': '[{asctime}] [{levelname}] [{name}.{funcName}:{lineno}] IP:{ip} User:{user} - {message} | Data: {extra_data}',
+            'style': '{',
+        },
+        'json': {
+            'format': '{"time": "{asctime}", "level": "{levelname}", "module": "{name}", "function": "{funcName}", "line": {lineno}, "message": "{message}", "ip": "{ip}", "user": "{user}", "data": {extra_data}}',
+            'style': '{',
+        },
+    },
+    
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'add_context': {
+            '()': 'your_project_name.utils.log_filters.AddContextFilter',
+        },
+    },
+    
+    'handlers': {
+        'common_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': LOG_FILE,
+            'when': 'midnight',  # هر نیمه‌شب فایل جدید
+            'interval': 1,
+            'backupCount': 30,  # 30 روز نگهداری
+            'formatter': 'detailed',
+            'encoding': 'utf-8',
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOG_DIR, 'errors.log'),
+            'formatter': 'verbose',
+            'encoding': 'utf-8',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'filters': ['require_debug_false'],
+            'include_html': True,
+        },
+    },
+    
+    'loggers': {
+        # لاگر اصلی که همه اپلیکیشن‌ها از آن استفاده می‌کنند
+        '': {
+            'handlers': ['common_file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        
+        # لاگرهای خاص برای هر اپلیکیشن (اختیاری)
+        'wallet': {
+            'handlers': ['common_file', 'console', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'posts': {
+            'handlers': ['common_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'users': {
+            'handlers': ['common_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['common_file', 'console', 'error_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['common_file', 'error_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['common_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
 
 # Security
 SECRET_KEY = config("SECRET_KEY", default='django-insecure-change-in-production')
