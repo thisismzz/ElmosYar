@@ -1,76 +1,98 @@
 // src/contexts/FilterContext.tsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface FilterState {
-  mealType: string;
-  location: string;
-  day: string; 
+  [key: string]: string;
 }
 
 interface FilterContextType {
   filters: FilterState;
+  updateFilter: (key: string, value: string) => void;
   setFilters: (filters: FilterState) => void;
-  updateFilter: (key: keyof FilterState, value: string) => void;
   resetFilters: () => void;
+  getFilter: (key: string, defaultValue?: string) => string;
 }
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
 
-export const FilterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const FilterProvider: React.FC<{ 
+  children: React.ReactNode;
+  defaultFilters?: FilterState;
+}> = ({ children, defaultFilters = {} }) => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const defaultFilters: FilterState = {
-    mealType: 'all',
-    location: 'all',
-    day: 'all'
-  };
-
-  const parseUrlParams = (): FilterState => {
+  // Parse filters directly from URL on every render
+  const filters = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return {
-      mealType: params.get('meal') || 'all',
-      location: params.get('location') || 'all',
-      day: params.get('day') || 'all' 
-    };
-  };
+    const parsedFilters: FilterState = {};
+    
+    // Parse all query parameters from URL
+    params.forEach((value, key) => {
+      parsedFilters[key] = value;
+    });
+    
+    // Apply defaults only for missing parameters
+    Object.entries(defaultFilters).forEach(([key, defaultValue]) => {
+      if (!(key in parsedFilters)) {
+        parsedFilters[key] = defaultValue;
+      }
+    });
+    
+    return parsedFilters;
+  }, [location.search, defaultFilters]);
 
-  const [filters, setFiltersState] = useState<FilterState>(parseUrlParams());
-
-  const updateUrl = (newFilters: FilterState) => {
+  const updateUrl = useCallback((newFilters: FilterState) => {
     const params = new URLSearchParams();
     
-    if (newFilters.mealType !== 'all') params.set('meal', newFilters.mealType);
-    if (newFilters.location !== 'all') params.set('location', newFilters.location);
-    if (newFilters.day !== 'all') params.set('day', newFilters.day); 
+    // Add all non-empty filters to URL
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value && value !== '') {
+        params.set(key, value);
+      }
+    });
+    
+    // Remove parameters that match default values or are empty
+    Object.entries(defaultFilters).forEach(([key, defaultValue]) => {
+      if (newFilters[key] === defaultValue || newFilters[key] === '') {
+        params.delete(key);
+      }
+    });
     
     const queryString = params.toString();
     const newUrl = queryString ? `${location.pathname}?${queryString}` : location.pathname;
     
     navigate(newUrl, { replace: true });
-  };
+  }, [location.pathname, navigate, defaultFilters]);
 
-  const setFilters = (newFilters: FilterState) => {
-    setFiltersState(newFilters);
+  const setFilters = useCallback((newFilters: FilterState) => {
     updateUrl(newFilters);
-  };
+  }, [updateUrl]);
 
-  const updateFilter = (key: keyof FilterState, value: string) => {
+  const updateFilter = useCallback((key: string, value: string) => {
     const newFilters = { ...filters, [key]: value };
-    setFilters(newFilters);
-  };
+    updateUrl(newFilters);
+  }, [filters, updateUrl]);
 
-  const resetFilters = () => {
-    setFilters(defaultFilters);
-  };
+  const resetFilters = useCallback(() => {
+    updateUrl(defaultFilters);
+  }, [defaultFilters, updateUrl]);
 
-  useEffect(() => {
-    setFiltersState(parseUrlParams());
-  }, [location.search]);
+  const getFilter = useCallback((key: string, defaultValue: string = '') => {
+    return filters[key] || defaultValue;
+  }, [filters]);
+
+  const contextValue = useMemo(() => ({
+    filters,
+    setFilters,
+    updateFilter,
+    resetFilters,
+    getFilter
+  }), [filters, setFilters, updateFilter, resetFilters, getFilter]);
 
   return (
-    <FilterContext.Provider value={{ filters, setFilters, updateFilter, resetFilters }}>
+    <FilterContext.Provider value={contextValue}>
       {children}
     </FilterContext.Provider>
   );

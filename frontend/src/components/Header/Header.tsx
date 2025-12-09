@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Search } from 'lucide-react'; 
+import React, { useState, useEffect } from 'react';
+import { Search, Menu, X } from 'lucide-react'; 
 import logo from "../../assets/logo.svg";
 import './Header.css';
-import { useSearch } from '../../contexts/SearchContext';
+import { useFilters } from '../../contexts/FilterContext';
+import { useLocation } from 'react-router-dom';
 
 interface HeaderProps {
   onHomeClick: () => void;
@@ -10,19 +11,45 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
-  const {query, setQuery} = useSearch();
-  const [searchString, setSearchString] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const { getFilter, updateFilter } = useFilters();
+  const location = useLocation();
+  
+  // Get current search value from URL
+  const urlSearchValue = getFilter('q', '');
+  
+  // Local state only for the input field
+  const [inputValue, setInputValue] = useState(urlSearchValue);
 
+  // Sync input value when URL changes
+  useEffect(() => {
+    setInputValue(urlSearchValue);
+  }, [urlSearchValue]);
+
+  const placeholderText = location.pathname.includes('/food') || location.pathname === '/food'
+    ? 'جستجوی غذا'
+    : '...جستجو';
+
+  // Handle form submission - only updates URL
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-	setQuery(searchString);
+    try {
+      // Update the URL with the current input value
+      updateFilter('q', inputValue);
+    } catch (err) {
+      console.error('Failed to update filters from header search', err);
+    }
   };
 
   const handleToggleSidebar = () => {
     const newState = !isSidebarOpen;
     setIsSidebarOpen(newState);
     onToggleSidebar(newState);
+  };
+
+  // Handle input change - only updates local state
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
   };
 
   return (
@@ -34,16 +61,17 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
           
           <div className="search-section">
             <form onSubmit={handleSearch} className="search-form">
-              <input
-                type="text"
-                value={searchString}
-                onChange={(e) => setSearchString(e.target.value)}
-                placeholder="Search..."
-                className="search-input"
-              />
               <button type="submit" className="search-icon">
                 <Search></Search>
               </button>
+              <input
+                type="text"
+                value={inputValue}
+                onChange={handleInputChange}
+                placeholder={placeholderText}
+                className="search-input"
+                dir="rtl"
+              />
             </form>
           </div>
 
@@ -56,6 +84,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
                 <h1 className="site-name">
                   علموص‌یار
                 </h1>
+
                 <div className="logo-container">
                   <img src={logo} alt="Logo" className="logo-icon" />
                 </div>
@@ -64,7 +93,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
 
             <div className="actions-section">
               <button onClick={handleToggleSidebar} className="sidebar-toggle">
-                {isSidebarOpen ? '◀' : '▶'}
+                {isSidebarOpen ? <Menu/> : <X/>}
               </button>
             </div>
           </div>
@@ -75,16 +104,17 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
       <header className="mobile-header">
         <div className="mobile-header-content">
           <form onSubmit={handleSearch} className="mobile-search-form">
-            <input
-              type="text"
-              value={searchString}
-              onChange={(e) => setSearchString(e.target.value)}
-              placeholder="Search..."
-              className="mobile-search-input"
-            />
             <button type="submit" className="mobile-search-icon">
               <Search></Search>
             </button>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder={placeholderText}
+              className="mobile-search-input"
+              dir="rtl" // Added: Right-to-left direction
+            />
           </form>
           <button onClick={onHomeClick} className="mobile-logo-button">
             <div className="logo-container">

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import logo from "../../assets/logo.svg";
 import './login.css';
@@ -241,6 +241,7 @@ const RegisterPage: React.FC = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const { login, register: authRegister, isLoading, isAuthenticated } = useAuth();
+  const location = useLocation()
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -264,7 +265,7 @@ const RegisterPage: React.FC = () => {
   if (isCheckingAuth) {
     return (
       <div className="login-container">
-        <div className="logo-container">
+        <div className="login-logo-container">
           <img src={logo} alt="Logo" className="logo" />
         </div>
         <div className="login-card">
@@ -284,9 +285,10 @@ const RegisterPage: React.FC = () => {
         password: data.password,
         rememberMe: data.rememberMe
       });
+      const from = (location.state as any)?.from?.pathname || '/';
+      navigate(from, { replace: true });
     } catch (error: any) {
-      console.log("Login error:", error);
-      
+
       const errorMessage = error.response?.data?.message || 
                           error.message || 
                           'خطا در ورود. لطفاً مجدداً تلاش کنید.';
@@ -302,8 +304,8 @@ const RegisterPage: React.FC = () => {
       const { repeatPassword, ...signUpData } = data;
       await authRegister({"password":signUpData.password, "email": signUpData.email, "username": signUpData.username});
       navigate("/"); // to be changed to Edit profile page
-    } catch (error: any) {
-      console.log("Signup error:", error);
+    } 
+    catch (error: any) {
       
       const fieldErrors: { [key: string]: string } = {};
       
@@ -326,8 +328,7 @@ const RegisterPage: React.FC = () => {
           });
         }
       }
-
-      // If we have field-specific errors, set them
+      console.log(fieldErrors)
       if (Object.keys(fieldErrors).length > 0) {
         setSignUpApiErrors(fieldErrors);
       } else {
@@ -355,7 +356,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="login-container">
-      <div className="logo-container">
+      <div className="login-logo-container">
         <img src={logo} alt="Logo" className="logo" />
       </div>
       <div className="login-card">

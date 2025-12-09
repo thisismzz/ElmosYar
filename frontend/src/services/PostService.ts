@@ -358,7 +358,6 @@ export function makeSearchQuery(
 
 
 export const makeSearchQueryFromSearchParameters = <T extends Record<string, SearchValue>>(search_parameters : PostSearchParameters<T>) => {
-	// gives a json with keys of the filters, but appended to that is the searchbar string. 
 	const filter_expressions = makeSearchQuery(search_parameters.filters)
 	if (search_parameters.search_bar == "") return filter_expressions;
 	const escaped = containsRegex(search_parameters.search_bar)

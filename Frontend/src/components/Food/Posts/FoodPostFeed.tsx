@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FoodItem } from "../../../types/food_posts";
 import { Sun, Moon } from 'lucide-react';
 import PaymentModal from '../../Transaction/PaymentModal';
+import './FoodPostFeed.css'
 
 interface FoodPostCardProps {
 	item: FoodItem;
@@ -10,10 +11,6 @@ interface FoodPostCardProps {
 
 export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 
-	useEffect(() => {
-		console.log(item.isSoldOut)
-	})
-	
 	const formatPrice = (price: number): string => {
 		return `$${price}`;
 	};

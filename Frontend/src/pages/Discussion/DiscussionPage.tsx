@@ -1,16 +1,24 @@
 // components/PostFeed.tsx
-import React, { useState, useEffect } from 'react';
-import { type PostFeedProps, type Post, type BackendPost, DiscussionSearchProps } from '../../types/discussion_posts';
+import React, { useState, useEffect, useMemo } from 'react';
+import { type PostFeedProps, type Post, DiscussionSearchProps } from '../../types/discussion_posts';
 import { makeSearchQueryFromSearchParameters, PostSearchParameters, postService, type GetPostsParams } from '../../services/PostService';
-import { ThumbsUp, ThumbsDown, MessageCircle, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import Comments from '../../components/Discussion/Comments/DiscussionComments';
 import { PostCard } from '../../components/Discussion/Posts/DiscussionPostFeed';
 import { getCommentsForPost, getPostCard } from '../../services/commentService';
-import { useSearch } from '../../contexts/SearchContext';
+import { useFilters } from '../../contexts/FilterContext';
 import './DiscussionPage.css';
 
 const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPosts = [] }) => {
-	const { query, setQuery } = useSearch();
+	const { getFilter } = useFilters();
+	
+	// Get search query filter only
+	const searchQuery = getFilter('q', '');
+	
+	const filterDependencies = useMemo(() => {
+		return { searchQuery };
+	}, [searchQuery]);
+	
 	const [posts, setPosts] = useState<Post[]>(initialPosts);
 	const [loading, setLoading] = useState(!initialPosts.length);
 	const [error, setError] = useState<string | null>(null);
@@ -19,50 +27,53 @@ const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPo
 		hasNext: false,
 	});
 
-
 	const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 	const [showCommentsModal, setShowCommentsModal] = useState(false);
 	const [commentsLoading, setCommentsLoading] = useState(false);
 	const [postComments, setPostComments] = useState<any[]>([]);
 
-	
-	const makeQueryParameters = async (search_parameters?: PostSearchParameters<DiscussionSearchProps>) => {
-		return search_parameters
-      ? (() => {
-          const filtersExpr = makeSearchQueryFromSearchParameters(search_parameters);
-
-
-          const serializeFilters = (obj: Record<string, any>) => {
-            const out: Record<string, any> = {};
-            for (const k in obj) {
-              const v = obj[k];
-              if (v instanceof RegExp) out[k] = v.source;
-              else out[k] = v;
-            }
-            return out;
-          };
-
-          return JSON.stringify(serializeFilters(filtersExpr));
-        })()
-      : undefined;
-	}
-
 	const fetchPosts = async (page: number = 1, append: boolean = false) => {
 		try {
-			const search_query = await makeQueryParameters({filters: {body: query}, search_bar: ""}); //! needs fixing
 			setLoading(true);
 			setError(null);
-
+			
+			// Build search parameters similar to foodPage
+			let search_query = undefined;
+			
+			// Only create search parameters if we have a search query
+			if (searchQuery && searchQuery !== '') {
+				const searchParams: PostSearchParameters<DiscussionSearchProps> = {
+					filters: {
+						body: searchQuery,
+					},
+					search_bar: ""
+				};
+				
+				// Convert to JSON string for the API
+				const filtersExpr = makeSearchQueryFromSearchParameters(searchParams);
+				const serializeFilters = (obj: Record<string, any>) => {
+					const out: Record<string, any> = {};
+					for (const k in obj) {
+						const v = obj[k];
+						if (v instanceof RegExp) out[k] = v.source;
+						else out[k] = v;
+					}
+					return out;
+				};
+				
+				search_query = JSON.stringify(serializeFilters(filtersExpr));
+			}
+			
 			const params: GetPostsParams = {
 				page,
 				per_page: 10,
 				...(category && { category }),
 				...(username && { username }),
-				search: search_query,
+				...(search_query && { search: search_query }),
 			};
-
+			
 			const response = await postService.getPosts(params);
-
+			
 			if (response.success) {
 				if (append) {
 					setPosts(prev => [...prev, ...response.posts]);
@@ -84,12 +95,14 @@ const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPo
 		}
 	};
 
+	// Fetch posts when filters change - similar to foodPage
 	useEffect(() => {
 		if (!initialPosts.length) {
 			fetchPosts(1, false);
 		}
-	}, [category, username, query]);
+	}, [filterDependencies]); // Use filterDependencies instead of filters
 
+	
 	const handleLike = async (postId: number) => {
 		try {
 			const post = posts.find(p => p.id === postId);
@@ -118,7 +131,6 @@ const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPo
 				}
 				return post;
 			}));
-
 
 			await postService.likePost(postId);
 		} catch (err) {
@@ -155,7 +167,6 @@ const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPo
 				}
 				return post;
 			}));
-
 
 			await postService.dislikePost(postId);
 		} catch (err) {
@@ -213,22 +224,28 @@ const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPo
 	};
 
 	if (loading && posts.length === 0) {
-		return <div className="loading">Loading posts...</div>;
+		return (
+			<div className="discussion-page-container">
+				<div className="loading">Loading posts...</div>
+			</div>
+		);
 	}
 
 	if (error && posts.length === 0) {
 		return (
-			<div className="error">
-				<p>Error: {error}</p>
-				<button onClick={retryFetch} className="retry-btn">
-					Try Again
-				</button>
+			<div className="discussion-page-container">
+				<div className="error">
+					<p>Error: {error}</p>
+					<button onClick={retryFetch} className="retry-btn">
+						Try Again
+					</button>
+				</div>
 			</div>
 		);
 	}
 
 	return (
-		<>
+		<div className="discussion-page-container">
 			<div className="post-feed">
 				<div className="post-list">
 					{posts.map(post => (
@@ -303,7 +320,7 @@ const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPo
 					در حال بارگذاری نظرات...
 				</div>
 			)}
-		</>
+		</div>
 	);
 };
 

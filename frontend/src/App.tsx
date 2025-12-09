@@ -16,9 +16,6 @@ import DiscussionPage from './pages/Discussion/DiscussionPage';
 import FoodPage from './pages/FoodExchange/FoodPage';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
-import { SearchProvider } from './contexts/SearchContext';
-// import { FoodPostFeed } from './components/Food/Posts/FoodPostFeed';
-// import FoodFilters from './components/Food/Filter/FoodFilters';
 
 
 
@@ -41,7 +38,6 @@ const GeneralDiscussion: React.FC = () => {
 };
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [searchQuery, setSearchQuery] = useState("");
 	const isMobile = useIsMobile();
 	const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(!isMobile);
 	const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
@@ -185,9 +181,6 @@ const ProtectedRoutes: React.FC = () => {
 			<Route path='/profile' element={<ProfilePage />} />
 			<Route path='/profile/wallet' element={<WalletPage />} />
 			<Route path='/profile/edit' element={<EditProfilePage />} />
-
-			{/* Legacy routes for backward compatibility */}
-			<Route path='/Discussion/PostFeed' element={<GeneralDiscussion />} />
 			<Route path='/topic/:topicId' element={<TopicDiscussion />} />
 		</Routes>
 	);
@@ -205,15 +198,8 @@ const PublicRoutes: React.FC = () => {
 
 // Main App Content that uses authentication
 const AppContent: React.FC = () => {
-	const { isAuthenticated, isLoading } = useAuth();
+	const { isAuthenticated} = useAuth();
 
-	if (isLoading) {
-		return (
-			<div className="auth-loading">
-				<p>در حال بررسی وضعیت احراز هویت...</p>
-			</div>
-		);
-	}
 
 	return (
 		<AppLayout>
@@ -226,11 +212,9 @@ function App() {
 	return (
 		<Router>
 			<AuthProvider>
-				<SearchProvider>
-					<FilterProvider>
-						<AppContent />
-					</FilterProvider>
-				</SearchProvider>
+				<FilterProvider>
+					<AppContent />
+				</FilterProvider>
 			</AuthProvider>
 		</Router>
 	);
