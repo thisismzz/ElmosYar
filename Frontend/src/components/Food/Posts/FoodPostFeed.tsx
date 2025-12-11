@@ -98,6 +98,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	const [items, setItems] = useState<FoodItem[]>(initialItems || []);
 	const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [commentsLoading, setCommentsLoading] = useState(false);
 
 
 	const handleBuyFood = (item: FoodItem) => {
@@ -121,13 +122,14 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	};
 
 	return (
-		<div className="food-order-container">
-			<div className="food-header">
-				<h2 className="page-title">سفارش غذا</h2>
-				<p className="page-subtitle">منوی امروز - انتخاب و سفارش آنلاین</p>
-			</div>
+		<div className={`food-order-container ${items.length === 1 ? 'single-item' : ''}`}> {/* این خط رو تغییر بده */}
+		<div className="food-header">
+			<h2 className="page-title">سفارش غذا</h2>
+			<p className="page-subtitle">منوی امروز - انتخاب و سفارش آنلاین</p>
+		</div>
 
-			<div className="food-items-grid">
+		<div className={`food-items-grid ${items.length === 1 ? 'single-item-grid' : ''}`}> 
+			
 				{items.map((item) => (
 					<FoodPostCard key={item.id} item={item} onBuy={handleBuyFood} />
 				))}
@@ -141,6 +143,13 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 					foodItem={selectedItem}
 				/>
 			)}
+
+			{commentsLoading && (
+				<div className="comments-loading">
+					در حال بارگذاری نظرات...
+				</div>
+			)}
+
 		</div>
 	)
 }
