@@ -52,20 +52,22 @@ class WalletService:
     @transaction.atomic
     def deposit(user, amount):
         try:
-            wallet, _ = UserWallet.objects.select_for_update().get_or_create(user=user)
+            wallet = UserWallet.objects.select_for_update().get(user=user)
             wallet.balance += amount
             wallet.save()
 
             Transaction.objects.create(
                 wallet=wallet,
                 amount=amount,
-                type="deposite",
+                type="deposit",
                 status="success",
                 from_user=user
             )
             
             return f"مبلغ {amount} به با موفقیت کیف پول شما اضافه شد", "DEPOSIT_SUCCESS", {"balance" : wallet.balance}
         
+        except UserWallet.DoesNotExist :
+            raise WalletError("کیف پول یافت نشد")
         except Exception as e:
             raise WalletError("مشکلی پیش آمده لطفا دوباره سعی کنید") from e
         
@@ -75,7 +77,7 @@ class WalletService:
     @transaction.atomic
     def withdraw(user, amount):
         try:
-            wallet, _ = UserWallet.objects.select_for_update().get_or_create(user=user)
+            wallet = UserWallet.objects.select_for_update().get(user=user)
 
             if wallet.balance < amount:
                 raise InsufficientBalance("موجودی کافی نمیباشد")
@@ -92,7 +94,9 @@ class WalletService:
             )
 
             return f"مبلغ {amount} با موفقیت از کیف پول شما کسر شد", "WITHDRAW_SUCCESS", {"balance" : wallet.balance}
-
+        
+        except UserWallet.DoesNotExist :
+            raise WalletError("کیف پول یافت نشد")
         except InsufficientBalance:
             raise
         except Exception as e:
@@ -105,9 +109,9 @@ class WalletService:
     @transaction.atomic
     def purchase_or_transfer(from_user, to_user, amount, is_purchase=False):
         try:
-            # اطمینان از وجود کیف پول فرستنده و گیرنده
-            sender_wallet, _ = UserWallet.objects.select_for_update().get_or_create(user=from_user)
-            receiver_wallet, _ = UserWallet.objects.select_for_update().get_or_create(user=to_user)
+            wallets = (UserWallet.objects.select_for_update().filter(user_id__in=sorted([from_user.id, to_user.id])))
+            sender_wallet = next(w for w in wallets if w.user.id == from_user.id)
+            receiver_wallet = next(w for w in wallets if w.user.id != from_user.id)
 
             if sender_wallet.balance < amount:
                 raise InsufficientBalance("موجودی کافی نمیباشد")
@@ -136,12 +140,11 @@ class WalletService:
                 to_user=to_user
             )
             if is_purchase:
-                return f"خرید با موفقیت انجام شد", "PURCHASE_SUCCESS", {"balance": sender_wallet.balance}
+                return f"خرید با موفقیت انجام شد", "PURCHASE_SUCCESS", {"balance" : sender_wallet.balance}
 
-            return f"مبلغ {amount} با موفقیت منتقل شد", "TRANSFER_SUCCESS", {"balance": sender_wallet.balance}
+            return f"مبلغ {amount} با موفقیت منتقل شد", "TRANSFER_SUCCESS", {"balance" : sender_wallet.balance}
 
         except InsufficientBalance:
             raise
         except Exception as e:
-            print("REAL ERROR:", type(e), e)
             raise WalletError("مشکلی پیش آمده لطفا دوباره سعی کنید") from e
