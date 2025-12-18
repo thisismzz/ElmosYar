@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { getFilter, updateFilter } = useFilters();
   const location = useLocation();
   
@@ -28,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
 
   const placeholderText = location.pathname.includes('/food') || location.pathname === '/food'
     ? 'جستجوی غذا'
-    : '...جستجو';
+    : 'جستجو...';
 
   // Handle form submission - only updates URL
   const handleSearch = (e: React.FormEvent) => {
@@ -93,7 +93,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
 
             <div className="actions-section">
               <button onClick={handleToggleSidebar} className="sidebar-toggle">
-                {isSidebarOpen ? <Menu/> : <X/>}
+                {isSidebarOpen ? <X/> : <Menu/>}
               </button>
             </div>
           </div>

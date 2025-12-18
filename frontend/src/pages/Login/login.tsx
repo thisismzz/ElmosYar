@@ -7,7 +7,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import logo from "../../assets/logo.svg";
 import './login.css';
 
-// Interfaces
 interface LoginFormData {
   username: string;
   password: string;
@@ -35,7 +34,7 @@ interface SignUpFormProps {
 
 // Validation Schemas
 const loginSchema = yup.object({
-  username: yup.string().required("نام کاربری الزامی است"),
+  username: yup.string().required("نام کاربری یا ایمیل الزامی است"),
   password: yup
     .string()
     .required("رمز عبور الزامی است")
@@ -82,7 +81,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => {
       <div className="form-group">
         <input
           type="text"
-          placeholder="نام کاربری"
+          placeholder="نام کاربری یا ایمیل"
           {...register("username")}
           className={`form-input ${errors.username ? 'error' : ''}`}
           disabled={isLoading}
@@ -238,9 +237,15 @@ const RegisterPage: React.FC = () => {
   const [currentMode, setCurrentMode] = useState<FormMode>("login");
   const [apiError, setApiError] = useState<string | null>(null);
   const [signUpApiErrors, setSignUpApiErrors] = useState<{ [key: string]: string }>({});
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [signupEmail, setSignupEmail] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState<number>(0); // seconds
+  const [isResending, setIsResending] = useState<boolean>(false);
+  const [unverifiedAccount, setUnverifiedAccount] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
-  const { login, register: authRegister, isLoading, isAuthenticated } = useAuth();
+  const { login, register: authRegister, isLoading, isAuthenticated, resendVerificationEmail } = useAuth();
   const location = useLocation()
 
   // Redirect if already authenticated
@@ -260,7 +265,33 @@ const RegisterPage: React.FC = () => {
 
     checkAuthentication();
   }, [isAuthenticated, navigate]);
-
+  
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+  
+  // Show any API error passed via navigation state (e.g., from verify-email redirect)
+  useEffect(() => {
+    const navError = (location.state as any)?.apiError;
+    if (navError) {
+      setApiError(navError);
+      // clear navigation state so message doesn't persist on back/refresh
+      try {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch {}
+    }
+  }, [location]);
+  
   // Show loading while checking authentication
   if (isCheckingAuth) {
     return (
@@ -288,22 +319,33 @@ const RegisterPage: React.FC = () => {
       const from = (location.state as any)?.from?.pathname || '/';
       navigate(from, { replace: true });
     } catch (error: any) {
+      const resp = error.response?.data;
+      const errorMessage = resp?.message || error.message || 'خطا در ورود. لطفاً مجدداً تلاش کنید.';
 
-      const errorMessage = error.response?.data?.message || 
-                          error.message || 
-                          'خطا در ورود. لطفاً مجدداً تلاش کنید.';
-      
-      setApiError(errorMessage);
+      // If account not verified, show the unverified UI and extract email if provided
+      if (errorMessage === 'Account is not active' || resp?.detail === 'Account is not active') {
+        // try several places where email might be provided
+        const email = resp?.user?.email || resp?.email || resp?.data?.email || null;
+        setUnverifiedAccount(true);
+        setUnverifiedEmail(email);
+        setSignupSuccess(false);
+        setApiError(null);
+        setCurrentMode('login');
+      } else {
+        setApiError(errorMessage);
+      }
     }
   };
-
+  
   const handleSignUpSubmit = async (data: SignUpFormData) => {
     try {
       setApiError(null);
       setSignUpApiErrors({});
       const { repeatPassword, ...signUpData } = data;
-      await authRegister({"password":signUpData.password, "email": signUpData.email, "username": signUpData.username});
-      navigate("/"); // to be changed to Edit profile page
+      const response = await authRegister({ password: signUpData.password, email: signUpData.email, username: signUpData.username });
+      setSignupSuccess(true);
+      setSignupEmail(signUpData.email);
+      setResendCooldown(120);
     } 
     catch (error: any) {
       
@@ -334,12 +376,12 @@ const RegisterPage: React.FC = () => {
       } else {
         // Fallback to general error from API message
         const errorMessage = error.response?.data?.message || 
-                            'خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.';
+        'خطا در ثبت‌نام. لطفاً مجدداً تلاش کنید.';
         setApiError(errorMessage);
       }
     }
   };
-
+  
   const clearSignUpApiError = (fieldName: string) => {
     setSignUpApiErrors(prev => {
       const newErrors = { ...prev };
@@ -347,11 +389,74 @@ const RegisterPage: React.FC = () => {
       return newErrors;
     });
   };
+  
+  const handleResendEmail = async () => {
+    const activeEmail = signupEmail || unverifiedEmail;
+    if (!activeEmail || resendCooldown > 0) return;
+    try {
+      setIsResending(true);
+      await resendVerificationEmail(activeEmail);
+      // restart cooldown
+      setResendCooldown(120);
+    } catch (err) {
+      // show api error briefly
+      const message = (err as any)?.response?.data?.message || 'خطا در ارسال ایمیل. لطفاً مجدداً تلاش کنید.';
+      setApiError(message);
+    } finally {
+      setIsResending(false);
+    }
+  };
+
+  const handleReturnToLogin = () => {
+    setSignupSuccess(false);
+    setSignupEmail(null);
+    setSignUpApiErrors({});
+    setApiError(null);
+    setCurrentMode('login');
+  };
 
   const handleTabChange = (mode: FormMode) => {
     setCurrentMode(mode);
     setApiError(null);
     setSignUpApiErrors({});
+  };
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  // Reusable verification panel for signup-success and unverified-account flows
+  const VerificationPanel: React.FC<{
+    message: string;
+    email: string | null;
+    onResend: () => void;
+    onReturn: () => void;
+    isResending: boolean;
+    resendCooldown: number;
+  }> = ({ message, email, onResend, onReturn, isResending, resendCooldown }) => {
+    return (
+      <div className="signup-success">
+        <p className="success-message">{message}</p>
+        {email && (
+          <p className="success-sub">
+            ایمیل ارسال شده به: <strong>{email}</strong>
+            <button
+              className="resend-inline"
+              onClick={onResend}
+              disabled={resendCooldown > 0 || isResending}
+              aria-label="resend verification email"
+            >
+              {isResending ? 'در حال ارسال...' : (resendCooldown > 0 ? `ارسال مجدد (${formatTime(resendCooldown)})` : 'ارسال مجدد')}
+            </button>
+          </p>
+        )}
+        <div className="signup-actions">
+          <button className="auth-submit-button" onClick={onReturn}>بازگشت به صفحه ورود</button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -384,15 +489,37 @@ const RegisterPage: React.FC = () => {
           </div>
         )}
 
-        {currentMode === "login" && (
+        {currentMode === "login" && !unverifiedAccount && (
           <LoginForm onSubmit={handleLoginSubmit} isLoading={isLoading} />
         )}
-        {currentMode === "signup" && (
+
+        {currentMode === "login" && unverifiedAccount && (
+          <VerificationPanel
+            message={'حساب کاربری شما هنوز فعال نشده است. لطفاً ایمیل خود را برای فعال‌سازی بررسی کنید.'}
+            email={unverifiedEmail}
+            onResend={handleResendEmail}
+            onReturn={() => { setUnverifiedAccount(false); setUnverifiedEmail(null); }}
+            isResending={isResending}
+            resendCooldown={resendCooldown}
+          />
+        )}
+        {currentMode === "signup" && !signupSuccess && (
           <SignUpForm 
             onSubmit={handleSignUpSubmit} 
             isLoading={isLoading}
             apiErrors={signUpApiErrors}
             clearApiError={clearSignUpApiError}
+          />
+        )}
+
+        {currentMode === "signup" && signupSuccess && (
+          <VerificationPanel
+            message={'ثبت‌نام با موفقیت انجام شد. لطفاً ایمیل خود را برای فعال‌سازی حساب بررسی کنید.'}
+            email={signupEmail}
+            onResend={handleResendEmail}
+            onReturn={handleReturnToLogin}
+            isResending={isResending}
+            resendCooldown={resendCooldown}
           />
         )}
       </div>

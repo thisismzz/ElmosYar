@@ -15,7 +15,7 @@ api.interceptors.request.use(
   (config) => {
     const token = getToken();
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      (config.headers as any).Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -31,24 +31,21 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     if (
-  error.response?.status === 401 && !originalRequest._retry &&
-    (
-      error.response?.code === "AUTH_TOKEN_INVALID" ||
-      error.response?.code === "AUTH_TOKEN_EXPIRED" ||
-      error.response?.code === "AUTH_TOKEN_MISSING"
-    )
-  ) {
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
-      
       try {
         const newToken = await refreshToken();
         if (newToken) {
           setToken(newToken);
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          }
           return api(originalRequest);
         }
       } catch (refreshError) {
-        logout();
+        await logout();
         return Promise.reject(refreshError);
       }
     }
@@ -80,57 +77,22 @@ export const removeTokens = (): void => {
   localStorage.removeItem('userData');
 };
 
-// Auth functions
-export const login = async (credentials: { username_or_email: string; password: string; rememberMe: boolean }) => {
+export const signup = async (userData: { username: string; email: string; password: string }) => {
+  const response = await api.post('/signup/', userData);
+  return response.data;
+};
+
+export const login = async (credentials: { username_or_email: string; password: string; rememberMe?: boolean }) => {
   const response = await api.post('/login/', credentials);
-  
-  if (response.data.success === true && response.data.tokens) {
+  // On success backend returns { success, message, user, tokens }
+  if (response.data?.success && response.data?.tokens) {
     setToken(response.data.tokens.access);
     setRefreshToken(response.data.tokens.refresh);
-  }
-  
-  return response.data;
-};
-
-export const register = async (userData: { 
-  email: string; 
-  username: string; 
-  password: string; 
-}) => {
-  const response = await api.post('/signup/', userData);
-  
-  if (response.data.error === false && response.data.data) {
-    setToken(response.data.data.access);
-    setRefreshToken(response.data.data.refresh);
-  }
-  
-  return response.data;
-};
-
-// Token refresh function
-export const refreshToken = async (): Promise<string | null> => {
-  try {
-    const refresh = getRefreshToken();
-    if (!refresh) {
-      throw new Error('No refresh token available');
+    if (response.data.user) {
+      localStorage.setItem('userData', JSON.stringify(response.data.user));
     }
-
-    const response = await api.post('/token/refresh/', {
-      refresh,
-    });
-
-    // UPDATED: Access token is directly in response.data
-    const { access } = response.data;
-    if (access) {
-      setToken(access);
-      return access;
-    }
-
-    return null;
-  } catch (error) {
-    removeTokens();
-    throw error;
   }
+  return response.data;
 };
 
 export const logout = async (): Promise<void> => {
@@ -146,6 +108,49 @@ export const logout = async (): Promise<void> => {
   }
   removeTokens();
   window.location.href = '/Login';
+};
+
+export const verifyToken = async (token: string) => {
+  const response = await api.post('/token/verify/', { token });
+  return response.data;
+};
+
+export const refreshToken = async (): Promise<string | null> => {
+  try {
+    const refresh = getRefreshToken();
+    if (!refresh) {
+      throw new Error('No refresh token available');
+    }
+
+    const response = await api.post('/token/refresh/', { refresh });
+    // Backend returns { success: true, access: '...' }
+    const access = response.data?.access;
+    if (access) {
+      setToken(access);
+      return access;
+    }
+    return null;
+  } catch (error) {
+    removeTokens();
+    throw error;
+  }
+};
+
+export const verifyEmail = async (uid: string) => {
+  const response = await api.get(`/verify-email/${uid}/`);
+  if (response.data?.tokens) {
+    setToken(response.data.tokens.access);
+    setRefreshToken(response.data.tokens.refresh);
+    if (response.data.user) {
+      localStorage.setItem('userData', JSON.stringify(response.data.user));
+    }
+  }
+  return response.data;
+};
+
+export const resendVerificationEmail = async (email: string) => {
+  const response = await api.post('/resend-verification-email/', { email });
+  return response.data;
 };
 
 export const isAuthenticated = (): boolean => {

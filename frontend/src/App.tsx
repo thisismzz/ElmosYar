@@ -14,6 +14,7 @@ import { WalletPage } from './pages/Wallet';
 import Header from './components/Header/Header';
 import DiscussionPage from './pages/Discussion/DiscussionPage';
 import FoodPage from './pages/FoodExchange/FoodPage';
+import VerifyEmail from './pages/VerifyEmail/VerifyEmail';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
 
@@ -98,25 +99,13 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 		}
 	};
 
-	const isLoginPage = location.pathname === '/login';
+	const isLoginPage = location.pathname === '/login' || location.pathname.startsWith('/verify-email');
 
-	// Redirect to login if not authenticated and not already on login page
 	useEffect(() => {
 		if (!isAuthenticated && !isLoginPage) {
 			navigate('/login', { replace: true });
 		}
 	}, [isAuthenticated, isLoginPage, navigate]);
-
-	// Show loading or nothing while checking authentication
-	if (!isAuthenticated && !isLoginPage) {
-		return (
-			<div className="App">
-				<div className="loading-container">
-					<p>در حال بررسی وضعیت ورود...</p>
-				</div>
-			</div>
-		);
-	}
 
 	return (
 		<div className="App">
@@ -177,7 +166,7 @@ const ProtectedRoutes: React.FC = () => {
 	return (
 		<Routes>
 			<Route path='/' element={<Main />} />
-			<Route path='/food' element={<FoodPage />} />
+			<Route path='/login' element={<RegisterPage />} />
 			<Route path='/profile' element={<ProfilePage />} />
 			<Route path='/profile/wallet' element={<WalletPage />} />
 			<Route path='/profile/edit' element={<EditProfilePage />} />
@@ -186,12 +175,12 @@ const ProtectedRoutes: React.FC = () => {
 	);
 };
 
-// Public Routes wrapper component
 const PublicRoutes: React.FC = () => {
 	return (
 		<Routes>
-			<Route path='/login' element={<RegisterPage />} /> {/* تغییر به حروف کوچک */}
-			<Route path="*" element={<Navigate to="/login" replace />} /> {/* تغییر به حروف کوچک */}
+			<Route path='/login' element={<RegisterPage />} />
+			<Route path='/verify-email/:token' element={<VerifyEmail />} />
+			<Route path="*" element={<Navigate to="/login" replace />} />
 		</Routes>
 	);
 };
