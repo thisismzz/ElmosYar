@@ -133,6 +133,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                'log_manager.admin.add_log_menu_item',
             ],
         },
     },
@@ -214,7 +215,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 # CSRF settings for cross-origin API
 CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'Lax'  # در حالت توسعه 'Lax' بهتره
+CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SECURE = False
 CSRF_USE_SESSIONS = False
 

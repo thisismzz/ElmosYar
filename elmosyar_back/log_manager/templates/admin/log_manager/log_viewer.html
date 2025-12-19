@@ -1,0 +1,322 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}نمایش لاگ: {{ log_file }}{% endblock %}
+
+{% block extrastyle %}
+<style>
+    .log-viewer-container {
+        padding: 20px;
+    }
+    
+    .filter-panel {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .filter-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .filter-group label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 13px;
+    }
+    
+    .filter-group input,
+    .filter-group select {
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .stats-bar {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 10px;
+    }
+    
+    .stat-item .label {
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .stat-item .value {
+        font-size: 20px;
+        font-weight: bold;
+        color: #417690;
+    }
+    
+    .level-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: bold;
+    }
+    
+    .level-DEBUG { background: #6c757d; color: white; }
+    .level-INFO { background: #0d6efd; color: white; }
+    .level-WARNING { background: #ffc107; color: black; }
+    .level-ERROR { background: #dc3545; color: white; }
+    .level-CRITICAL { background: #6f42c1; color: white; }
+    
+    .log-entries {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+    }
+    
+    .log-entry {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        transition: background 0.2s;
+    }
+    
+    .log-entry:hover {
+        background: #f8f9fa;
+    }
+    
+    .log-entry:last-child {
+        border-bottom: none;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 8px;
+    }
+    
+    .pagination a,
+    .pagination span {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #417690;
+    }
+    
+    .pagination .current {
+        background: #417690;
+        color: white;
+        border-color: #417690;
+    }
+    
+    .pagination a:hover {
+        background: #f8f9fa;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: #417690;
+        color: white;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn:hover {
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">خانه</a>
+    &rsaquo; <a href="{% url 'admin:log_files_list' %}">مدیریت لاگ‌ها</a>
+    &rsaquo; {{ log_file }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="log-viewer-container">
+    <h1>📄 نمایش لاگ: {{ log_file }}</h1>
+    
+    {% if error %}
+    <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+        ❌ {{ error }}
+    </div>
+    {% else %}
+    
+    <!-- پنل فیلتر -->
+    <form method="get" class="filter-panel">
+        <h3 style="margin-top: 0;">🔍 فیلترها</h3>
+        
+        <input type="hidden" name="file" value="{{ log_file }}">
+        
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>فایل لاگ:</label>
+                <select name="file" onchange="this.form.submit()">
+                    {% for file in available_files %}
+                    <option value="{{ file }}" {% if file == log_file %}selected{% endif %}>
+                        {{ file }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>سطح:</label>
+                <select name="level">
+                    <option value="">همه</option>
+                    {% for level in level_choices %}
+                    <option value="{{ level }}" {% if filters.level == level %}selected{% endif %}>
+                        {{ level }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>کاربر:</label>
+                <input type="text" name="user" value="{{ filters.user }}" placeholder="نام کاربری">
+            </div>
+            
+            <div class="filter-group">
+                <label>IP:</label>
+                <input type="text" name="ip" value="{{ filters.ip }}" placeholder="آدرس IP">
+            </div>
+        </div>
+        
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>جستجو در متن:</label>
+                <input type="text" name="search" value="{{ filters.search }}" placeholder="جستجو...">
+            </div>
+            
+            <div class="filter-group">
+                <label>از تاریخ:</label>
+                <input type="date" name="date_from" value="{{ filters.date_from }}">
+            </div>
+            
+            <div class="filter-group">
+                <label>تا تاریخ:</label>
+                <input type="date" name="date_to" value="{{ filters.date_to }}">
+            </div>
+            
+            <div class="filter-group">
+                <label>تعداد در صفحه:</label>
+                <select name="per_page">
+                    <option value="50" {% if filters.per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if filters.per_page == 100 %}selected{% endif %}>100</option>
+                    <option value="200" {% if filters.per_page == 200 %}selected{% endif %}>200</option>
+                    <option value="500" {% if filters.per_page == 500 %}selected{% endif %}>500</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary">اعمال فیلتر</button>
+            <a href="?file={{ log_file }}" class="btn btn-secondary">پاک کردن فیلترها</a>
+            <a href="{% url 'admin:log_download' %}?file={{ log_file }}" class="btn btn-secondary">
+                ⬇️ دانلود فایل کامل
+            </a>
+        </div>
+    </form>
+    
+    <!-- نوار آمار -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="label">کل لاگ‌ها</div>
+            <div class="value">{{ total_logs }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="label">حجم فایل</div>
+            <div class="value">{{ file_size }}</div>
+        </div>
+        {% for level, count in level_stats.items %}
+        <div class="stat-item">
+            <div class="label">
+                <span class="level-badge level-{{ level }}">{{ level }}</span>
+            </div>
+            <div class="value">{{ count }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- لاگ‌ها -->
+    <div class="log-entries">
+        <h3>لاگ‌ها ({{ logs.paginator.count }} مورد)</h3>
+        
+        {% for log in logs %}
+        <div class="log-entry">
+            {{ log|safe }}
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 40px; color: #999;">
+            هیچ لاگی با فیلترهای انتخابی یافت نشد
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- صفحه‌بندی -->
+    {% if logs.paginator.num_pages > 1 %}
+    <div class="pagination">
+        {% if logs.has_previous %}
+        <a href="?file={{ log_file }}&page=1&{{ request.GET.urlencode }}">اولین</a>
+        <a href="?file={{ log_file }}&page={{ logs.previous_page_number }}&{{ request.GET.urlencode }}">قبلی</a>
+        {% endif %}
+        
+        <span class="current">
+            صفحه {{ logs.number }} از {{ logs.paginator.num_pages }}
+        </span>
+        
+        {% if logs.has_next %}
+        <a href="?file={{ log_file }}&page={{ logs.next_page_number }}&{{ request.GET.urlencode }}">بعدی</a>
+        <a href="?file={{ log_file }}&page={{ logs.paginator.num_pages }}&{{ request.GET.urlencode }}">آخرین</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% endif %}
+</div>
+{% endblock %}

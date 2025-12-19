@@ -1,0 +1,363 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}آمار و تحلیل لاگ‌ها{% endblock %}
+
+{% block extrastyle %}
+<style>
+    .statistics-container {
+        padding: 20px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .stat-card h3 {
+        margin: 0 0 15px 0;
+        color: #417690;
+        font-size: 18px;
+        border-bottom: 2px solid #417690;
+        padding-bottom: 10px;
+    }
+    
+    .chart-container {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .chart {
+        margin-top: 15px;
+    }
+    
+    .bar-chart {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .bar-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .bar-label {
+        min-width: 100px;
+        font-weight: bold;
+        font-size: 13px;
+    }
+    
+    .bar-visual {
+        flex: 1;
+        height: 25px;
+        background: linear-gradient(90deg, #417690, #6ba3c0);
+        border-radius: 4px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .level-distribution {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+    }
+    
+    .level-item {
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+        color: white;
+    }
+    
+    .level-DEBUG { background: #6c757d; }
+    .level-INFO { background: #0d6efd; }
+    .level-WARNING { background: #ffc107; color: black; }
+    .level-ERROR { background: #dc3545; }
+    .level-CRITICAL { background: #6f42c1; }
+    
+    .level-item .count {
+        font-size: 32px;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    
+    .level-item .label {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    
+    .files-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .files-list li {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .files-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .file-info {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .file-name {
+        font-weight: bold;
+        color: #417690;
+    }
+    
+    .file-meta {
+        font-size: 12px;
+        color: #666;
+        margin-top: 3px;
+    }
+    
+    .errors-list {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .error-item {
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        font-size: 13px;
+    }
+    
+    .error-item.ERROR {
+        background: #fff5f5;
+        border-right: 4px solid #dc3545;
+    }
+    
+    .error-item.CRITICAL {
+        background: #f8f3ff;
+        border-right: 4px solid #6f42c1;
+    }
+    
+    .error-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    .error-message {
+        color: #666;
+        font-family: monospace;
+        font-size: 12px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        display: inline-block;
+        background: #417690;
+        color: white;
+    }
+    
+    .btn:hover {
+        opacity: 0.9;
+    }
+    
+    .hourly-chart {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 5px;
+        margin-top: 15px;
+    }
+    
+    .hour-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .hour-value {
+        width: 100%;
+        background: #417690;
+        border-radius: 4px 4px 0 0;
+        min-height: 3px;
+    }
+    
+    .hour-label {
+        font-size: 10px;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">خانه</a>
+    &rsaquo; <a href="{% url 'admin:log_files_list' %}">مدیریت لاگ‌ها</a>
+    &rsaquo; آمار و تحلیل
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="statistics-container">
+    <h1>📊 آمار و تحلیل لاگ‌ها</h1>
+    
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'admin:log_files_list' %}" class="btn">
+            ← بازگشت به لیست فایل‌ها
+        </a>
+    </div>
+    
+    <!-- کارت‌های آماری کلی -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>📁 فایل‌های لاگ</h3>
+            <ul class="files-list">
+                {% for file in statistics.files %}
+                <li>
+                    <div class="file-info">
+                        <span class="file-name">{{ file.name }}</span>
+                        <span class="file-meta">
+                            {{ file.size }} • {{ file.modified|date:"Y-m-d H:i" }}
+                        </span>
+                    </div>
+                    <a href="{% url 'admin:log_viewer' %}?file={{ file.name }}" 
+                       style="color: #417690; text-decoration: none;">
+                        مشاهده →
+                    </a>
+                </li>
+                {% empty %}
+                <li style="text-align: center; color: #999;">
+                    هیچ فایلی وجود ندارد
+                </li>
+                {% endfor %}
+            </ul>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                <strong>حجم کل:</strong> {{ total_size_human }}
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <h3>👥 کاربران فعال</h3>
+            <div class="bar-chart">
+                {% for user, count in statistics.user_activity.items %}
+                <div class="bar-item">
+                    <span class="bar-label">{{ user }}</span>
+                    <div class="bar-visual" style="width: {{ count|add:'0'|floatformat:0|add:'%' }}; max-width: 100%;">
+                        {{ count }} فعالیت
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; color: #999; padding: 20px;">
+                    داده‌ای موجود نیست
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- توزیع سطوح لاگ -->
+    <div class="chart-container">
+        <h3>📊 توزیع سطوح لاگ</h3>
+        <div class="level-distribution">
+            {% for level, count in statistics.level_distribution.items %}
+            <div class="level-item level-{{ level }}">
+                <div class="label">{{ level }}</div>
+                <div class="count">{{ count }}</div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; color: #999; padding: 40px; grid-column: 1 / -1;">
+                داده‌ای موجود نیست
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- فعالیت ساعتی -->
+    {% if statistics.hourly_activity %}
+    <div class="chart-container">
+        <h3>🕐 فعالیت بر اساس ساعت</h3>
+        <div class="hourly-chart">
+            {% for hour, count in statistics.hourly_activity.items %}
+            <div class="hour-bar">
+                <div class="hour-value" 
+                     style="height: {% if count > 0 %}{{ count|add:'0'|floatformat:0 }}px{% else %}3px{% endif %}; 
+                            max-height: 150px;">
+                </div>
+                <div class="hour-label">{{ hour }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- فعالیت روزانه -->
+    {% if statistics.daily_activity %}
+    <div class="chart-container">
+        <h3>📅 فعالیت روزانه</h3>
+        <div class="bar-chart">
+            {% for date, count in statistics.daily_activity.items %}
+            <div class="bar-item">
+                <span class="bar-label">{{ date }}</span>
+                <div class="bar-visual" style="width: {{ count|add:'0'|floatformat:0|add:'%' }}; max-width: 100%;">
+                    {{ count }} لاگ
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- خطاهای اخیر -->
+    {% if statistics.recent_errors %}
+    <div class="chart-container">
+        <h3>⚠️ خطاهای اخیر ({{ statistics.recent_errors|length }} مورد)</h3>
+        <div class="errors-list">
+            {% for error in statistics.recent_errors %}
+            <div class="error-item {{ error.level }}">
+                <div class="error-header">
+                    <span>
+                        <strong>{{ error.level }}</strong> • 
+                        {{ error.user }} • 
+                        {{ error.timestamp }}
+                    </span>
+                </div>
+                <div class="error-message">
+                    {{ error.message }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
