@@ -67,6 +67,34 @@ const FoodPage: React.FC = () => {
 	};
 
 	// Temporary, will remove
+	const isValidMealType = (type: string): type is "ناهار" | "شام" => {
+  return type === "ناهار" || type === "شام";
+};
+
+const isValidLocation = (location: string): location is "مرکزی" | "یاس" | "مقتدایی" | "خوابگاه خواهران" | "خوابگاه برادران" => {
+  const validLocations: string[] = ["مرکزی", "یاس", "مقتدایی", "خوابگاه خواهران", "خوابگاه برادران"];
+  return validLocations.includes(location);
+};
+
+const parseDay = (day: string): "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | undefined => {
+  const daysMap: Record<string, "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday"> = {
+    "شنبه": "saturday",
+    "یکشنبه": "sunday",
+    "دوشنبه": "monday",
+    "سه‌شنبه": "tuesday",
+    "چهارشنبه": "wednesday",
+    "پنجشنبه": "thursday",
+    "جمعه": "friday",
+    "saturday": "saturday",
+    "sunday": "sunday",
+    "monday": "monday",
+    "tuesday": "tuesday",
+    "wednesday": "wednesday",
+    "thursday": "thursday",
+    "friday": "friday"
+  };
+  return daysMap[day];
+};
 	type Day = "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
 
 	const dayValues: Day[] = [
@@ -79,10 +107,6 @@ const FoodPage: React.FC = () => {
 		"friday",
 	];
 
-	function parseDay(value: string): Day | undefined {
-		return dayValues.includes(value as Day) ? (value as Day) : undefined;
-	}
-
 	useEffect(() => {
 		const fetchFoodItems = async () => {
 			try {
@@ -92,12 +116,13 @@ const FoodPage: React.FC = () => {
 				
 				const response = await getFoodPosts({
 					filters: {
-						mealType: mealType === "all" ? undefined : mealType,
-						location: location === "all" ? undefined : location,
-						day: day === "all" ? undefined : parseDay(day),
-						name: nameFilter && nameFilter !== "" ? nameFilter : undefined,
-					},
-					search_bar: "",
+						mealType: mealType && mealType !== "all" && isValidMealType(mealType) ? mealType : undefined,
+    					location: location && location !== "all" && isValidLocation(location) ? location : undefined,
+    					day: day && day !== "all" ? parseDay(day) : undefined,
+    					name: nameFilter && nameFilter !== "" ? nameFilter : undefined,
+  						},
+  					search_bar: "",
+
 				});
 
 				setFoodItems(response);

@@ -39,8 +39,8 @@ export interface FoodOrderProps {
 export type FoodPostSearchProps = {
 	day?: "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday",
 	name?: string,
-	mealType?: string,
-	location?: string,
+	mealType?: "ناهار"|"شام",
+	location?: "مرکزی" | "یاس" | "مقتدایی" | "خوابگاه خواهران" | "خوابگاه برادران",
 	date?: string,
 	price?: [number, number],
 	isSoldOut?: boolean,

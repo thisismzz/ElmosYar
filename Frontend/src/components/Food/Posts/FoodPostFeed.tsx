@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { FoodItem } from "../../../types/food_posts";
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Plus } from 'lucide-react';
 import PaymentModal from '../../Transaction/PaymentModal';
-import './FoodPostFeed.css'
+import AddFoodModal from '../../Transaction/AddFoodModal';
+import './FoodPostFeed.css';
 
 interface FoodPostCardProps {
 	item: FoodItem;
@@ -87,8 +88,11 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 				</div>
 			)}
 		</div>
-	)
-}
+	);
+};
+
+// Type for days of week
+type Day = "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
 
 interface FoodPostFeedProps {
 	items: FoodItem[];
@@ -98,8 +102,38 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	const [items, setItems] = useState<FoodItem[]>(initialItems || []);
 	const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [commentsLoading, setCommentsLoading] = useState(false);
+	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+	const [selectedDay, setSelectedDay] = useState<Day>("saturday");
 
+	const dayValues: Day[] = [
+		"saturday",
+		"sunday",
+		"monday",
+		"tuesday",
+		"wednesday",
+		"thursday",
+		"friday",
+	];
+
+	// Helper function to get Persian day name
+	const getPersianDayName = (day: Day): string => {
+		switch(day) {
+			case "saturday": return "شنبه";
+			case "sunday": return "یکشنبه";
+			case "monday": return "دوشنبه";
+			case "tuesday": return "سه‌شنبه";
+			case "wednesday": return "چهارشنبه";
+			case "thursday": return "پنجشنبه";
+			case "friday": return "جمعه";
+			default: return day;
+		}
+	};
+
+	// Helper function to get today's date in YYYY-MM-DD format
+	const getTodayDate = (): string => {
+		const today = new Date();
+		return today.toISOString().split('T')[0];
+	};
 
 	const handleBuyFood = (item: FoodItem) => {
 		if (item.isSoldOut) {
@@ -116,24 +150,120 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 		setSelectedItem(null);
 	};
 
+	const handleCloseAddModal = () => {
+		setIsAddModalOpen(false);
+	};
+
 	const handlePaymentSuccess = (_method: any, foodItem: FoodItem) => {
-		// mark item as sold out (or remove) after successful payment
-		// setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
+		// Mark item as sold out after successful payment
+		setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
+		handleCloseModal();
+	};
+
+	const handleAddFood = (newFoodData: Omit<FoodItem, 'id' | 'isSoldOut'>) => {
+		// Create new food item with unique ID
+		const newFood: FoodItem = {
+			...newFoodData,
+			id: Date.now().toString(),
+			isSoldOut: false
+		};
+		
+		// Add to the beginning of the list
+		setItems(prev => [newFood, ...prev]);
+		setIsAddModalOpen(false);
+		
+		// Show success message
+		alert(`غذای ${newFood.name} با موفقیت اضافه شد!`);
+	};
+
+	const handleDayChange = (day: Day) => {
+		setSelectedDay(day);
+		// Here you can add logic to filter items by day
+		// For now, we'll just show all items
 	};
 
 	return (
-		<div className={`food-order-container ${items.length === 1 ? 'single-item' : ''}`}> {/* این خط رو تغییر بده */}
-		<div className="food-header">
-			<h2 className="page-title">سفارش غذا</h2>
-			<p className="page-subtitle">منوی امروز - انتخاب و سفارش آنلاین</p>
-		</div>
+		<div className={`food-order-container ${items.length === 1 ? 'single-item' : ''}`}>
+			<div className="food-header">
+				<div className="header-top">
+					<div className="header-title-section">
+						<h2 className="page-title">سفارش غذا</h2>
+						<p className="page-subtitle">منوی امروز - انتخاب و سفارش آنلاین</p>
+					</div>
+					
+					<button 
+						className="add-post-button"
+						onClick={() => setIsAddModalOpen(true)}
+					>
+						<Plus size={20} />
+						<span>اضافه کردن پست جدید</span>
+					</button>
+				</div>
 
-		<div className={`food-items-grid ${items.length === 1 ? 'single-item-grid' : ''}`}> 
-			
-				{items.map((item) => (
-					<FoodPostCard key={item.id} item={item} onBuy={handleBuyFood} />
-				))}
+				{/* Day Filter */}
+				<div className="day-filter">
+					<div className="day-filter-title">
+						<span>📅</span>
+						<span>روز هفته:</span>
+					</div>
+					<div className="day-buttons">
+						{dayValues.map(day => (
+							<button
+								key={day}
+								className={`day-button ${selectedDay === day ? 'active' : ''}`}
+								onClick={() => handleDayChange(day)}
+							>
+								{getPersianDayName(day)}
+							</button>
+						))}
+					</div>
+				</div>
 			</div>
+
+			{items.length === 0 ? (
+				<div className="empty-state">
+					<div className="empty-state-icon">🍽️</div>
+					<h3>هیچ غذایی برای {getPersianDayName(selectedDay)} موجود نیست</h3>
+					<p>برای شروع، غذای جدیدی اضافه کنید</p>
+					<button 
+						className="add-post-button empty-state-button"
+						onClick={() => setIsAddModalOpen(true)}
+					>
+						<Plus size={20} />
+						<span>اضافه کردن اولین غذا</span>
+					</button>
+				</div>
+			) : (
+				<>
+					<div className="day-info">
+						<h3 className="current-day">
+							<span className="day-icon">📅</span>
+							غذاهای روز {getPersianDayName(selectedDay)}
+						</h3>
+						<p className="item-count">تعداد غذاها: {items.length}</p>
+					</div>
+
+					<div className={`food-items-grid ${items.length === 1 ? 'single-item-grid' : ''}`}>
+						{items.map((item) => (
+							<FoodPostCard key={item.id} item={item} onBuy={handleBuyFood} />
+						))}
+					</div>
+
+					{/* Add More Button at Bottom */}
+					<div className="add-more-section">
+						<button 
+							className="add-more-button"
+							onClick={() => setIsAddModalOpen(true)}
+						>
+							<Plus size={24} />
+							<span>اضافه کردن غذای دیگر</span>
+						</button>
+						<p className="add-more-hint">
+							آیا غذای دیگری برای اضافه کردن دارید؟
+						</p>
+					</div>
+				</>
+			)}
 
 			{selectedItem && (
 				<PaymentModal
@@ -144,12 +274,11 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 				/>
 			)}
 
-			{commentsLoading && (
-				<div className="comments-loading">
-					در حال بارگذاری نظرات...
-				</div>
-			)}
-
+			<AddFoodModal
+				isOpen={isAddModalOpen}
+				onClose={handleCloseAddModal}
+				onAdd={handleAddFood}
+			/>
 		</div>
-	)
-}
+	);
+};

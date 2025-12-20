@@ -1,4 +1,15 @@
 /* temporarily copied all the css. will be replaced with tailwind. */
+.comments-loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  z-index: 1001;
+}
 
 .food-order-container {
   max-width: 1400px;
@@ -296,6 +307,342 @@
   font-weight: 800;
   color: #e74c3c;
   backdrop-filter: blur(2px);
+}
+
+.add-post-button {
+	background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+	color: white;
+	border: none;
+	padding: 16px 32px;
+	border-radius: 16px;
+	font-size: 1.1rem;
+	font-weight: 700;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	transition: all 0.3s ease;
+	box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+	font-family: inherit;
+	position: relative;
+	overflow: hidden;
+}
+
+.add-post-button::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+	transition: left 0.6s ease;
+}
+
+.add-post-button:hover::before {
+	left: 100%;
+}
+
+.add-post-button:hover {
+	transform: translateY(-3px) scale(1.05);
+	box-shadow: 0 12px 30px rgba(5, 150, 105, 0.4);
+}
+
+.add-post-button:active {
+	transform: translateY(-1px) scale(1.02);
+}
+
+.add-post-button.empty-state-button {
+	margin-top: 30px;
+	animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+	0%, 100% {
+		transform: scale(1);
+		box-shadow: 0 8px 20px rgba(5, 150, 105, 0.3);
+	}
+	50% {
+		transform: scale(1.05);
+		box-shadow: 0 12px 30px rgba(5, 150, 105, 0.4);
+	}
+}
+
+/* استایل‌های فیلتر روز */
+.day-filter {
+	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	border-radius: 20px;
+	padding: 24px;
+	margin-top: 30px;
+	border: 2px solid #e2e8f0;
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+.day-filter-title {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 20px;
+	font-size: 1.2rem;
+	font-weight: 700;
+	color: #1e293b;
+}
+
+.day-filter-title span:first-child {
+	font-size: 1.5rem;
+}
+
+.day-buttons {
+	display: flex;
+	gap: 15px;
+	flex-wrap: wrap;
+}
+
+.day-button {
+	padding: 14px 28px;
+	border-radius: 16px;
+	border: 2px solid #e2e8f0;
+	background: white;
+	color: #64748b;
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	flex: 1;
+	min-width: 120px;
+	text-align: center;
+	font-family: 'Vazirmatn', sans-serif;
+}
+
+.day-button:hover {
+	background: #f1f5f9;
+	border-color: #cbd5e1;
+	transform: translateY(-2px);
+	color: #475569;
+}
+
+.day-button.active {
+	background: linear-gradient(135deg, #1d4ed8 0%, #7c3aed 100%);
+	color: white;
+	border-color: #1d4ed8;
+	box-shadow: 0 6px 20px rgba(29, 78, 216, 0.3);
+	transform: translateY(-2px);
+}
+
+.day-info {
+	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+	border-radius: 20px;
+	padding: 28px;
+	margin: 40px 0;
+	border: 2px solid #e2e8f0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+	animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.current-day {
+	font-size: 1.6rem;
+	color: #1e293b;
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	font-weight: 800;
+}
+
+.day-icon {
+	font-size: 2rem;
+	animation: bounce 2s infinite;
+}
+
+.item-count {
+	font-size: 1.2rem;
+	color: #64748b;
+	font-weight: 600;
+	background: #f1f5f9;
+	padding: 12px 24px;
+	border-radius: 16px;
+	margin: 0;
+}
+
+.add-more-section {
+	text-align: center;
+	padding: 60px 40px;
+	margin-top: 50px;
+	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	border-radius: 28px;
+	border: 3px dashed #cbd5e0;
+	animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+.add-more-button {
+	background: linear-gradient(135deg, #1d4ed8 0%, #7c3aed 100%);
+	color: white;
+	border: none;
+	padding: 20px 48px;
+	border-radius: 20px;
+	font-size: 1.3rem;
+	font-weight: 700;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 15px;
+	transition: all 0.3s ease;
+	box-shadow: 0 10px 30px rgba(29, 78, 216, 0.3);
+	margin-bottom: 25px;
+	position: relative;
+	overflow: hidden;
+}
+
+.add-more-button::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+	transition: left 0.6s ease;
+}
+
+.add-more-button:hover::before {
+	left: 100%;
+}
+
+.add-more-button:hover {
+	transform: translateY(-4px) scale(1.05);
+	box-shadow: 0 15px 40px rgba(29, 78, 216, 0.4);
+}
+
+.add-more-hint {
+	color: #64748b;
+	font-size: 1.1rem;
+	margin-top: 15px;
+	font-weight: 500;
+}
+
+.empty-state {
+	text-align: center;
+	padding: 100px 40px;
+	background: white;
+	border-radius: 28px;
+	border: 3px dashed #cbd5e0;
+	margin: 40px 0;
+	box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+.empty-state-icon {
+	font-size: 6rem;
+	margin-bottom: 40px;
+	opacity: 0.6;
+	animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-25px); }
+}
+
+.empty-state h3 {
+	color: #1e293b;
+	margin: 0 0 20px 0;
+	font-size: 2rem;
+	font-weight: 800;
+}
+
+.empty-state p {
+	color: #64748b;
+	margin: 0;
+	font-size: 1.2rem;
+	line-height: 1.8;
+}
+
+@media (max-width: 1024px) {
+	.day-buttons {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+
+@media (max-width: 768px) {
+	.header-top {
+		flex-direction: column;
+		gap: 20px;
+		text-align: center;
+	}
+
+	.add-post-button {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.day-buttons {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.day-info {
+		flex-direction: column;
+		gap: 20px;
+		text-align: center;
+	}
+
+	.current-day {
+		font-size: 1.4rem;
+		justify-content: center;
+	}
+
+	.add-more-section {
+		padding: 40px 20px;
+	}
+
+	.add-more-button {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+@media (max-width: 480px) {
+	.day-buttons {
+		grid-template-columns: 1fr;
+	}
+
+	.day-button {
+		min-width: 100%;
+	}
+
+	.add-more-button {
+		font-size: 1.1rem;
+		padding: 18px 32px;
+	}
+
+	.empty-state {
+		padding: 60px 20px;
+	}
+
+	.empty-state h3 {
+		font-size: 1.6rem;
+	}
+
+	.empty-state p {
+		font-size: 1.1rem;
+	}
 }
 
 @media (max-width: 1200px) {
