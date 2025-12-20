@@ -8,6 +8,7 @@ import './FoodPostFeed.css';
 interface FoodPostCardProps {
 	item: FoodItem;
 	onBuy: (item: FoodItem) => void;
+
 }
 
 export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
@@ -96,9 +97,10 @@ type Day = "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursda
 
 interface FoodPostFeedProps {
 	items: FoodItem[];
+	isLoading?: boolean;
 }
 
-export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems }) => {
+export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems , isLoading = false}) => {
 	const [items, setItems] = useState<FoodItem[]>(initialItems || []);
 	const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -181,6 +183,17 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 		// Here you can add logic to filter items by day
 		// For now, we'll just show all items
 	};
+
+	if (isLoading) {
+		return (
+			<div className="food-order-container loading">
+				<div className="loading-overlay">
+					<div className="loading-spinner"></div>
+					<span>در حال بارگذاری غذاها...</span>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className={`food-order-container ${items.length === 1 ? 'single-item' : ''}`}>
