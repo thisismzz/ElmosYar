@@ -1,4 +1,3 @@
-// Components/AddFoodModal.tsx
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { FoodItem } from "../../types/food_posts";

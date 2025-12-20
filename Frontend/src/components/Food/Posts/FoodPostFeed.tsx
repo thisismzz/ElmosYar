@@ -199,25 +199,6 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 						<span>اضافه کردن پست جدید</span>
 					</button>
 				</div>
-
-				{/* Day Filter */}
-				<div className="day-filter">
-					<div className="day-filter-title">
-						<span>📅</span>
-						<span>روز هفته:</span>
-					</div>
-					<div className="day-buttons">
-						{dayValues.map(day => (
-							<button
-								key={day}
-								className={`day-button ${selectedDay === day ? 'active' : ''}`}
-								onClick={() => handleDayChange(day)}
-							>
-								{getPersianDayName(day)}
-							</button>
-						))}
-					</div>
-				</div>
 			</div>
 
 			{items.length === 0 ? (
@@ -235,32 +216,10 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 				</div>
 			) : (
 				<>
-					<div className="day-info">
-						<h3 className="current-day">
-							<span className="day-icon">📅</span>
-							غذاهای روز {getPersianDayName(selectedDay)}
-						</h3>
-						<p className="item-count">تعداد غذاها: {items.length}</p>
-					</div>
-
 					<div className={`food-items-grid ${items.length === 1 ? 'single-item-grid' : ''}`}>
 						{items.map((item) => (
 							<FoodPostCard key={item.id} item={item} onBuy={handleBuyFood} />
 						))}
-					</div>
-
-					{/* Add More Button at Bottom */}
-					<div className="add-more-section">
-						<button 
-							className="add-more-button"
-							onClick={() => setIsAddModalOpen(true)}
-						>
-							<Plus size={24} />
-							<span>اضافه کردن غذای دیگر</span>
-						</button>
-						<p className="add-more-hint">
-							آیا غذای دیگری برای اضافه کردن دارید؟
-						</p>
 					</div>
 				</>
 			)}

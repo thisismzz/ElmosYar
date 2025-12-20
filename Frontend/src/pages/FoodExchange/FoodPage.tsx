@@ -71,8 +71,8 @@ const FoodPage: React.FC = () => {
   return type === "ناهار" || type === "شام";
 };
 
-const isValidLocation = (location: string): location is "مرکزی" | "یاس" | "مقتدایی" | "خوابگاه خواهران" | "خوابگاه برادران" => {
-  const validLocations: string[] = ["مرکزی", "یاس", "مقتدایی", "خوابگاه خواهران", "خوابگاه برادران"];
+const isValidLocation = (location: string): location is "سلف مرکزی" | "سلف یاس" | "خوابگاه حکیمیه" | "خوابگاه خواهران" | "خوابگاه برادران" | "خوابگاه سراج" | "خوابگاه مجیدیه" => {
+  const validLocations: string[] = ["سلف مرکزی", "سلف یاس", "خوابگاه حکیمیه", "خوابگاه خواهران", "خوابگاه برادران", "خوابگاه سراج" , "خوابگاه مجیدیه"];
   return validLocations.includes(location);
 };
 

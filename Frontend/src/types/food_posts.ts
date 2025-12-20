@@ -40,7 +40,7 @@ export type FoodPostSearchProps = {
 	day?: "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday",
 	name?: string,
 	mealType?: "ناهار"|"شام",
-	location?: "مرکزی" | "یاس" | "مقتدایی" | "خوابگاه خواهران" | "خوابگاه برادران",
+	location?: "سلف مرکزی" | "سلف یاس" | "خوابگاه حکیمیه" | "خوابگاه خواهران" | "خوابگاه برادران" | "خوابگاه سراج" | "خوابگاه مجیدیه",
 	date?: string,
 	price?: [number, number],
 	isSoldOut?: boolean,
