@@ -7,7 +7,7 @@ export interface GetPostsParams {
   per_page?: number;
   category?: string;
   username?: string;
-  search?: string;
+  search?: string | Record<string, any>;
 }
 
 export interface GetPostsResponse {
@@ -37,10 +37,32 @@ class UltimatePostService {
       console.log('📡 در حال دریافت پست‌ها از API...', params);
       
       const queryParams = new URLSearchParams();
+
+      const normalizeSearchValue = (val: any): string => {
+        if (typeof val === 'string') return val;
+        const serialize = (obj: any): any => {
+          if (obj instanceof RegExp) return obj.source;
+          if (Array.isArray(obj)) return obj.map(serialize);
+          if (obj && typeof obj === 'object') {
+            const out: any = {};
+            for (const k in obj) out[k] = serialize(obj[k]);
+            return out;
+          }
+          return obj;
+        };
+        return JSON.stringify(serialize(val));
+      };
+
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          queryParams.append(key, value.toString());
+        if (value === undefined || value === null) return;
+
+        if (key === 'search') {
+          const s = normalizeSearchValue(value);
+          if (s !== '') queryParams.append(key, s);
+          return;
         }
+
+        queryParams.append(key, value.toString());
       });
 
       const response = await api.get(`/posts/?${queryParams}`);

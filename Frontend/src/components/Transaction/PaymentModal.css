@@ -511,3 +511,291 @@
     height: 7px;
   }
 }
+/* استایل‌های صفحه موفقیت */
+
+.success-modal {
+  max-width: 450px;
+}
+
+.success-header {
+  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+  text-align: center;
+  padding-bottom: 25px;
+}
+
+.success-icon {
+  width: 60px;
+  height: 60px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  color: #4CAF50;
+  margin: 0 auto 15px auto;
+  font-weight: bold;
+  animation: successIcon 0.5s ease-out;
+}
+
+@keyframes successIcon {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-content {
+  padding: 25px;
+}
+
+.purchase-info {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(74, 108, 247, 0.1);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 14px;
+  color: #666;
+  font-weight: 600;
+}
+
+.info-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+  font-family: 'Vazirmatn', sans-serif;
+  direction: ltr;
+}
+
+.info-value.price {
+  color: #2E7D32;
+  background: rgba(76, 175, 80, 0.1);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border-right: 3px solid #4CAF50;
+}
+
+.credentials-section {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.credentials-title {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #333;
+  text-align: center;
+  font-weight: 700;
+}
+
+.credentials-description {
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.credential-item {
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.credential-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: linear-gradient(135deg, #16519f 0%, #3a5ce5 100%);
+}
+
+.credential-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.copy-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 15px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Vazirmatn', sans-serif;
+}
+
+.copy-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.credential-value {
+  padding: 15px;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  color: #333;
+  font-family: 'Courier New', monospace;
+  direction: ltr;
+  background: white;
+  cursor: pointer;
+  user-select: all;
+  transition: all 0.3s ease;
+}
+
+.credential-value.copyable:hover {
+  background: #f0f8ff;
+  color: #16519f;
+}
+
+.credentials-note {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 1px solid #ffc107;
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.note-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.credentials-note p {
+  margin: 0;
+  font-size: 13px;
+  color: #856404;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.success-actions {
+  padding: 20px 25px 25px 25px;
+  border-top: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+}
+
+.close-success-button {
+  width: 100%;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Vazirmatn', sans-serif;
+  color: white;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.close-success-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success-content .purchase-info {
+  animation: fadeInUp 0.5s ease-out 0.2s both;
+}
+
+.success-content .credentials-section {
+  animation: fadeInUp 0.5s ease-out 0.4s both;
+}
+
+.success-actions {
+  animation: fadeInUp 0.5s ease-out 0.6s both;
+}
+
+/* ریسپانسیو برای صفحه موفقیت */
+@media (max-width: 480px) {
+  .success-modal {
+    max-width: 100%;
+    margin: 10px;
+  }
+  
+  .success-content {
+    padding: 20px;
+  }
+  
+  .purchase-info {
+    padding: 15px;
+  }
+  
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+  
+  .info-label, .info-value {
+    width: 100%;
+    text-align: right;
+  }
+  
+  .credential-value {
+    font-size: 16px;
+    padding: 12px;
+  }
+  
+  .credentials-note {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .note-icon {
+    align-self: center;
+  }
+}

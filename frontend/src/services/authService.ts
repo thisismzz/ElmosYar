@@ -30,21 +30,23 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry &&
+      (
+      error.response?.code === "AUTH_TOKEN_INVALID" ||
+      error.response?.code === "AUTH_TOKEN_EXPIRED" ||
+      error.response?.code === "AUTH_TOKEN_MISSING"
+      )
     ) {
       originalRequest._retry = true;
       try {
         const newToken = await refreshToken();
         if (newToken) {
           setToken(newToken);
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          }
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return api(originalRequest);
         }
       } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError);
         await logout();
         return Promise.reject(refreshError);
       }
@@ -54,7 +56,6 @@ api.interceptors.response.use(
   }
 );
 
-// Token management
 export const getToken = (): string | null => {
   return localStorage.getItem('access_token');
 };
@@ -107,7 +108,7 @@ export const logout = async (): Promise<void> => {
     }
   }
   removeTokens();
-  window.location.href = '/Login';
+  window.location.href = '/login';
 };
 
 export const verifyToken = async (token: string) => {
@@ -123,7 +124,6 @@ export const refreshToken = async (): Promise<string | null> => {
     }
 
     const response = await api.post('/token/refresh/', { refresh });
-    // Backend returns { success: true, access: '...' }
     const access = response.data?.access;
     if (access) {
       setToken(access);

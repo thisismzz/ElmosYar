@@ -1,7 +1,7 @@
 // components/PostFeed.tsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { type PostFeedProps, type Post, DiscussionSearchProps } from '../../types/discussion_posts';
-import { makeSearchQueryFromSearchParameters, PostSearchParameters, postService, type GetPostsParams } from '../../services/PostService';
+import { postService, type GetPostsParams } from '../../services/PostService';
 import { X } from 'lucide-react';
 import Comments from '../../components/Discussion/Comments/DiscussionComments';
 import { PostCard } from '../../components/Discussion/Posts/DiscussionPostFeed';
@@ -10,7 +10,7 @@ import { useFilters } from '../../contexts/FilterContext';
 import './DiscussionPage.css';
 
 const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPosts = [] }) => {
-	const { getFilter } = useFilters();
+	const { getFilter, serializeSearch } = useFilters();
 	
 	// Get search query filter only
 	const searchQuery = getFilter('q', '');
@@ -39,30 +39,9 @@ const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPo
 			
 			// Build search parameters similar to foodPage
 			let search_query = undefined;
-			
-			// Only create search parameters if we have a search query
-			if (searchQuery && searchQuery !== '') {
-				const searchParams: PostSearchParameters<DiscussionSearchProps> = {
-					filters: {
-						body: searchQuery,
-					},
-					search_bar: ""
-				};
-				
-				// Convert to JSON string for the API
-				const filtersExpr = makeSearchQueryFromSearchParameters(searchParams);
-				const serializeFilters = (obj: Record<string, any>) => {
-					const out: Record<string, any> = {};
-					for (const k in obj) {
-						const v = obj[k];
-						if (v instanceof RegExp) out[k] = v.source;
-						else out[k] = v;
-					}
-					return out;
-				};
-				
-				search_query = JSON.stringify(serializeFilters(filtersExpr));
-			}
+
+			// Build serialized search from FilterContext (includes `*` from `q` param)
+			search_query = serializeSearch && serializeSearch();
 			
 			const params: GetPostsParams = {
 				page,

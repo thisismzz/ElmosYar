@@ -179,7 +179,6 @@
 }
 
 .left-sidebar {
-  width: 240px;
   background-color: #fafafa;
   border-right: 1px solid #f0f0f0;
   display: flex;
@@ -502,17 +501,13 @@
 @media (min-width: 769px) {
   /* Desktop: make sidebars fixed so only main content scrolls */
   .left-sidebar {
-    width: 240px;
+    display: flex;
     position: fixed;
     top: 70px;
     left: 0;
     bottom: 0;
     transform: none;
     z-index: 50;
-  }
-
-  .left-sidebar-closed {
-    width: 240px;
   }
 
   .sidebar {

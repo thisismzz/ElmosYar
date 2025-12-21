@@ -79,26 +79,32 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="form-group">
-        <input
-          type="text"
-          placeholder="نام کاربری یا ایمیل"
-          {...register("username")}
-          className={`form-input ${errors.username ? 'error' : ''}`}
-          disabled={isLoading}
-        />
+        <div className="floating-input">
+          <input
+            type="text"
+            placeholder=" "
+            {...register("username")}
+            className={`form-input ${errors.username ? 'error' : ''}`}
+            disabled={isLoading}
+          />
+          <label className="floating-label">نام کاربری یا پست الکترونیک</label>
+        </div>
         {errors.username && (
           <p className="error-message">{errors.username.message}</p>
         )}
       </div>
 
       <div className="form-group">
-        <input
-          type="password"
-          placeholder="رمز عبور"
-          {...register("password")}
-          className={`form-input ${errors.password ? 'error' : ''}`}
-          disabled={isLoading}
-        />
+        <div className="floating-input">
+          <input
+            type="password"
+            placeholder=" "
+            {...register("password")}
+            className={`form-input ${errors.password ? 'error' : ''}`}
+            disabled={isLoading}
+          />
+          <label className="floating-label">رمز عبور</label>
+        </div>
         {errors.password && (
           <p className="error-message">{errors.password.message}</p>
         )}
@@ -162,13 +168,16 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="form-group">
-        <input
-          type="email"
-          placeholder="ایمیل"
-          {...customRegister("email")}
-          className={`form-input ${errors.email || apiErrors.email ? 'error' : ''}`}
-          disabled={isLoading}
-        />
+        <div className="floating-input">
+          <input
+            type="email"
+            placeholder=" "
+            {...customRegister("email")}
+            className={`form-input ${errors.email || apiErrors.email ? 'error' : ''}`}
+            disabled={isLoading}
+          />
+          <label className="floating-label">پست الکترونیک</label>
+        </div>
         {errors.email && (
           <p className="error-message">{errors.email.message}</p>
         )}
@@ -178,13 +187,16 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       </div>
 
       <div className="form-group">
-        <input
-          type="text"
-          placeholder="نام کاربری"
-          {...customRegister("username")}
-          className={`form-input ${errors.username || apiErrors.username ? 'error' : ''}`}
-          disabled={isLoading}
-        />
+        <div className="floating-input">
+          <input
+            type="text"
+            placeholder=" "
+            {...customRegister("username")}
+            className={`form-input ${errors.username || apiErrors.username ? 'error' : ''}`}
+            disabled={isLoading}
+          />
+          <label className="floating-label">نام کاربری</label>
+        </div>
         {errors.username && (
           <p className="error-message">{errors.username.message}</p>
         )}
@@ -194,26 +206,32 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
       </div>
 
       <div className="form-group">
-        <input
-          type="password"
-          placeholder="رمز عبور"
-          {...customRegister("password")}
-          className={`form-input ${errors.password ? 'error' : ''}`}
-          disabled={isLoading}
-        />
+        <div className="floating-input">
+          <input
+            type="password"
+            placeholder=" "
+            {...customRegister("password")}
+            className={`form-input ${errors.password ? 'error' : ''}`}
+            disabled={isLoading}
+          />
+          <label className="floating-label">رمز عبور</label>
+        </div>
         {errors.password && (
           <p className="error-message">{errors.password.message}</p>
         )}
       </div>
 
       <div className="form-group">
-        <input
-          type="password"
-          placeholder="تکرار رمز عبور"
-          {...customRegister("repeatPassword")}
-          className={`form-input ${errors.repeatPassword ? 'error' : ''}`}
-          disabled={isLoading}
-        />
+        <div className="floating-input">
+          <input
+            type="password"
+            placeholder=" "
+            {...customRegister("repeatPassword")}
+            className={`form-input ${errors.repeatPassword ? 'error' : ''}`}
+            disabled={isLoading}
+          />
+          <label className="floating-label">تکرار رمز عبور</label>
+        </div>
         {errors.repeatPassword && (
           <p className="error-message">{errors.repeatPassword.message}</p>
         )}
@@ -322,8 +340,8 @@ const RegisterPage: React.FC = () => {
       const resp = error.response?.data;
       const errorMessage = resp?.message || error.message || 'خطا در ورود. لطفاً مجدداً تلاش کنید.';
 
-      // If account not verified, show the unverified UI and extract email if provided
-      if (errorMessage === 'Account is not active' || resp?.detail === 'Account is not active') {
+      // If account not verified, show the unverified UI and extract email if provided (to be changed)
+      if (errorMessage.startsWith('Please verify') || resp?.detail === 'Account is not active') {
         // try several places where email might be provided
         const email = resp?.user?.email || resp?.email || resp?.data?.email || null;
         setUnverifiedAccount(true);
@@ -419,6 +437,12 @@ const RegisterPage: React.FC = () => {
     setCurrentMode(mode);
     setApiError(null);
     setSignUpApiErrors({});
+    setSignupSuccess(false);
+    setSignupEmail(null);
+    setUnverifiedAccount(false);
+    setUnverifiedEmail(null);
+    setResendCooldown(0);
+    setIsResending(false);
   };
 
   const formatTime = (seconds: number) => {
