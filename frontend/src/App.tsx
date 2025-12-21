@@ -16,9 +16,10 @@ import DiscussionPage from './pages/Discussion/DiscussionPage';
 import FoodPage from './pages/FoodExchange/FoodPage';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
-
-
-
+import TransactionHistoryPage from './pages/TransactionHistory';
+import { ReviewPage } from './pages/Professors/Reviews';
+import { ProfessorProfilePage } from './pages/Professors/ProfessorProfile';
+import { CreateReviewPage } from './pages/Professors/CreateReview';
 
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
@@ -28,6 +29,7 @@ const TopicDiscussion: React.FC = () => {
 	// Use FoodPage for the 'food' topic
 	if (topicId === 'food') return <FoodPage />;
 	if (topicId === 'discussion') return <DiscussionPage category={topicId} />;
+	if (topicId === 'professors') return <ReviewPage />;
 
 	// For all other topics, show the general discussion feed.
 	return <GeneralDiscussion />;
@@ -181,7 +183,10 @@ const ProtectedRoutes: React.FC = () => {
 			<Route path='/profile' element={<ProfilePage />} />
 			<Route path='/profile/wallet' element={<WalletPage />} />
 			<Route path='/profile/edit' element={<EditProfilePage />} />
+			<Route path='/profile/transactions' element={<TransactionHistoryPage />} />
 			<Route path='/topic/:topicId' element={<TopicDiscussion />} />
+			<Route path='/topic/professors/:professorName' element={<ProfessorProfilePage />} />
+			<Route path='/topic/professors/new' element={<CreateReviewPage />} />
 		</Routes>
 	);
 };

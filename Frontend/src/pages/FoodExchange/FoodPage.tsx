@@ -7,6 +7,7 @@ import { makeSearchQueryFromSearchParameters, PostSearchParameters, postService 
 import { useFilters } from '../../contexts/FilterContext';
 import { FoodPostSearchProps } from '../../types/food_posts';
 
+
 const FoodPage: React.FC = () => {
 	const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
 	const [loading, setLoading] = useState(true);

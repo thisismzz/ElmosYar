@@ -91,7 +91,9 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
   const [activeNav, setActiveNav] = useState<string>('');
   
   const navItems: NavItem[] = [
-    { id: 'new-post', label: 'پست جدید', icon: PenSquare, path: '/create-post' },
+    { id: 'new-post', label: 'پست جدید', icon: PenSquare, 
+		path: location.pathname.split("/").filter(Boolean)[0] == "topic" ? 
+					location.pathname.split("/").filter(Boolean).slice(0, 2).join("/") + "/new" : location.pathname },
     { id: 'profile', label: 'پروفایل', icon: User, path: '/profile' }
   ];
 
