@@ -14,7 +14,7 @@ interface FoodPostCardProps {
 export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 
 	const formatPrice = (price: number): string => {
-		return `$${price}`;
+		return `تومان ${price}`;
 	};
 
 	const getMealTypeIcon = (mealType: string) => {
@@ -117,19 +117,6 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 		"friday",
 	];
 
-	// Helper function to get Persian day name
-	const getPersianDayName = (day: Day): string => {
-		switch(day) {
-			case "saturday": return "شنبه";
-			case "sunday": return "یکشنبه";
-			case "monday": return "دوشنبه";
-			case "tuesday": return "سه‌شنبه";
-			case "wednesday": return "چهارشنبه";
-			case "thursday": return "پنجشنبه";
-			case "friday": return "جمعه";
-			default: return day;
-		}
-	};
 
 	// Helper function to get today's date in YYYY-MM-DD format
 	const getTodayDate = (): string => {
@@ -217,7 +204,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 			{items.length === 0 ? (
 				<div className="empty-state">
 					<div className="empty-state-icon">🍽️</div>
-					<h3>هیچ غذایی برای {getPersianDayName(selectedDay)} موجود نیست</h3>
+					<h3>هیچ غذایی برای {(selectedDay)} موجود نیست</h3>
 					<p>برای شروع، غذای جدیدی اضافه کنید</p>
 					<button 
 						className="add-post-button empty-state-button"
