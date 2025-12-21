@@ -23,7 +23,7 @@ const VerifyEmail: React.FC = () => {
       try {
         await verifyEmail(token);
         alert('حساب کاربری با موفقیت فعال شد!');
-        navigate('/');
+        navigate('/profile/edit');
       } catch (error: any) {
         console.error('Verification error:', error);
         const errorMessage = error.response?.data?.message || 'تایید ناموفق بود. لینک ممکن است منقضی یا نامعتبر باشد.';
