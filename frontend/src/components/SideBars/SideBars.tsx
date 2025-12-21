@@ -3,6 +3,7 @@ import { User, PenSquare, Phone, LogOut, Utensils, Star, MessageSquare } from 'l
 import { useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../../services/authService';
 import './SideBars.css';
+import DiscussionPostForm from '../Discussion/Posts/DiscussionPostForm';
 
 // Types
 interface SideBarProps {
@@ -18,6 +19,7 @@ interface NavItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   path?: string;
+  onClick?: () => void;
 }
 
 // Common hook for active navigation
@@ -89,11 +91,86 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeNav, setActiveNav] = useState<string>('');
+
+  const [showDiscussionForm, setShowDiscussionForm] = useState(false);
+  // const [showFoodForm, setShowFoodForm] = useState(false);
+  // const [showTeacherForm, setShowTeacherForm] = useState(false);
+
   
-  const navItems: NavItem[] = [
-    { id: 'new-post', label: 'پست جدید', icon: PenSquare, path: '/create-post' },
-    { id: 'profile', label: 'پروفایل', icon: User, path: '/profile' }
+  const currentPage = () => {
+    if (location.pathname.includes('/discussion') || location.pathname.includes('/topic/discussion')) {
+      return 'discussion';
+    }
+    if (location.pathname.includes('/food') || location.pathname.includes('/topic/food')) {
+      return 'food';
+    }
+    if (location.pathname.includes('/professors') || location.pathname.includes('/topic/professors')) {
+      return 'teacher';
+    }
+    return 'other';
+  };
+
+
+  const handleCreatePostClick = () => {
+    const page = currentPage();
+    
+    switch(page) {
+      case 'discussion':
+        setShowDiscussionForm(true);
+        break;
+      // case 'food':
+      //   setShowFoodForm(true);
+       // break;
+      // case 'teacher':
+      //   setShowTeacherForm(true);
+        //break;
+      default:
+       
+        navigate('/discussion');
+    }
+  };
+
+   const navItems: NavItem[] = [
+    { 
+      id: 'new-post', 
+      label:'ایجاد پست', 
+      icon: PenSquare, 
+      onClick: handleCreatePostClick
+    },
+    { 
+      id: 'profile', 
+      label: 'پروفایل', 
+      icon: User, 
+      path: '/profile' 
+    }
   ];
+
+  function getButtonLabel(): string {
+    const page = currentPage();
+    switch(page) {
+      case 'discussion': return 'ایجاد پست بحث';
+      case 'food': return 'اشتراک غذا';
+      case 'teacher': return 'نظر درباره استاد';
+      default: return 'ایجاد محتوا';
+    }
+  }
+
+  const handleSubmitPost = async (data: any, type: string) => {
+    try {
+      console.log(`ارسال پست ${type}:`, data);
+      // API call بر اساس type
+      // await postService.createPost(type, data);
+      
+      setShowDiscussionForm(false);
+      // setShowFoodForm(false);
+      // setShowTeacherForm(false);
+    
+      window.location.reload();
+    } catch (error) {
+      console.error('خطا در ارسال پست:', error);
+    }
+  };
+
 
   const computedActiveNav = useActiveNav(navItems, location.pathname);
 
@@ -106,24 +183,40 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
     if (item.path) navigate(item.path);
   };
 
-  return (
-    <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-      <div className="sidebar-panel">
-        <SidebarHeader title="منوی اصلی" subtitle="دسترسی سريع" />
-        
-        <nav className="sidebar-nav">
-          {navItems.map((item, index) => (
-            <NavItemComponent
-              key={item.id}
-              item={item}
-              isActive={activeNav === item.id}
-              onClick={handleNavClick}
-              showDivider={index < navItems.length - 1}
-            />
-          ))}
-        </nav>
-      </div>
-    </aside>
+   return (
+    <>
+      <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <div className="sidebar-panel">
+          <SidebarHeader title="منوی اصلی" subtitle="دسترسی سریع" />
+          
+          <nav className="sidebar-nav">
+            {navItems.map((item, index) => (
+              <NavItemComponent
+                key={item.id}
+                item={item}
+                isActive={activeNav === item.id}
+                onClick={(item) => {
+                  if (item.onClick) {
+                    item.onClick();
+                  } else if (item.path) {
+                    navigate(item.path);
+                  }
+                }}
+                showDivider={index < navItems.length - 1}
+              />
+            ))}
+          </nav>
+        </div>
+      </aside>
+
+      {/* نمایش فرم بر اساس نوع */}
+      {showDiscussionForm && (
+        <DiscussionPostForm
+          onClose={() => setShowDiscussionForm(false)}
+          onSubmit={(data) => handleSubmitPost(data, 'discussion')}
+        />
+      )}
+    </>
   );
 };
 
