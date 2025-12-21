@@ -135,7 +135,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen = true }) => {
 
   const topics: NavItem[] = [
     { id: '1', label: 'تبادل غذا', icon: Utensils, path: '/topic/food' },
-    { id: '2', label: 'نظرات استادان', icon: Star, path: '/topic/professors' },
+    { id: '2', label: 'نظرسنجی اساتید', icon: Star, path: '/topic/professors' },
     { id: '3', label: 'بحث و گفتگو', icon: MessageSquare, path: '/topic/discussion' }
   ];
 

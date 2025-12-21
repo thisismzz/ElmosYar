@@ -1,6 +1,7 @@
 // src/contexts/FilterContext.tsx
 import React, { createContext, useContext, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { makeSearchQuery, containsRegex } from '../services/PostService';
 
 interface FilterState {
   [key: string]: string;
@@ -12,6 +13,7 @@ interface FilterContextType {
   setFilters: (filters: FilterState) => void;
   resetFilters: () => void;
   getFilter: (key: string, defaultValue?: string) => string;
+  serializeSearch?: (allowedKeys?: string[]) => string | undefined;
 }
 
 const FilterContext = createContext<FilterContextType | undefined>(undefined);
@@ -42,6 +44,41 @@ export const FilterProvider: React.FC<{
     
     return parsedFilters;
   }, [location.search, defaultFilters]);
+
+  const serializeSearch = useCallback((allowedKeys?: string[]) => {
+    // Build filters from current URL-derived `filters` state
+    const filtersToUse: Record<string, any> = {};
+
+    Object.entries(filters).forEach(([k, v]) => {
+      if (k === 'q') return; // skip search bar here
+      if (allowedKeys && !allowedKeys.includes(k)) return;
+      if (v === undefined || v === null || v === '') return;
+      filtersToUse[k] = v;
+    });
+
+    const q = filters['q'] || '';
+
+    // Convert to search expressions (RegExp or values)
+    const queryExpr = makeSearchQuery(filtersToUse);
+
+    // Serialize expressions: convert RegExp to source string
+    const out: Record<string, any> = {};
+    for (const k in queryExpr) {
+      const v = queryExpr[k];
+      if (v instanceof RegExp) out[k] = v.source;
+      else out[k] = v;
+    }
+
+    // If there's a q (search bar) include it under the '*' key as requested
+    if (q && q !== '') {
+      out['*'] = containsRegex(q);
+    }
+
+    // If nothing to send, return undefined
+    if (Object.keys(out).length === 0) return undefined;
+
+    return JSON.stringify(out);
+  }, [filters]);
 
   const updateUrl = useCallback((newFilters: FilterState) => {
     const params = new URLSearchParams();
@@ -88,8 +125,9 @@ export const FilterProvider: React.FC<{
     setFilters,
     updateFilter,
     resetFilters,
-    getFilter
-  }), [filters, setFilters, updateFilter, resetFilters, getFilter]);
+    getFilter,
+    serializeSearch
+  }), [filters, setFilters, updateFilter, resetFilters, getFilter, serializeSearch]);
 
   return (
     <FilterContext.Provider value={contextValue}>

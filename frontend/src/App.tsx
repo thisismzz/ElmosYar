@@ -15,6 +15,7 @@ import Header from './components/Header/Header';
 import DiscussionPage from './pages/Discussion/DiscussionPage';
 import FoodPage from './pages/FoodExchange/FoodPage';
 import VerifyEmail from './pages/VerifyEmail/VerifyEmail';
+import NotesPage from './pages/Notes/NotesPage';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
 
@@ -166,6 +167,7 @@ const ProtectedRoutes: React.FC = () => {
 	return (
 		<Routes>
 			<Route path='/' element={<Main />} />
+			<Route path='/notes' element={<NotesPage />} />
 			<Route path='/login' element={<RegisterPage />} />
 			<Route path='/profile' element={<ProfilePage />} />
 			<Route path='/profile/wallet' element={<WalletPage />} />

@@ -344,4 +344,55 @@
   cursor: not-allowed;
 }
 
+/* Floating label styles */
+.floating-input {
+  position: relative;
+}
+.floating-input .form-input {
+  padding-top: 16px; /* space for label */
+}
+.floating-label {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.18s ease;
+  color: #6b7280;
+  font-size: 14px;
+  pointer-events: none;
+  background: transparent;
+  padding: 0 4px;
+}
+
+.floating-input .form-input:not(:placeholder-shown) + .floating-label{
+  background: transparent;
+}
+
+.floating-input .form-input:focus + .floating-label{
+  background:white;
+}
+
+
+.floating-input .form-input:focus + .floating-label,
+.floating-input .form-input:not(:placeholder-shown) + .floating-label {
+  top: -10px;
+  transform: none;
+  font-size: 13px;
+  color: #16519F;
+}
+
+/* Keep label visible when input has error */
+.floating-input .form-input.error + .floating-label {
+  color: #ef4444;
+}
+
+@media (max-width: 480px) {
+  .floating-input .form-input {
+    padding-top: 14px;
+  }
+  .floating-label {
+    right: 12px;
+  }
+}
+
 

@@ -32,11 +32,9 @@
 .main-content {
   flex: 1;
   transition: all 0.3s ease;
-  /* Make main content the only scrollable area */
   height: calc(100vh - 70px);
   padding: 1rem;
   overflow-y: auto;
-  /* Default: no sidebar margins; margins applied only when sidebars are open via helper classes */
   margin-left: 0;
   margin-right: 0;
 }

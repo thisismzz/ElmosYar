@@ -59,6 +59,7 @@
   border-radius: 20px;
   direction: rtl;
   flex-direction: column;
+  overflow: auto;
 }
 
 .food-order-container.single-item {
