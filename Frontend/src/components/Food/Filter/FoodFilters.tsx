@@ -16,13 +16,13 @@ const FoodFilters: React.FC = () => {
 	};
 
 	const mealOptions = [
-		{ value: 'all', label: 'همه وعده‌ها' },
+		{ value: '', label: 'همه وعده‌ها' },
 		{ value: 'lunch', label: 'ناهار' },
 		{ value: 'dinner', label: 'شام' }
 	];
 
 	const dayOptions = [
-		{ value: 'all', label: 'همه روزها' },
+		{ value: '', label: 'همه روزها' },
 		{ value: 'saturday', label: 'شنبه' },
 		{ value: 'sunday', label: 'یکشنبه' },
 		{ value: 'monday', label: 'دوشنبه' },
@@ -32,7 +32,7 @@ const FoodFilters: React.FC = () => {
 	];
 
 	const locationOptions = [
-		{ value: 'all', label: 'همه سلف‌ها' },
+		{ value: '', label: 'همه سلف‌ها' },
 		{ value: 'yas', label: 'سلف یاس' },
 		{ value: 'dormitory_f', label: 'خوابگاه خواهران' },
 		{ value: 'central_m', label: 'سلف مرکزی' },

@@ -3,7 +3,7 @@ import './FoodPage.css';
 import { FoodItem } from '../../types/food_posts';
 import { FoodPostFeed } from '../../components/Food/Posts/FoodPostFeed';
 import FoodFilters from '../../components/Food/Filter/FoodFilters';
-import { makeSearchQueryFromSearchParameters, PostSearchParameters, postService } from '../../services/PostService';
+import { postService } from '../../services/PostService';
 import { useFilters } from '../../contexts/FilterContext';
 import { FoodPostSearchProps } from '../../types/food_posts';
 
@@ -11,12 +11,12 @@ const FoodPage: React.FC = () => {
 	const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const { getFilter } = useFilters();
+	const { getFilter, serializeSearch } = useFilters();
 
 	// Get filter values with defaults
-	const mealType = getFilter('mealType', 'all');
-	const location = getFilter('location', 'all');
-	const day = getFilter('day', 'all');
+	const mealType = getFilter('mealType', '');
+	const location = getFilter('location', '');
+	const day = getFilter('day', '');
 	const searchQuery = getFilter('q', '');
 	
 	// Create filter dependency array for useEffect
@@ -24,29 +24,12 @@ const FoodPage: React.FC = () => {
 		return { mealType, location, day, searchQuery };
 	}, [mealType, location, day, searchQuery]);
 
-	const getFoodPosts = async (search_parameters?: PostSearchParameters<FoodPostSearchProps>): Promise<FoodItem[]> => {
-		const query_parameters = search_parameters
-			? (() => {
-				  const filtersExpr = makeSearchQueryFromSearchParameters(search_parameters);
+		const getFoodPosts = async (search?: string): Promise<FoodItem[]> => {
 
-				  const serializeFilters = (obj: Record<string, any>) => {
-					  const out: Record<string, any> = {};
-					  for (const k in obj) {
-						  const v = obj[k];
-						  if (v instanceof RegExp) out[k] = v.source;
-						  else out[k] = v;
-					  }
-					  return out;
-				  };
-
-				  return JSON.stringify(serializeFilters(filtersExpr));
-			  })()
-			: undefined;
-
-		const food_posts = await postService.getPosts({
-			category: "food",
-			search: query_parameters,
-		});
+			const food_posts = await postService.getPosts({
+				category: "food",
+				search,
+			});
 
 		const result: FoodItem[] = [];
 
@@ -114,16 +97,9 @@ const parseDay = (day: string): "saturday" | "sunday" | "monday" | "tuesday" | "
 				
 				const nameFilter = searchQuery;
 				
-				const response = await getFoodPosts({
-					filters: {
-						mealType: mealType && mealType !== "all" && isValidMealType(mealType) ? mealType : undefined,
-    					location: location && location !== "all" && isValidLocation(location) ? location : undefined,
-    					day: day && day !== "all" ? parseDay(day) : undefined,
-    					name: nameFilter && nameFilter !== "" ? nameFilter : undefined,
-  						},
-  					search_bar: "",
-
-				});
+				const response = await getFoodPosts(
+					serializeSearch && serializeSearch(['mealType', 'location', 'day', 'name'])
+				);
 
 				setFoodItems(response);
 				
