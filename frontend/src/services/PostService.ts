@@ -200,7 +200,7 @@ class UltimatePostService {
 
 	async createComment(postId: number, content: string): Promise<Comment> {
 		try {
-			const response = await api.post(`/posts/${postId}/comments/`, { content });
+			const response = await api.post(`/posts/${postId}/comment/`, { content });
 
 			const commentData = response.data.comment || response.data;
 			return {
