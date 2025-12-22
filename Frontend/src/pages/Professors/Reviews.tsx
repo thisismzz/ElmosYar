@@ -9,24 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { makeSearchQueryFromSearchParameters, PostSearchParameters, postService } from '../../services/PostService';
 
 
-
-export function ReviewPage() {
-	const navigate = useNavigate();
-
-	const [searchQuery, setSearchQuery] = useState("");
-	const [reviews, setReviews] = useState<Review[]>([]);
-
-
-	const filteredReviews = reviews.filter((review) => {
-		const query = searchQuery.toLowerCase();
-		return (
-			review.professorName.toLowerCase().includes(query) ||
-			review.faculty.toLowerCase().includes(query) ||
-			review.courseName.toLowerCase().includes(query)
-		);
-	});
-
-	const getReviewPosts = async (search_parameters?: PostSearchParameters<ReviewPostSearchProps>): Promise<Review[]> => {
+export const getReviewPosts = async (search_parameters?: PostSearchParameters<ReviewPostSearchProps>): Promise<Review[]> => {
 			const query_parameters = search_parameters
 				? (() => {
 					  const filtersExpr = makeSearchQueryFromSearchParameters(search_parameters);
@@ -45,14 +28,14 @@ export function ReviewPage() {
 				  })()
 				: undefined;
 	
-			const food_posts = await postService.getPosts({
+			const review_posts = await postService.getPosts({
 				category: "professor-review",
 				search: query_parameters,
 			});
 	
 			const result: Review[] = [];
 	
-			for (const post of food_posts.posts) {
+			for (const post of review_posts.posts) {
 				const post_content_json = post.attributes;
 				result.push({
 					id: post_content_json.id,
@@ -60,13 +43,13 @@ export function ReviewPage() {
 					faculty: post_content_json.faculty,
 					courseName: post_content_json.courseName,
 					semester: post_content_json.semester,
-					overallRating: post_content_json.overallRating,
+					overallRating: parseFloat(post_content_json.overallRating),
 					ratings: {
-						teaching: post_content_json.ratingsTeaching,
-						grading: post_content_json.ratingsGrading,
-						clarity: post_content_json.ratingsClarity,
-						helpfulness: post_content_json.ratingsHelpfulness,
-						satisfaction: post_content_json.ratingsSatisfaction,
+						teaching: parseFloat(post_content_json.ratingsTeaching),
+						grading: parseFloat(post_content_json.ratingsGrading),
+						clarity: parseFloat(post_content_json.ratingsClarity),
+						helpfulness: parseFloat(post_content_json.ratingsHelpfulness),
+						satisfaction: parseFloat(post_content_json.ratingsSatisfaction),
 					},
 					comment: post_content_json.body,
 					likes: post.likes,
@@ -78,9 +61,27 @@ export function ReviewPage() {
 			return result;
 		};
 
+export function ReviewPage() {
+	const navigate = useNavigate();
+
+	const [searchQuery, setSearchQuery] = useState("");
+	const [reviews, setReviews] = useState<Review[]>([]);
+
+
+	const filteredReviews = reviews.filter((review) => {
+		const query = searchQuery.toLowerCase();
+		return (
+			review.professorName.toLowerCase().includes(query) ||
+			review.faculty.toLowerCase().includes(query) ||
+			review.courseName.toLowerCase().includes(query)
+		);
+	});
+
+	
+
 
 	useEffect(() => {
-			const fetchFoodItems = async () => {
+			const fetchReviewItems = async () => {
 				try {
 					// setLoading(true);
 					
@@ -103,7 +104,7 @@ export function ReviewPage() {
 				}
 			};
 	
-			fetchFoodItems();
+			fetchReviewItems();
 		}, [searchQuery]);
 
 	return (
@@ -111,8 +112,8 @@ export function ReviewPage() {
 			<div className="max-w-5xl mx-auto px-4 py-8">
 				<div className="space-y-6">
 					{filteredReviews.length === 0 ? (
-						<Card className="p-12 text-center shadow-md">
-							<p className="text-gray-500">No reviews found. Be the first to add one!</p>
+						<Card className="p-12 text-center">
+							<p className="text-gray-500">...</p>
 						</Card>
 					) : (
 						filteredReviews.map((review) => (
@@ -121,7 +122,7 @@ export function ReviewPage() {
 								review={review}
 								onLike={() => {console.log("tried to like")}}
 								onComment={() => {console.log("tried to comment")}}
-								onClick={() => navigate("/reviews/professor-page")}
+								onClick={() => navigate(`/topic/professors/${review.professorName}`)}
 								showDetailedRatings={true}
 							/>
 						))

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../components/UILib"; 
 import { Card } from "../../components/UILib"; 
 import { Avatar, AvatarFallback } from "../../components/UILib"; 
@@ -16,16 +16,40 @@ import {
 } from "../../components/select";
 
 import { useNavigate, useParams } from "react-router-dom";
-
+import { makeSearchQueryFromSearchParameters, PostSearchParameters, postService } from "../../services/PostService";
+import { getReviewPosts } from "./Reviews";
 
 export function ProfessorProfilePage(
 ) {
 	const navigate = useNavigate();
 	const {professorName} = useParams();
+	console.log(professorName)
 	const [reviews, setReviews] = useState<Review[]>([]);
 
-  const [sortBy, setSortBy] = useState("recent");
+  const [sortBy, setSortBy] = useState("جدید");
 
+  type ProfReviewSearchProp = {
+	name: string;
+  }
+
+
+  useEffect(() => {
+			const fetchReviews = async () => {
+					
+					
+					const response = await getReviewPosts({
+						filters: {
+							professorName: "مازیار"
+						},
+						search_bar: "",
+					});
+					console.log(response);
+					setReviews(response);
+			};
+	
+			fetchReviews();
+
+  }, [])
   const professorReviews = reviews.filter((r) => r.professorName === professorName);
   
   // Calculate average rating
@@ -34,7 +58,7 @@ export function ProfessorProfilePage(
     : 0;
 
   // Get faculty from first review
-  const faculty = professorReviews[0]?.faculty || "Unknown Faculty";
+  const faculty = professorReviews[0]?.faculty || "Unknown Faculty"; //TODO: make multiple faculties
 
   // Get initials for avatar
   const initials = (professorName ?? "")
@@ -61,21 +85,17 @@ export function ProfessorProfilePage(
         {/* Back Button */}
         <Button
           variant="ghost"
-          onClick={() => navigate("")}
+          onClick={() => navigate("/topic/professors/")}
           className="mb-6 -ml-2 hover:bg-[#4FCBE9]/10"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Feed
+          بازگشت
         </Button>
 
         {/* Professor Header */}
         <Card className="p-8 mb-8 shadow-lg border-gray-100 bg-gradient-to-r from-white to-[#4FCBE9]/5">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-            <Avatar className="w-28 h-28 border-4 border-white shadow-lg">
-              <AvatarFallback className="bg-gradient-to-br from-[#16519F] to-[#4FCBE9] text-white text-3xl">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+            
             
             <div className="flex-1">
               <h1 className="text-[#16519F] mb-3">{professorName}</h1>
@@ -90,41 +110,47 @@ export function ProfessorProfilePage(
                     {avgRating.toFixed(1)}
                   </span>
                 </div>
-                <div className="bg-white rounded-lg px-4 py-2 shadow-md">
+                <div className="bg-white rounded-lg px-4 py-2 shadow-md flex flex-row-reverse">
                   <span className="text-2xl text-[#4FCBE9]">{professorReviews.length}</span>
-                  <span className="text-sm text-gray-600 ml-1">
-                    {professorReviews.length === 1 ? "Review" : "Reviews"}
+                  <span className="text-sm text-gray-600 mr-1 mt-1">
+                    امتیاز
                   </span>
                 </div>
               </div>
             </div>
+			<Avatar className="w-28 h-28 border-4 border-white shadow-lg">
+              <AvatarFallback className="bg-gradient-to-br from-[#16519F] to-[#4FCBE9] text-white text-3xl">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
           </div>
+		  
         </Card>
 
         {/* Sort Controls */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[#16519F]">All Reviews</h2>
+        <div className="flex items-center gap-5 mb-6 flex-row-reverse">
+          <h2 className="text-[#16519F]">همه نظر ها</h2>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-48 rounded-xl shadow-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="recent">
+              <SelectItem value="جدید">
                 <div className="flex items-center">
                   <Clock className="w-4 h-4 mr-2" />
-                  Most Recent
+                  جدید ترین
                 </div>
               </SelectItem>
-              <SelectItem value="highest">
+              <SelectItem value="بالاترین">
                 <div className="flex items-center">
                   <TrendingUp className="w-4 h-4 mr-2" />
-                  Highest Rated
+                  بیشترین امتیاز
                 </div>
               </SelectItem>
-              <SelectItem value="lowest">
+              <SelectItem value="پایین ترین">
                 <div className="flex items-center">
                   <TrendingUp className="w-4 h-4 mr-2 rotate-180" />
-                  Lowest Rated
+                  کمترین امتیاز
                 </div>
               </SelectItem>
             </SelectContent>
