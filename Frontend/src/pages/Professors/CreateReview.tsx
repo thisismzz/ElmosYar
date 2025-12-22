@@ -230,27 +230,27 @@ export function CreateReviewPage() {
 						onClick={() => createPost(
 							formData.comment ?? "null",
 							"professor-review",
-							undefined,
-							undefined,
+							"",
+							[],
 							{
-							// 	"id": "",
-							// 	"professorName": formData.professorName,
-							// 	"faculty": formData.faculty,
-							// 	"courseName": formData.courseName,
-							// 	"semester": formData.semester,
-							// 	"overallRating": formData.overallRating,
-							// 	"ratingsTeaching": formData.ratings.teaching,
-							// 	"ratingsGrading": formData.ratings.grading,
-							// 	"ratingsClarity": formData.ratings.clarity,
-							// 	"ratingsHelpfulness": formData.ratings.helpfulness,
-							// 	"ratingsSatisfaction": formData.ratings.satisfaction,
-							// 	"body": formData.comment
+								"id": "200",
+								"professorName": formData.professorName,
+								"faculty": formData.faculty,
+								"courseName": formData.courseName,
+								"semester": formData.semester,
+								"overallRating": formData.overallRating,
+								"ratingsTeaching": formData.ratings.teaching,
+								"ratingsGrading": formData.ratings.grading,
+								"ratingsClarity": formData.ratings.clarity,
+								"ratingsHelpfulness": formData.ratings.helpfulness,
+								"ratingsSatisfaction": formData.ratings.satisfaction,
+								"body": formData.comment
 
 							}
 
 						)}
 					>
-						Submit Review
+						ارسال نظر
 					</Button>
 				</form>
 			</div>
