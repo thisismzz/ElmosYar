@@ -143,7 +143,13 @@ def validate_post_attributes(attributes, category):
         for key, value in attributes.items():
             if key in format_data:
                 # اعتبارسنجی با regex فرمت
-                if not re.match(format_data[key], str(value)):
+                # اگر مقدار لیست یا دیکشنری است، آن را به JSON تبدیل کن
+                if isinstance(value, (list, dict)):
+                    value_to_check = json.dumps(value, ensure_ascii=False)
+                else:
+                    value_to_check = str(value)
+
+                if not re.match(format_data[key], value_to_check):
                     log_warning(f"Attribute validation failed: {key}={value} doesn't match pattern")
                     return False, f'Attribute "{key}" does not match format pattern'
         
@@ -157,6 +163,7 @@ def validate_post_update_attributes(post, attributes, category):
     """
     اعتبارسنجی attributes برای به‌روزرسانی پست
     """
+
     if not category:
         return True, None
     
@@ -169,6 +176,7 @@ def validate_post_update_attributes(post, attributes, category):
             format_data = json.load(f)
         
         # اگر attributes جدید ارسال شده
+
         if attributes is not None:
             post_attributes = post.attributes or {}
             merged_attributes = {**post_attributes, **attributes}
@@ -176,7 +184,13 @@ def validate_post_update_attributes(post, attributes, category):
             for key, value in merged_attributes.items():
                 if key in format_data:
                     # اعتبارسنجی با regex فرمت
-                    if not re.match(format_data[key], str(value)):
+                    # اگر مقدار لیست یا دیکشنری است، آن را به JSON تبدیل کن تا با regex سازگار باشد
+                    if isinstance(value, (list, dict)):
+                        value_to_check = json.dumps(value, ensure_ascii=False)
+                    else:
+                        value_to_check = str(value)
+
+                    if not re.match(format_data[key], value_to_check):
                         log_warning(f"Update attribute validation failed: {key}={value}")
                         return False, f'Attribute "{key}" does not match format pattern'
             
@@ -310,6 +324,15 @@ def posts_list_create(request):
 
             # اعتبارسنجی attributes بر اساس فرمت دسته‌بندی
             if attributes and category:
+                
+                # تبدیل attributes از string به dictionary اگر لازم باشد
+                if attributes and isinstance(attributes, str):
+                    try:
+                        attributes = json.loads(attributes)
+                    except json.JSONDecodeError:
+                        log_warning(f"Invalid JSON in attributes string")
+                    return False, 'Attributes must be valid JSON'
+                
                 is_valid, error_message = validate_post_attributes(attributes, category)
                 if not is_valid:
                     log_warning(f"Post attributes validation failed: {error_message}", request, {
@@ -956,7 +979,7 @@ def upload_category_format(request):
 
         log_audit(f"Category format uploaded/updated", request, {
             'category': category,
-            'created': created,
+            'created_flag': created,
             'format_id': format_obj.id,
             'file_size': format_file.size,
             'keys_count': len(format_data.keys()) if format_data else 0
@@ -972,9 +995,12 @@ def upload_category_format(request):
 
     except Exception as e:
         log_error(f"Format upload failed: {str(e)}", request)
+        # Return detailed error when in DEBUG to aid debugging; keep generic otherwise
+        detail = str(e) if getattr(settings, 'DEBUG', False) else 'Failed to upload format'
         return Response({
             'success': False,
-            'message': 'Failed to upload format'
+            'message': 'Failed to upload format',
+            'error': detail
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

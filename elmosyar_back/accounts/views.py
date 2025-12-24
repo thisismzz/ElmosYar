@@ -268,24 +268,26 @@ class LoginView(APIView):
         ).first()
 
         if user and user.check_password(password):
-            if not user.is_active:
-                log_warning(f"Login attempt to inactive account: {username_or_email}", request)
-                return Response({
-                    'success': False,
-                    'message': 'Account is not active'
-                }, status=status.HTTP_400_BAD_REQUEST)
-
             if not user.is_email_verified:
                 log_warning(f"Login attempt with unverified email: {username_or_email}", request)
                 if not user.is_email_verification_token_valid():
                     send_verification_email(user)
                     return Response({
                         'success': False,
-                        'message': 'Please verify your email first, new verification email sent'
+                        'message': f'Please verify your email first, new verification email sent',
+                        'email': user.email
                     }, status=status.HTTP_400_BAD_REQUEST)
                 return Response({
                     'success': False,
-                    'message': 'Please verify your email first'
+                    'message': f'Please verify your email first',
+                    'email': user.email
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if not user.is_active:
+                log_warning(f"Login attempt to inactive account: {username_or_email}", request)
+                return Response({
+                    'success': False,
+                    'message': 'Account is not active'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             # Generate JWT tokens
