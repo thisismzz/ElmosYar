@@ -675,6 +675,8 @@
 
 	.empty-state {
 		padding: 60px 20px;
+    justify-content: center;
+    
 	}
 
 	.empty-state h3 {
