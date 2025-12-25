@@ -5,6 +5,7 @@ export type PaymentMethod = 'wallet' | 'online';
 export interface FoodItem {
 //   day: ReactNode; //??
   id: string;
+  sellerId: string,
   name: string;
   mealType: string;
   location: string;
