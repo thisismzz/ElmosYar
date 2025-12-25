@@ -210,12 +210,12 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
       </aside>
 
       {/* نمایش فرم بر اساس نوع */}
-      {showDiscussionForm && (
+      {/* {showDiscussionForm && (
         <DiscussionPostForm
           onClose={() => setShowDiscussionForm(false)}
           onSubmit={(data) => handleSubmitPost(data, 'discussion')}
         />
-      )}
+      )} */}
     </>
   );
 };

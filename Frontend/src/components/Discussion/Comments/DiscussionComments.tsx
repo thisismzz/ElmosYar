@@ -3,6 +3,7 @@ import { Comment, CommentsProps, PostHeaderProps, CommentItemProps, CommentModal
 import { likeComment, dislikeComment } from '../../../services/commentService';
 import { ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
 import './DiscussionComments.css';
+import { createComment } from '../../../services/PostService';
 
 const getInitials = (name: string): string => {
   return name
@@ -128,7 +129,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
 
 
-const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, currentUserName }) => {
+const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, currentUserName, postId }) => {
   const [text, setText] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -171,7 +172,7 @@ const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, onSubmit, 
             <button type="button" className="cancel-btn" onClick={onClose}>
               انصراف
             </button>
-            <button type="submit" className="submit-button">
+            <button type="submit" className="submit-button" onClick={() => createComment(postId, text)}>
               ارسال نظر
             </button>
           </div>
@@ -281,6 +282,7 @@ const Comments: React.FC<CommentsProps> = ({
           onClose={() => setIsModalOpen(false)}
           onSubmit={handleAddComment}
           currentUserName={currentUserName}
+		  postId={post ? post.id : -1}
         />
       </div>
     </div>

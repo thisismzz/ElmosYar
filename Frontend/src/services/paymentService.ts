@@ -1,3 +1,4 @@
+import { TransactionCard } from "../components/Transaction/TransactionCard"
 import api from "./authService"
 
 export const getWalletData = async () => {
@@ -33,8 +34,41 @@ export const depositToWallet = async (amount: number) => {
 	}
 }
 
-export const getUserTransactions = async () => {
-	//TODO
+
+interface TransactionCardDetails{
+	title: string,
+	amount: number, 
+	from: string,
+	to: string, 
+	type: string,
+}
+
+interface BackendTransaction{
+	amount: number,
+	status: string,
+	type: string,
+	from: string,
+	to: string,
+}
+
+
+export const getUserTransactions = async (): Promise<TransactionCardDetails[]> => {
+	const response = await api.get(`/wallet/transactions/`);
+	console.log(response.data.message)
+
+	const backend_transactions: BackendTransaction[] = response.data.data
+	var result: TransactionCardDetails[] = []
+	for (const t of backend_transactions){
+		result.push({
+			title: "",
+			amount: t.amount,
+			from: t.from,
+			to: t.to,
+			type: t.type,
+		})
+	}
+
+	return result
 }
 
 export const walletPurchase = async (postId: string) => {

@@ -58,4 +58,5 @@ export interface CommentModalProps {
   onClose: () => void;
   onSubmit: (comment: { text: string }) => void;
   currentUserName: string;
+  postId: number;
 }
