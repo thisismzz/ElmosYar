@@ -163,6 +163,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 const ProtectedRoutes: React.FC = () => {
 	const { isAuthenticated } = useAuth();
 	const location = useLocation();
+	const navigate = useNavigate(); //!
 
 	if (!isAuthenticated) {
 		return <Navigate to="/login" state={{ from: location }} replace />;
@@ -180,8 +181,15 @@ const ProtectedRoutes: React.FC = () => {
 			<Route path='/topic/:topicId' element={<TopicDiscussion />} />
 			<Route path='/topic/professors/:professorName' element={<ProfessorProfilePage />} />
 			<Route path='/topic/professors/new' element={<CreateReviewPage />} />
-			<Route path='/topic/discussion/new' element={<DiscussionPostForm />} />
-			<Route path='/topic/food/new' element={<CreateReviewPage />} />
+			<Route path='/topic/discussion/new' element={<DiscussionPostForm
+				onClose={() => { }}
+				onSubmit={async (data) => { }} />
+			} />
+			<Route path='/topic/food/new' element={<AddFoodModal
+			isOpen = {true}
+			onClose={() => {navigate("/topic/food")}} //!
+			onAdd={() => {}}
+			 />} />
 
 		</Routes>
 	);
@@ -199,7 +207,7 @@ const PublicRoutes: React.FC = () => {
 
 // Main App Content that uses authentication
 const AppContent: React.FC = () => {
-	const { isAuthenticated} = useAuth();
+	const { isAuthenticated } = useAuth();
 
 
 	return (
