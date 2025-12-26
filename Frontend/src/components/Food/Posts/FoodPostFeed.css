@@ -178,8 +178,8 @@
 .food-price {
   font-size: 20px;
   font-weight: 800;
-  color: #27ae60;
-  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: #F8DD2E;
+  background: #F8DD2E;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -288,7 +288,7 @@
 
 .buy-button {
   width: 100%;
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: #16519f;
   color: white;
   border: none;
   border-radius: 16px;
