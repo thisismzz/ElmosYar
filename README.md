@@ -1845,7 +1845,7 @@ curl -X GET http://89.106.206.119:8000/api/wallet/transactions/ \
 
 ---
 
-### 🛒 Purchase Post/Item
+### 🛒 In-App Purchase Post/Item
 
 #### Request
 ```bash
@@ -1865,6 +1865,40 @@ curl -X POST http://89.106.206.119:8000/api/wallet/purchase/8/ \
   }
 }
 ```
+
+### 🛒 Create fake gateway link Post/Item
+
+#### Request
+```bash
+curl -X POST http://89.106.206.119:8000/api/wallet/payment/create/8/ \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+```
+*Note: No request body needed. Price is taken from post attributes.*
+
+#### Response
+```json
+{
+    "error": false,
+    "message": "لینک پرداخت با موفقیت ساخته شد",
+    "code": "PAYMENT_CREATED",
+    "data": {
+        "payment_url": "/fake-gateway/5d9d7a1b-756b-4c81-995e-812967720b182/"
+    }
+}
+```
+
+### ✅ Payment verification
+
+#### Request
+```bash
+curl -X POST http://89.106.206.119:8000/api/wallet/payment/verify/ \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+  -H "Content-Type: application/json" \
+  -d '{"authority": "5d9d7a1b-756b-4c81-995e-812967720b182"}'
+```
+#### Response
+
+
 
 ### 📝 Post Attributes Schema
 

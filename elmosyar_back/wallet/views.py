@@ -327,6 +327,14 @@ def verify_payment(request):
                 })
 
             return response
+        
+        else:
+            transac.status = "failed"
+            transac.authority = None
+            transac.save()
+            return Response({"error": True,
+                             "message": "پرداخت موفقیت آمیز نبود",
+                              "code": "PAYMENT_FAILED"}, status=status.HTTP_200_OK)
             
         
     except Transaction.DoesNotExist:
