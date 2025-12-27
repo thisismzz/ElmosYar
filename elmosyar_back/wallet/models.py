@@ -38,6 +38,8 @@ class Transaction(models.Model):
     type = models.CharField(max_length=10, choices=TYPE)
     from_user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='paid_transactions')
     to_user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='recieved_transactions')
+    is_processed = models.BooleanField(default=False)
+    authority = models.CharField(max_length=100, null=True, blank=True)
     
 
 class WalletError(Exception):
@@ -107,7 +109,7 @@ class WalletService:
     
     @staticmethod
     @transaction.atomic
-    def purchase_or_transfer(from_user, to_user, amount, is_purchase=False):
+    def purchase_or_transfer(from_user, to_user, amount, is_purchase=False, authority=None):
         try:
             wallets = (UserWallet.objects.select_for_update().filter(user_id__in=sorted([from_user.id, to_user.id])))
             sender_wallet = next(w for w in wallets if w.user.id == from_user.id)
@@ -122,14 +124,18 @@ class WalletService:
             sender_wallet.save()
             receiver_wallet.save()
 
-            Transaction.objects.create(
+            transac = Transaction.objects.get_or_create(
                 wallet=sender_wallet,
                 amount=amount,
                 type="payment",
-                status="success",
                 from_user=from_user,
-                to_user=to_user
+                to_user=to_user,
+                authority=authority
             )
+            
+            transac.status = "success"
+            if authority :
+                transac.is_processed = True
 
             Transaction.objects.create(
                 wallet=receiver_wallet,
@@ -147,5 +153,4 @@ class WalletService:
         except InsufficientBalance:
             raise
         except Exception as e:
-            print("REAL ERROR:", type(e), e)
             raise WalletError("مشکلی پیش آمده لطفا دوباره سعی کنید") from e

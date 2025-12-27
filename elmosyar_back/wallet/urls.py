@@ -7,5 +7,7 @@ urlpatterns = [
     path('withdraw/', views.withdraw, name='wallet-withdraw'),
     path('transfer/', views.transfer, name='wallet-transfer'),
     path('purchase/<int:post_id>/', views.purchase, name='post_purchase'),
-    path('transactions/', views.user_transactions, name='user-transactions')
+    path('transactions/', views.user_transactions, name='user-transactions'),
+    path('payment/create/', views.create_payment, name='create_payment_gateway'),
+    path('payment/verify/', views.verify_payment, name='verify_payment'),
 ]

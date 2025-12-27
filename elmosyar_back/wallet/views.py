@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -5,7 +6,6 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from posts.models import Post, PostMedia
 from django.conf import settings
-
 from .models import UserWallet, Transaction, WalletService, WalletError, InsufficientBalance
 from .serializer import UserWalletSerializer, TransactionSerializer
 
@@ -224,3 +224,114 @@ def purchase(request, post_id):
         })
 
     return response
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_payment(request, post_id):
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        log_warning(f"Purchase attempt for non-existent post: {post_id}", request)
+        return Response({"error": True,
+                         "message": "پست مورد نظر یافت نشد",
+                         "code": "POST_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+        
+    if post.author.id == request.user.id:
+        log_warning(f"User attempted to purchase their own post", request, {'post_id': post_id})
+        return Response({"error": True,
+                         "message": "امکان خرید توسط فروشنده وجود ندارد",
+                         "code": "POST_PURCHASE_NOT_ALLOWED"}, status=status.HTTP_409_CONFLICT)
+        
+    if post.attributes.get('isSoldOut') == True:
+        log_warning(f"Purchase attempt for sold out post", request, {'post_id': post_id})
+        return Response({"error": True,
+                         "message": "این آیتم قبلا به فروش رفته است",
+                         "code": "POST_SOLD"}, status=status.HTTP_410_GONE)
+        
+    price = post.attributes.get('price')
+    if price is None:
+        log_warning(f"Purchase attempt for post without price", request, {'post_id': post_id})
+        return Response({"error": True,
+                         "message": "قیمت یافت نشد",
+                         "code": "POST_PRICE_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+
+    price = int(price)
+    
+    log_info(f"Purchase request for post {post_id} at price {price}", request, {
+        'post_author': post.author.username,
+        'price': price
+    })
+    
+    wallet = UserWallet.objects.get(user=request.user)
+    transac = Transaction.objects.create(
+        wallet=wallet,
+        amount=price,
+        status="pending",
+        type="payment",
+        from_user=request.user,
+        to_user=post.author,
+        authority=str(uuid.uuid4())+str(post.pk)
+    )
+    
+    return Response({"error" : False,
+                      "message" : "لینک پرداخت با موفقیت ساخته شد",
+                      "code" : "PAYMENT_CREATED",
+                      "data" : {"payment_url": f"/fake-gateway/{transac.authority}/"}})
+
+
+def fake_payment_status_generator():
+        import random
+        return random.choice([True, True, False])
+    
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def verify_payment(request):
+    authority = request.data.get("authority")
+    if not authority:
+        return Response({"error" : True,
+                         "message" : "شناسه پرداخت وارد نشده",
+                         "code" : "PAYMENT_VERIFICATION_FAILED"}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        transac = Transaction.objects.select_for_update().get(authority=authority, from_user=request.user)
+        if transac.is_processed:
+            return Response({"error": True,
+                             "message": "این آیتم قبلا به فروش رفته است",
+                              "code": "POST_SOLD"}, status=status.HTTP_410_GONE)
+        
+        payment_result = fake_payment_status_generator()
+        
+        if payment_result:
+            response = wallet_service_handler(
+            WalletService.purchase_or_transfer,
+            request.user,
+            transac.to_user,
+            transac.amount,
+            True,
+            transac.authority
+            )
+
+            if response.status_code == 200:
+                post = Post.objects.get(id=str(transac.authority)[36:])
+                attrs = post.attributes.copy()
+                attrs["isSoldOut"] = True
+
+                post.attributes = attrs
+                post.save(update_fields=["attributes"])
+
+                log_audit(f"Post purchased successfully", request, {
+                    'post_id': post.id,
+                    'price': transac.amount,
+                    'seller': post.author.username
+                })
+
+            return response
+            
+        
+    except Transaction.DoesNotExist:
+        return Response({"error" : True,
+                         "message" : "اطلاعات پرداخت معتبر نیست",
+                         "code" : "PAYMENT_VERIFICATION_FAILED"}, status=status.HTTP_400_BAD_REQUEST)
+
+
