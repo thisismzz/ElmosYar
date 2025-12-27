@@ -38,35 +38,12 @@ class UltimatePostService {
       
       const queryParams = new URLSearchParams();
 
-      const normalizeSearchValue = (val: any): string => {
-        if (typeof val === 'string') return val;
-        const serialize = (obj: any): any => {
-          if (obj instanceof RegExp) return obj.source;
-          if (Array.isArray(obj)) return obj.map(serialize);
-          if (obj && typeof obj === 'object') {
-            const out: any = {};
-            for (const k in obj) out[k] = serialize(obj[k]);
-            return out;
-          }
-          return obj;
-        };
-        return JSON.stringify(serialize(val));
-      };
-
       Object.entries(params).forEach(([key, value]) => {
         if (value === undefined || value === null) return;
-
-        if (key === 'search') {
-          const s = normalizeSearchValue(value);
-          if (s !== '') queryParams.append(key, s);
-          return;
-        }
-
         queryParams.append(key, value.toString());
       });
-
-			const response = await api.get(`/posts/?${queryParams}`);
-			console.log('✅ اتصال به بک‌اند موفق!', response.data);
+      const response = await api.get(`/posts/?${queryParams}`);
+      console.log('✅ اتصال به بک‌اند موفق!', response.data);
 
 			const backendPosts = this.extractPostsFromResponse(response.data);
 			const formattedPosts = backendPosts.map(backendPost =>
@@ -272,132 +249,6 @@ class UltimatePostService {
 		attributes: backendPost.attributes,
 	});
 }
-/*
-* search helpers
-*/
-
-type Day = "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
-
-export type SearchValue =
-	| string //substring regex
-	| number //exact match
-	| boolean //exact boolean match
-	| null //will be ignored
-	| undefined //will bei gnored
-	| Date //exact match
-	| Day //a day
-	| [number, number] //range
-	| [Date, Date] //range
-	| string[]; //OR regex match
-
-/*
-search method describes how to search posts in the backend. 
-	in "specified_fields", the backend is given a json with the same keys as what is shown in the 
-	frontend posts (e.g. name, mealType, location and etc for food posts.). This method is used for 
-	filters. 
-	in "any", the backend is given a string which should be present somewhere in the post's content. 
-	This is used for the search bar. 
-	either of the two fields can be null, which means nothing is specified for that method of search.
-*/
-export interface PostSearchParameters<T extends Record<string, SearchValue>> {
-	filters: T;
-	search_bar: string;
-}
-
-
-export function containsRegex(value: string): string {
-	const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-	return `.*${escaped}.*`;
-}
-
-function escapeRegex(value: unknown): string {
-	if (value === null || value === undefined) return "";
-
-	const str = String(value);
-
-	return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function toContainsRegex(value: unknown): string {
-	const str = String(value ?? ""); // safely convert to string
-	return `.*${escapeRegex(str)}.*`;
-}
-
-
-export function makeSearchQuery(
-	fields: Record<string, SearchValue>
-): Record<string, RegExp> {
-	const query: Record<string, any> = {};
-
-	for (const [key, value] of Object.entries(fields)) {
-		if (value === "" || value === null || value === undefined) continue;
-
-		if (typeof value === "string") {
-			query[key] = toContainsRegex(value);
-			continue;
-		}
-
-		if (typeof value === "number") {
-			query[key] = value;
-			continue;
-		}
-
-		if (typeof value === "boolean") {
-			query[key] = value;
-			continue;
-		}
-
-		if (value instanceof Date) {
-			query[key] = value.toISOString();
-			continue;
-		}
-		//* will be changed to be all regex
-		if (Array.isArray(value) && value.length === 2 && typeof value[0] === "number") {
-			const [min, max] = value as [number, number];
-			query[key] = { $range: [min, max] };
-			continue;
-		}
-
-		//* also will be changed to regex
-		if (
-			Array.isArray(value) &&
-			value.length === 2 &&
-			value[0] instanceof Date &&
-			value[1] instanceof Date
-		) {
-			query[key] = {
-				$range: [value[0].toISOString(), value[1].toISOString()]
-			};
-			continue;
-		}
-
-		//* also hould be changed to regex
-		if (Array.isArray(value) && typeof value[0] === "string") {
-			const patterns = value.map(v => toContainsRegex(v));
-			query[key] = { $or: patterns };
-			continue;
-		}
-	}
-
-	return query;
-}
-
-
-export const makeSearchQueryFromSearchParameters = <T extends Record<string, SearchValue>>(search_parameters: PostSearchParameters<T>) => {
-	const filter_expressions = makeSearchQuery(search_parameters.filters)
-	if (search_parameters.search_bar === "") return filter_expressions;
-	const escaped = containsRegex(search_parameters.search_bar)
-	const result: Record<string, RegExp> = {};
-
-	for (const key in filter_expressions) {
-		const r = filter_expressions[key];
-		result[key] = new RegExp(`^(?:${r}|${escaped})$`, r.flags);
-	}
-
-	return result;
-}
-
-
 
 export const postService = new UltimatePostService();
 

@@ -1,0 +1,125 @@
+/* Task Form */
+.planner-task-form {
+  background: #f7f9fa;
+  padding: 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e1e8ed;
+}
+
+.planner-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-direction: row-reverse;
+}
+
+.planner-form-header h4 {
+  margin: 0;
+  color: #14171a;
+}
+
+.planner-form-group {
+  margin-bottom: 1rem;
+}
+
+.planner-form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.875rem;
+  color: #657786;
+  text-align: right;
+}
+
+.planner-form-group input,
+.planner-form-group textarea,
+.planner-form-group select {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid #ccd6dd;
+  border-radius: 8px;
+  font-size: 0.938rem;
+  direction: rtl;
+  text-align: right;
+}
+
+.planner-form-group input:focus,
+.planner-form-group textarea:focus,
+.planner-form-group select:focus {
+  outline: none;
+  border-color: #1da1f2;
+  box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.1);
+}
+
+.planner-form-group textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.planner-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.planner-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-start;
+}
+
+/* Buttons */
+.planner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.938rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.planner-btn-primary {
+  background: #1da1f2;
+  color: white;
+}
+
+.planner-btn-primary:hover {
+  background: #1a91da;
+}
+
+.planner-btn-secondary {
+  background: #e1e8ed;
+  color: #14171a;
+}
+
+.planner-btn-secondary:hover {
+  background: #d1d9e0;
+}
+
+.planner-icon-btn {
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  color: #657786;
+  transition: all 0.2s;
+}
+
+.planner-icon-btn:hover {
+  background: #e1e8ed;
+  color: #14171a;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .planner-form-row {
+    grid-template-columns: 1fr;
+  }
+}

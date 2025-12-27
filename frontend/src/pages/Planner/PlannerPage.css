@@ -1,0 +1,170 @@
+/* Page-level styles only */
+.planner-page {
+  width: 100%;
+  direction: rtl;
+  min-height: 100vh;
+  background: #f5f8fa;
+}
+
+.planner-container {
+  overflow: auto;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.planner-layout {
+  min-width: 640px;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  flex-direction: row-reverse;
+}
+
+.planner-main {
+  min-width: 360px;
+  flex: 1;
+}
+
+.planner-header {
+  margin-bottom: 1.5rem;
+}
+
+.planner-header h2 {
+  margin: 0;
+  font-size: 1.75rem;
+  color: #14171a;
+}
+
+/* Calendar Section */
+.planner-calendar-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  border: 1px solid #e1e8ed;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.planner-custom-calendar {
+  width: 100% !important;
+  direction: rtl !important;
+}
+
+.planner-custom-calendar .rmdp-wrapper {
+  width: 100%;
+}
+
+.planner-custom-calendar .rmdp-calendar {
+  width: 100%;
+}
+
+.planner-custom-calendar .rmdp-day {
+  height: 40px;
+  width: 40px;
+}
+
+.planner-custom-calendar .rmdp-header-values {
+  font-size: 1rem;
+}
+
+.planner-custom-calendar .rmdp-day.rmdp-selected span:not(.highlight) {
+  background-color: #1da1f2;
+  box-shadow: 0 0 3px #1da1f2;
+}
+
+.planner-custom-calendar .rmdp-day.rmdp-today span {
+  background-color: #f0f8ff;
+  color: #1da1f2;
+}
+
+/* Day Schedule Section */
+.planner-day-schedule {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  border: 1px solid #e1e8ed;
+}
+
+.planner-day-schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-direction: row-reverse;
+}
+
+.planner-day-schedule-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #14171a;
+}
+
+/* Tasks Timeline */
+.planner-tasks-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.planner-empty-task-state {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #657786;
+}
+
+.planner-empty-task-state p {
+  margin: 0;
+}
+
+/* Button styles shared across components */
+.planner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.938rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.planner-btn-primary {
+  background: #1da1f2;
+  color: white;
+}
+
+.planner-btn-primary:hover {
+  background: #1a91da;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .planner-layout {
+    flex-direction: column;
+  }
+
+  .planner-container {
+    padding: 1rem;
+  }
+
+  .planner-day-schedule-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .planner-day-schedule-header h3 {
+    text-align: center;
+  }
+
+  .planner-btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+}

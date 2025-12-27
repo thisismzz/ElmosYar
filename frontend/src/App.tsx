@@ -16,6 +16,7 @@ import DiscussionPage from './pages/Discussion/DiscussionPage';
 import FoodPage from './pages/FoodExchange/FoodPage';
 import VerifyEmail from './pages/VerifyEmail/VerifyEmail';
 import NotesPage from './pages/Notes/NotesPage';
+import PlannerPage from './pages/Planner/PlannerPage';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
 import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
 import TransactionHistoryPage from './pages/TransactionHistory';
@@ -173,6 +174,7 @@ const ProtectedRoutes: React.FC = () => {
 		<Routes>
 			<Route path='/' element={<Main />} />
 			<Route path='/notes' element={<NotesPage />} />
+			<Route path='/planner' element={<PlannerPage />} />
 			<Route path='/login' element={<RegisterPage />} />
 			<Route path='/profile' element={<ProfilePage />} />
 			<Route path='/profile/wallet' element={<WalletPage />} />
