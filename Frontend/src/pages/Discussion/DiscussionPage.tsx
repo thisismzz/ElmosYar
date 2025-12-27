@@ -38,17 +38,16 @@ const DiscussionPage: React.FC<PostFeedProps> = ({ category, username, initialPo
 			setError(null);
 			
 			// Build search parameters similar to foodPage
-			let search_query = undefined;
+			let search = undefined;
 
 			// Build serialized search from FilterContext (includes `*` from `q` param)
-			search_query = serializeSearch && serializeSearch();
+			search = serializeSearch && serializeSearch();
 			
 			const params: GetPostsParams = {
 				page,
 				per_page: 10,
 				...(category && { category }),
-				...(username && { username }),
-				...(search_query && { search: search_query }),
+				...(search && { search }),
 			};
 			
 			const response = await postService.getPosts(params);

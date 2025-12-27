@@ -26,9 +26,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
     setInputValue(urlSearchValue);
   }, [urlSearchValue]);
 
-  const placeholderText = location.pathname.includes('/food') || location.pathname === '/food'
-    ? 'جستجوی غذا'
-    : 'جستجو...';
+  const placeholderText = 'جستجو...';
 
   // Handle form submission - only updates URL
   const handleSearch = (e: React.FormEvent) => {

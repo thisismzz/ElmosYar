@@ -16,7 +16,6 @@ import {
 } from "../../components/select";
 
 import { useNavigate, useParams } from "react-router-dom";
-import { makeSearchQueryFromSearchParameters, PostSearchParameters, postService } from "../../services/PostService";
 import { getReviewPosts } from "./Reviews";
 
 export function ProfessorProfilePage(
@@ -37,12 +36,7 @@ export function ProfessorProfilePage(
 			const fetchReviews = async () => {
 					
 					
-					const response = await getReviewPosts({
-						filters: {
-							professorName: "مازیار"
-						},
-						search_bar: "",
-					});
+					const response = await getReviewPosts();
 					console.log(response);
 					setReviews(response);
 			};

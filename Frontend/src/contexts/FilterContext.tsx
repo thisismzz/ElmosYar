@@ -1,10 +1,92 @@
 // src/contexts/FilterContext.tsx
 import React, { createContext, useContext, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { makeSearchQuery, containsRegex } from '../services/PostService';
 
 interface FilterState {
   [key: string]: string;
+}
+
+// Search utility types and functions
+type Day = "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
+
+export type SearchValue =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | Date
+  | Day
+  | [number, number]
+  | [Date, Date]
+  | string[];
+
+
+function escapeRegex(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  const str = String(value);
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function toContainsRegex(value: unknown): string {
+  const str = String(value ?? "");
+  return `.*${escapeRegex(str)}.*`;
+}
+
+export function makeSearchQuery(
+  fields: Record<string, SearchValue>
+): Record<string, any> {
+  const query: Record<string, any> = {};
+
+  for (const [key, value] of Object.entries(fields)) {
+    if (value === "" || value === null || value === undefined) continue;
+
+    if (typeof value === "string") {
+      query[key] = toContainsRegex(value);
+      continue;
+    }
+
+    if (typeof value === "number") {
+      query[key] = value;
+      continue;
+    }
+
+    if (typeof value === "boolean") {
+      query[key] = value;
+      continue;
+    }
+
+    if (value instanceof Date) {
+      query[key] = value.toISOString();
+      continue;
+    }
+
+    if (Array.isArray(value) && value.length === 2 && typeof value[0] === "number") {
+      const [min, max] = value as [number, number];
+      query[key] = { $range: [min, max] };
+      continue;
+    }
+
+    if (
+      Array.isArray(value) &&
+      value.length === 2 &&
+      value[0] instanceof Date &&
+      value[1] instanceof Date
+    ) {
+      query[key] = {
+        $range: [value[0].toISOString(), value[1].toISOString()]
+      };
+      continue;
+    }
+
+    if (Array.isArray(value) && typeof value[0] === "string") {
+      const patterns = value.map(v => toContainsRegex(v));
+      query[key] = { $or: patterns };
+      continue;
+    }
+  }
+
+  return query;
 }
 
 interface FilterContextType {
@@ -46,7 +128,6 @@ export const FilterProvider: React.FC<{
   }, [location.search, defaultFilters]);
 
   const serializeSearch = useCallback((allowedKeys?: string[]) => {
-    // Build filters from current URL-derived `filters` state
     const filtersToUse: Record<string, any> = {};
 
     Object.entries(filters).forEach(([k, v]) => {
@@ -71,7 +152,7 @@ export const FilterProvider: React.FC<{
 
     // If there's a q (search bar) include it under the '*' key as requested
     if (q && q !== '') {
-      out['*'] = containsRegex(q);
+      out['.*.*'] = toContainsRegex(q);
     }
 
     // If nothing to send, return undefined
