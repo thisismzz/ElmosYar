@@ -67,6 +67,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     try {
       if (selectedMethod === 'wallet') {
         const purchaseResult = await walletPurchase(foodItem.id);
+        console.log(purchaseResult);
         if (purchaseResult.successful) {
           // نمایش صفحه موفقیت آمیز
           setShowSuccessScreen(true);
@@ -199,7 +200,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         {/* هدر مودال */}
         <div className="modal-header">
           <h2 className="modal-title">پرداخت هزینه غذا</h2>
-          <p className="modal-subtitle">لطفاً روش پرداخت را انتخاب کنید</p>
+          <p className="modal-subtitle">      انتخاب روش پرداخت </p>
           <button className="close-button" onClick={onClose} aria-label="بستن">
             ×
           </button>

@@ -42,7 +42,7 @@ const FoodPage: React.FC = () => {
 				location: post_content_json.location,
 				date: post_content_json.date,
 				price: post_content_json.price,
-				isSoldOut: post_content_json.isSoldOut == "true",
+				isSoldOut: post_content_json.isSoldOut,
 			});
 		}
 

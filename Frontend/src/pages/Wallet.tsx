@@ -52,9 +52,7 @@ export function WalletPage() {
             </CardContent>
           </Card>
 
-          
-		  <Card className="cursor-pointer hover:shadow-lg transition-all rounded-2xl bg-gray-50 border-0 shadow-md"
-		  	onClick={() => navigate('/profile/transactions')}>
+          <Card className="cursor-pointer hover:shadow-lg transition-all rounded-2xl bg-gray-50 border-0 shadow-md">
             <CardContent className="p-6 text-center">
               <div 
                 className="w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4"

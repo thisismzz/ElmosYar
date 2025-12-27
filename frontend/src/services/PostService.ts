@@ -385,7 +385,7 @@ export function makeSearchQuery(
 
 export const makeSearchQueryFromSearchParameters = <T extends Record<string, SearchValue>>(search_parameters: PostSearchParameters<T>) => {
 	const filter_expressions = makeSearchQuery(search_parameters.filters)
-	if (search_parameters.search_bar == "") return filter_expressions;
+	if (search_parameters.search_bar === "") return filter_expressions;
 	const escaped = containsRegex(search_parameters.search_bar)
 	const result: Record<string, RegExp> = {};
 

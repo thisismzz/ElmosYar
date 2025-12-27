@@ -27,7 +27,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 				return '🍽️';
 		}
 	};
-
+	console.log(item);
 	return (
 		<div key={item.id} className={`food-card ${item.isSoldOut ? 'sold-out' : ''}`}>
 			<div className="card-header">
@@ -146,7 +146,6 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	const handlePaymentSuccess = (_method: any, foodItem: FoodItem) => {
 		// Mark item as sold out after successful payment
 		setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
-		handleCloseModal();
 	};
 
 	const handleAddFood = (newFoodData: Omit<FoodItem, 'id' | 'isSoldOut'>) => {
