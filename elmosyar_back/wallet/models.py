@@ -40,6 +40,9 @@ class Transaction(models.Model):
     to_user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='recieved_transactions')
     is_processed = models.BooleanField(default=False)
     authority = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.id)
     
 
 class WalletError(Exception):
@@ -124,19 +127,25 @@ class WalletService:
             sender_wallet.save()
             receiver_wallet.save()
 
-            transac = Transaction.objects.get_or_create(
-                wallet=sender_wallet,
-                amount=amount,
-                type="payment",
-                from_user=from_user,
-                to_user=to_user,
-                authority=authority
-            )
-            
-            transac.status = "success"
-            if authority :
+            if authority is not None:
+                transac = Transaction.objects.get(
+                    from_user=from_user,
+                    authority=authority
+                )
+                transac.status = "success"
                 transac.is_processed = True
-
+                transac.save()
+            
+            else:
+                Transaction.objects.create(
+                    wallet=sender_wallet,
+                    amount=amount,
+                    type="payment",
+                    status="success",
+                    from_user=from_user,
+                    to_user=to_user,
+                )
+            
             Transaction.objects.create(
                 wallet=receiver_wallet,
                 amount=amount,
@@ -153,4 +162,5 @@ class WalletService:
         except InsufficientBalance:
             raise
         except Exception as e:
+            print("REAL ERROR:", type(e), e)
             raise WalletError("مشکلی پیش آمده لطفا دوباره سعی کنید") from e

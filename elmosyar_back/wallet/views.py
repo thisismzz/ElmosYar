@@ -169,7 +169,7 @@ def user_transactions(request):
 def purchase(request, post_id):
     """Purchase a post/item"""
     try:
-        post = Post.objects.get(pk=post_id)
+        post = Post.objects.get(id=post_id)
     except Post.DoesNotExist:
         log_warning(f"Purchase attempt for non-existent post: {post_id}", request)
         return Response({"error": True,
