@@ -137,7 +137,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 								isLeftSidebarOpen ? 'left-open' : 'left-closed',
 								isRightSidebarOpen ? 'right-open' : 'right-closed'
 							].join(' ')}
-							// Close sidebar when clicking on main content on mobile
 							onClick={isMobile && isLeftSidebarOpen ? handleCloseLeftSidebar : undefined}
 						>
 							{children}
