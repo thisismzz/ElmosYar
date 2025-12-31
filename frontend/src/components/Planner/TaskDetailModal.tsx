@@ -17,6 +17,7 @@ type TaskDetailModalProps = {
   onClose: () => void;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
+  showActions?: boolean;
 };
 
 const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
@@ -24,14 +25,15 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   onClose,
   onEdit,
   onDelete,
+  showActions = true,
 }) => {
   const handleEdit = () => {
-    onEdit(task);
+    onEdit && onEdit(task);
     onClose();
   };
 
   const handleDelete = () => {
-    onDelete(task.id);
+    onDelete && onDelete(task.id);
     onClose();
   };
 
@@ -39,12 +41,30 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
     <div className="planner-modal-overlay" onClick={onClose}>
       <div className="planner-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="planner-modal-header">
-          <button
-            onClick={onClose}
-            className="planner-btn planner-icon-btn"
-          >
-            <X size={20} />
-          </button>
+          <div className="planner-modal-header-actions">
+            {showActions && (
+              <>
+                <button
+                  onClick={handleEdit}
+                  className="planner-modal-icon-btn"
+                >
+                  <Edit2 size={16} />
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="planner-modal-icon-btn"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </>
+            )}
+            <button
+              onClick={onClose}
+              className="planner-modal-icon-btn"
+            >
+              <X size={20} />
+            </button>
+          </div>
           <h3>جزئیات وظیفه</h3>
         </div>
         
@@ -54,14 +74,16 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             <p className="planner-detail-value">{task.title}</p>
           </div>
           
-          <div className="planner-detail-section">
-            <h4 className="planner-detail-label">تاریخ</h4>
-            <p className="planner-detail-value">{new Date(task.date).toLocaleDateString('fa-IR')}</p>
-          </div>
-          
-          <div className="planner-detail-section">
-            <h4 className="planner-detail-label">زمان</h4>
-            <p className="planner-detail-value">{task.startTime} - {task.endTime}</p>
+          <div className="planner-detail-row">
+            <div className="planner-detail-section planner-detail-section-half">
+              <h4 className="planner-detail-label">تاریخ</h4>
+              <p className="planner-detail-value">{new Date(task.date).toLocaleDateString('fa-IR')}</p>
+            </div>
+            
+            <div className="planner-detail-section planner-detail-section-half">
+              <h4 className="planner-detail-label">زمان</h4>
+              <p className="planner-detail-value">{task.endTime} - {task.startTime}</p>
+            </div>
           </div>
           
           {task.description && (
@@ -77,23 +99,6 @@ const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               {task.completed ? '✓ انجام شده' : '○ در انتظار انجام'}
             </p>
           </div>
-        </div>
-        
-        <div className="planner-modal-actions">
-          <button
-            onClick={handleEdit}
-            className="planner-btn planner-btn-primary"
-          >
-            <Edit2 size={16} />
-            ویرایش
-          </button>
-          <button
-            onClick={handleDelete}
-            className="planner-btn planner-btn-secondary"
-          >
-            <Trash2 size={16} />
-            حذف
-          </button>
         </div>
       </div>
     </div>

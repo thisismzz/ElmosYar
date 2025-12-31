@@ -174,7 +174,7 @@ const PlannerPage: React.FC = () => {
               <div className="planner-day-schedule-header">
                 <button
                   onClick={() => setIsCreating(true)}
-                  className="planner-btn planner-btn-primary"
+                  className="planner-page-btn planner-page-btn-primary"
                 >
                   <Plus size={18} />
                   وظیفه جدید

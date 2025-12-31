@@ -64,7 +64,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         <button
           type="button"
           onClick={onCancel}
-          className="planner-btn planner-icon-btn"
+          className="planner-form-icon-btn"
         >
           <X size={18} />
         </button>
@@ -124,10 +124,10 @@ const TaskForm: React.FC<TaskFormProps> = ({
       </div>
 
       <div className="planner-form-actions">
-        <button type="button" onClick={onCancel} className="planner-btn planner-btn-secondary">
+        <button type="button" onClick={onCancel} className="planner-form-btn planner-form-btn-secondary">
           لغو
         </button>
-        <button type="submit" className="planner-btn planner-btn-primary">
+        <button type="submit" className="planner-form-btn planner-form-btn-primary">
           {isEditing ? 'ذخیره تغییرات' : 'افزودن'}
         </button>
       </div>

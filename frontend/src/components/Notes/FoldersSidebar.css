@@ -1,0 +1,182 @@
+.note-folders-sidebar {
+  width: 16rem;
+  flex-shrink: 0;
+}
+
+.note-folders-box {
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+  border: 1px solid #e1e8ed;
+}
+
+.note-folders-box h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.note-folders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  margin-bottom: 0.5rem;
+}
+
+.note-folders-header h3 {
+  margin: 0;
+}
+
+.note-folders-add-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.15rem;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.note-folders-add-btn:hover {
+  background: #f1f5f9;
+}
+
+.note-folders-new-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.note-folders-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.45rem 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.note-folders-input:focus {
+  outline: none;
+  border-color: #0b6df0;
+}
+
+.note-folders-submit-btn {
+  white-space: nowrap;
+  flex: 0 0 auto;
+  padding: 0.45rem 0.65rem;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #0b6df0;
+  color: #fff;
+}
+
+.note-folders-submit-btn:hover {
+  background: #095ed1;
+}
+
+.note-folders-all-btn {
+  width: 100%;
+  text-align: right;
+  display: flex;
+  padding: 0.5rem;
+  border-radius: 8px;
+  margin-bottom: 0.25rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.note-folders-all-btn:hover {
+  background: #f1f5f9;
+}
+
+.note-folders-all-btn.note-folders-active {
+  background: #f0f6ff;
+  color: #0b6df0;
+}
+
+.note-folder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem;
+  border-radius: 8px;
+  margin-bottom: 0.25rem;
+  flex-direction: row-reverse;
+}
+
+.note-folder-item.note-folders-active {
+  background: #f0f6ff;
+  color: #0b6df0;
+}
+
+.note-folder-link {
+  text-align: right;
+  display: flex;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  direction: rtl;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.note-folder-link:hover {
+  opacity: 0.8;
+}
+
+.note-folder-delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.note-folder-delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+@media (max-width: 520px) {
+  .note-folders-new-row {
+    flex-wrap: wrap;
+  }
+  .note-folders-submit-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .note-folders-sidebar {
+    flex: 0 0 12rem;
+    width: 12rem;
+  }
+  .note-folders-all-btn,
+  .note-folder-link {
+    font-size: 0.85rem;
+  }
+  .note-folders-input {
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .note-folder-link,
+  .note-folders-all-btn {
+    font-size: 13px;
+  }
+}

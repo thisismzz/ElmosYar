@@ -70,8 +70,8 @@
   justify-content: flex-start;
 }
 
-/* Buttons */
-.planner-btn {
+/* TaskForm Buttons */
+.planner-form-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -84,25 +84,25 @@
   transition: all 0.2s;
 }
 
-.planner-btn-primary {
+.planner-form-btn-primary {
   background: #1da1f2;
   color: white;
 }
 
-.planner-btn-primary:hover {
+.planner-form-btn-primary:hover {
   background: #1a91da;
 }
 
-.planner-btn-secondary {
+.planner-form-btn-secondary {
   background: #e1e8ed;
   color: #14171a;
 }
 
-.planner-btn-secondary:hover {
+.planner-form-btn-secondary:hover {
   background: #d1d9e0;
 }
 
-.planner-icon-btn {
+.planner-form-icon-btn {
   padding: 0.5rem;
   background: transparent;
   border: none;
@@ -112,7 +112,7 @@
   transition: all 0.2s;
 }
 
-.planner-icon-btn:hover {
+.planner-form-icon-btn:hover {
   background: #e1e8ed;
   color: #14171a;
 }

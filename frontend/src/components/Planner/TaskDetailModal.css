@@ -50,6 +50,12 @@
   color: #14171a;
 }
 
+.planner-modal-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
 .planner-modal-body {
   padding: 1.5rem;
 }
@@ -59,6 +65,22 @@
 }
 
 .planner-modal-body .planner-detail-section:last-child {
+  margin-bottom: 0;
+}
+
+.planner-detail-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-direction: row-reverse;
+}
+
+.planner-detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.planner-detail-section-half {
+  flex: 1;
   margin-bottom: 0;
 }
 
@@ -80,51 +102,7 @@
   word-break: break-word;
 }
 
-.planner-modal-actions {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid #e1e8ed;
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-start;
-}
-
-.planner-modal-actions .planner-btn {
-  flex: 1;
-}
-
-/* Buttons */
-.planner-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.938rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.planner-btn-primary {
-  background: #1da1f2;
-  color: white;
-}
-
-.planner-btn-primary:hover {
-  background: #1a91da;
-}
-
-.planner-btn-secondary {
-  background: #e1e8ed;
-  color: #14171a;
-}
-
-.planner-btn-secondary:hover {
-  background: #d1d9e0;
-}
-
-.planner-icon-btn {
+.planner-modal-icon-btn {
   padding: 0.5rem;
   background: transparent;
   border: none;
@@ -134,7 +112,7 @@
   transition: all 0.2s;
 }
 
-.planner-icon-btn:hover {
+.planner-modal-icon-btn:hover {
   background: #e1e8ed;
   color: #14171a;
 }

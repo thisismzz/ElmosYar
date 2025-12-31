@@ -105,9 +105,10 @@
 
 /* Tasks Timeline */
 .planner-tasks-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 320px));
+  gap: 1rem;
+  justify-content: start;
 }
 
 .planner-empty-task-state {
@@ -120,8 +121,8 @@
   margin: 0;
 }
 
-/* Button styles shared across components */
-.planner-btn {
+/* PlannerPage Buttons */
+.planner-page-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -134,12 +135,12 @@
   transition: all 0.2s;
 }
 
-.planner-btn-primary {
+.planner-page-btn-primary {
   background: #1da1f2;
   color: white;
 }
 
-.planner-btn-primary:hover {
+.planner-page-btn-primary:hover {
   background: #1a91da;
 }
 
@@ -163,7 +164,7 @@
     text-align: center;
   }
 
-  .planner-btn-primary {
+  .planner-page-btn-primary {
     width: 100%;
     justify-content: center;
   }

@@ -21,7 +21,7 @@ type AllTasksSidebarProps = {
 const AllTasksSidebar: React.FC<AllTasksSidebarProps> = ({
   tasks,
   onTaskClick,
-  titlePreviewLimit = 40,
+  titlePreviewLimit = 25,
 }) => {
   const getTitlePreview = (title: string) => {
     return title.length > titlePreviewLimit 

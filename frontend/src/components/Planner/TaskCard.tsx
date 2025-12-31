@@ -14,12 +14,13 @@ type Task = {
 
 type TaskCardProps = {
   task: Task;
-  onEdit: (task: Task) => void;
-  onDelete: (id: string) => void;
-  onToggleComplete: (id: string) => void;
+  onEdit?: (task: Task) => void;
+  onDelete?: (id: string) => void;
+  onToggleComplete?: (id: string) => void;
   onView: (task: Task) => void;
   titlePreviewLimit?: number;
   descriptionPreviewLimit?: number;
+  showActions?: boolean;
 };
 
 const TaskCard: React.FC<TaskCardProps> = ({
@@ -28,8 +29,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
   onDelete,
   onToggleComplete,
   onView,
-  titlePreviewLimit = 50,
+  titlePreviewLimit = 20,
   descriptionPreviewLimit = 100,
+  showActions = true,
 }) => {
   const getPreview = (text: string, limit: number) => {
     if (!text) return { displayed: '', isLong: false };
@@ -49,24 +51,30 @@ const TaskCard: React.FC<TaskCardProps> = ({
       <div className="planner-task-content">
         <div className="planner-task-header">
           <div className="planner-task-actions" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => onDelete(task.id)}
-              className="planner-btn planner-icon-btn"
-            >
-              <Trash2 size={16} />
-            </button>
-            <button
-              onClick={() => onEdit(task)}
-              className="planner-btn planner-icon-btn"
-            >
-              <Edit2 size={16} />
-            </button>
-            <button
-              onClick={() => onToggleComplete(task.id)}
-              className="planner-btn planner-icon-btn planner-checkbox-btn"
-            >
-              {task.completed ? <Check size={16} /> : <div className="planner-checkbox-empty" />}
-            </button>
+            {showActions && onEdit && (
+              <button
+                onClick={() => onEdit(task)}
+                className="planner-card-icon-btn"
+              >
+                <Edit2 size={16} />
+              </button>
+            )}
+            {showActions && onDelete && (
+              <button
+                onClick={() => onDelete(task.id)}
+                className="planner-card-icon-btn"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
+            {showActions && onToggleComplete && (
+              <button
+                onClick={() => onToggleComplete(task.id)}
+                className="planner-card-icon-btn"
+              >
+                {task.completed ? <Check size={16} /> : <div className="planner-checkbox-empty" />}
+              </button>
+            )}
           </div>
           <h4 className="planner-task-title">
             {titlePreview.displayed}{titlePreview.isLong ? '...' : ''}

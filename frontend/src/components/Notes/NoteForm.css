@@ -1,0 +1,99 @@
+.note-form {
+  background: white;
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+  border: 1px solid #e1e8ed;
+  margin-bottom: 1rem;
+}
+
+.note-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.note-form-header h3 {
+  margin: 0;
+}
+
+.note-form-input,
+.note-form-select,
+.note-form-textarea {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-family: inherit;
+}
+
+.note-form-input:focus,
+.note-form-select:focus,
+.note-form-textarea:focus {
+  outline: none;
+  border-color: #0b6df0;
+}
+
+.note-form-textarea {
+  height: 8rem;
+  resize: vertical;
+}
+
+.note-form-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.note-form-folder-select {
+  flex: 0 0 220px;
+  font-size: 0.85rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.note-form-pin-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.note-form-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.note-form-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #0b6df0;
+  color: #fff;
+  width: 100%;
+}
+
+.note-form-btn:hover {
+  background: #095ed1;
+}
+
+.note-form-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 6px;
+}
+
+.note-form-icon-btn:hover {
+  background: #f1f5f9;
+}
