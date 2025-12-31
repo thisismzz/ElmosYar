@@ -30,7 +30,6 @@ const generateTimeOptions = () => {
 
 const generateEndTimeOptions = () => {
   const times = generateTimeOptions();
-  times.push('00:00');
   return times;
 };
 

@@ -1,0 +1,18 @@
+/* Main Page Styles */
+.main-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f8fa;
+  direction: rtl;
+}
+
+.main-container {
+  display:grid;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .main-container {
+    padding: 1rem;
+  }
+}

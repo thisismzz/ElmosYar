@@ -1,14 +1,15 @@
 .note-card {
+  width: 320px;
   background: white;
-  padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.06);
   border: 1px solid #e1e8ed;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  min-width: 0;
+  border-radius: 10px;
+  padding: 1rem;
+  transition: all 0.2s;
+  border-right: 4px solid #1da1f2;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  cursor: pointer;
+  min-height: 150px;
 }
 
 .note-card:hover {
