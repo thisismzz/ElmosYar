@@ -31,19 +31,19 @@ export interface Comment {
 }
 
 class UltimatePostService {
-  
-  async getPosts(params: GetPostsParams = {}): Promise<GetPostsResponse> {
-    try {
-      console.log('📡 در حال دریافت پست‌ها از API...', params);
-      
-      const queryParams = new URLSearchParams();
 
-      Object.entries(params).forEach(([key, value]) => {
-        if (value === undefined || value === null) return;
-        queryParams.append(key, value.toString());
-      });
-      const response = await api.get(`/posts/?${queryParams}`);
-      console.log('✅ اتصال به بک‌اند موفق!', response.data);
+	async getPosts(params: GetPostsParams = {}): Promise<GetPostsResponse> {
+		try {
+			console.log('📡 در حال دریافت پست‌ها از API...', params);
+
+			const queryParams = new URLSearchParams();
+
+			Object.entries(params).forEach(([key, value]) => {
+				if (value === undefined || value === null) return;
+				queryParams.append(key, value.toString());
+			});
+			const response = await api.get(`/posts/?${queryParams}`);
+			console.log('✅ اتصال به بک‌اند موفق!', response.data);
 
 			const backendPosts = this.extractPostsFromResponse(response.data);
 			const formattedPosts = backendPosts.map(backendPost =>
@@ -118,7 +118,7 @@ class UltimatePostService {
 		attributes?: any;
 	})
 	// : Promise<Post>
-	 {
+	{
 		try {
 			const formData = new FormData();
 			formData.append('content', postData.content);
@@ -259,9 +259,15 @@ export const createPost = (
 	content: string,
 	category?: string,
 	tags?: string,
-	media?: File[],
+	// media?: File[],
 	attributes?: any,) =>
-	postService.createPost({ content, category, tags, media, attributes });
+	postService.createPost({
+		content,
+		category,
+		tags,
+		// media,
+		attributes
+	});
 export const getPostById = (postId: number) => postService.getPostById(postId);
 export const getComments = (postId: number, params?: GetPostsParams) => postService.getComments(postId, params);
 export const createComment = (postId: number, content: string) => postService.createComment(postId, content);

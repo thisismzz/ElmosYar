@@ -230,12 +230,13 @@ export function CreateReviewPage() {
 						onClick={() => createPost(
 							formData.comment ?? "null",
 							"professor-review",
-							"",
-							[],
+							"idk,this,that",
+							// [],
 							{
 								"id": "200",
 								"professorName": formData.professorName,
-								"faculty": formData.faculty,
+								// "faculty": formData.faculty,
+								"faculty": "ComputerScience",
 								"courseName": formData.courseName,
 								"semester": formData.semester,
 								"overallRating": formData.overallRating,
