@@ -49,53 +49,10 @@ const FoodPage: React.FC = () => {
 		return result;
 	};
 
-	// Temporary, will remove
-	const isValidMealType = (type: string): type is "ناهار" | "شام" => {
-  return type === "ناهار" || type === "شام";
-};
-
-const isValidLocation = (location: string): location is "سلف مرکزی" | "سلف یاس" | "خوابگاه حکیمیه" | "خوابگاه خواهران" | "خوابگاه برادران" | "خوابگاه سراج" | "خوابگاه مجیدیه" => {
-  const validLocations: string[] = ["سلف مرکزی", "سلف یاس", "خوابگاه حکیمیه", "خوابگاه خواهران", "خوابگاه برادران", "خوابگاه سراج" , "خوابگاه مجیدیه"];
-  return validLocations.includes(location);
-};
-
-const parseDay = (day: string): "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | undefined => {
-  const daysMap: Record<string, "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday"> = {
-    "شنبه": "saturday",
-    "یکشنبه": "sunday",
-    "دوشنبه": "monday",
-    "سه‌شنبه": "tuesday",
-    "چهارشنبه": "wednesday",
-    "پنجشنبه": "thursday",
-    "جمعه": "friday",
-    "saturday": "saturday",
-    "sunday": "sunday",
-    "monday": "monday",
-    "tuesday": "tuesday",
-    "wednesday": "wednesday",
-    "thursday": "thursday",
-    "friday": "friday"
-  };
-  return daysMap[day];
-};
-	type Day = "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
-
-	const dayValues: Day[] = [
-		"saturday",
-		"sunday",
-		"monday",
-		"tuesday",
-		"wednesday",
-		"thursday",
-		"friday",
-	];
-
 	useEffect(() => {
 		const fetchFoodItems = async () => {
 			try {
 				setLoading(true);
-				
-				const nameFilter = searchQuery;
 				
 				const response = await getFoodPosts(
 					serializeSearch && serializeSearch(['mealType', 'location', 'day', 'name'])

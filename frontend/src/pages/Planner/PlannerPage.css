@@ -14,11 +14,11 @@
 }
 
 .planner-layout {
-  min-width: 640px;
   display: flex;
   gap: 1.5rem;
   align-items: flex-start;
   flex-direction: row-reverse;
+  overflow: auto;
 }
 
 .planner-main {
@@ -108,7 +108,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 320px));
   gap: 1rem;
-  justify-content: start;
+  justify-content: center;
 }
 
 .planner-empty-task-state {
@@ -147,7 +147,8 @@
 /* Responsive Design */
 @media (max-width: 640px) {
   .planner-layout {
-    flex-direction: column;
+    flex-direction: column-reverse;
+    align-items: center;
   }
 
   .planner-container {
@@ -167,5 +168,60 @@
   .planner-page-btn-primary {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 390px) {
+  .planner-container {
+    padding: 0.5rem;
+    max-width: 300px;
+  }
+
+  .planner-layout {
+    min-width: unset;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .planner-main {
+    min-width: unset;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .planner-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .planner-calendar-section {
+    padding: 0.75rem;
+  }
+
+  .planner-custom-calendar .rmdp-day {
+    height: 32px;
+    width: 32px;
+  }
+
+  .planner-day-schedule {
+    padding: 0.75rem;
+  }
+
+  .planner-day-schedule-header h3 {
+    font-size: 1rem;
+  }
+
+  .planner-page-btn-primary {
+    font-size: 0.813rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .planner-tasks-timeline {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .planner-sidebar {
+    max-width: 300px;
+    width: 100%;
   }
 }

@@ -1,5 +1,6 @@
 /* Task Card */
 .planner-task-card {
+  width: 3200px;
   background: white;
   border: 1px solid #e1e8ed;
   border-radius: 10px;

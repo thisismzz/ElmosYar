@@ -107,23 +107,9 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 	const [selectedDay, setSelectedDay] = useState<Day>("saturday");
 
-	const dayValues: Day[] = [
-		"saturday",
-		"sunday",
-		"monday",
-		"tuesday",
-		"wednesday",
-		"thursday",
-		"friday",
-	];
+	
 
-
-	// Helper function to get today's date in YYYY-MM-DD format
-	const getTodayDate = (): string => {
-		const today = new Date();
-		return today.toISOString().split('T')[0];
-	};
-
+	
 	const handleBuyFood = (item: FoodItem) => {
 		if (item.isSoldOut) {
 			alert(`متاسفانه ${item.name} تمام شده است!`);
@@ -144,7 +130,6 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	};
 
 	const handlePaymentSuccess = (_method: any, foodItem: FoodItem) => {
-		// Mark item as sold out after successful payment
 		setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
 	};
 

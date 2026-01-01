@@ -25,7 +25,7 @@ import { ProfessorProfilePage } from './pages/Professors/ProfessorProfile';
 import { CreateReviewPage } from './pages/Professors/CreateReview';
 import DiscussionPostForm from './components/Discussion/Posts/DiscussionPostForm';
 import AddFoodModal from './components/Transaction/AddFoodModal';
-
+import ContactUs from './pages/Contact/Contact';
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
 
@@ -137,7 +137,6 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 								isLeftSidebarOpen ? 'left-open' : 'left-closed',
 								isRightSidebarOpen ? 'right-open' : 'right-closed'
 							].join(' ')}
-							// Close sidebar when clicking on main content on mobile
 							onClick={isMobile && isLeftSidebarOpen ? handleCloseLeftSidebar : undefined}
 						>
 							{children}
@@ -180,6 +179,7 @@ const ProtectedRoutes: React.FC = () => {
 			<Route path='/profile/wallet' element={<WalletPage />} />
 			<Route path='/profile/edit' element={<EditProfilePage />} />
 			<Route path='/profile/transactions' element={<TransactionHistoryPage />} />
+			<Route path='contactUs' element={<ContactUs />} />
 			<Route path='/topic/:topicId' element={<TopicDiscussion />} />
 			<Route path='/topic/professors/:professorName' element={<ProfessorProfilePage />} />
 			<Route path='/topic/professors/new' element={<CreateReviewPage />} />

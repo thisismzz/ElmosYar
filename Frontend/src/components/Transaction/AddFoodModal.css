@@ -257,3 +257,171 @@
     width: 100%;
   }
 }
+
+.selected-date-display {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: flex-start; 
+  align-items: center;
+  gap: 12px; 
+  transition: all 0.2s;
+  min-height: 72px;
+}
+
+.selected-date-display:hover {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.date-display-content {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.date-text {
+  flex: 1;
+  text-align: right;
+}
+
+.date-value-large {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.calendar-icon-minimal {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  order: -1;
+}
+
+.calendar-icon-minimal:hover {
+  background: #e5e7eb;
+  border-color: #667eea;
+}
+
+.calendar-icon-minimal .calendar-icon {
+  color: #4b5563;
+}
+
+.date-actions-right {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 0 4px;
+}
+
+.date-info-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.date-label-right {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.today-btn-small {
+  padding: 8px 16px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Vazirmatn', -apple-system, sans-serif;
+}
+
+.today-btn-small:hover {
+  background: #5a67d8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.today-btn-small:active {
+  transform: translateY(0);
+}
+
+.selected-date-display:not(:has(.date-value-large:not(:empty))) .date-value-large {
+  color: #9ca3af;
+  font-weight: normal;
+}
+
+.persian-calendar-wrapper {
+  z-index: 1000;
+}
+
+.persian-calendar-wrapper .rmdp-week-day {
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.persian-calendar-wrapper .rmdp-day {
+  border-radius: 6px;
+}
+
+.persian-calendar-wrapper .rmdp-day.rmdp-selected {
+  background-color: #667eea;
+  color: white;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.persian-calendar-wrapper .rmdp-day:hover {
+  background-color: #e5e7eb;
+}
+
+@media (max-width: 640px) {
+  .selected-date-display {
+    padding: 10px 12px;
+    min-height: 64px;
+    gap: 10px;
+  }
+  
+  .date-value-large {
+    font-size: 0.875rem;
+  }
+  
+  .calendar-icon-minimal {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .date-actions-right {
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+  }
+  
+  .date-info-right {
+    align-items: center;
+    text-align: center;
+  }
+  
+  .today-btn-small {
+    align-self: flex-start;
+    width: 100%;
+  }
+}

@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, Calendar as CalendarIcon } from 'lucide-react';
 import { FoodItem } from "../../types/food_posts";
 import './AddFoodModal.css';
+import Calendar from 'react-multi-date-picker';
+import persian from 'react-date-object/calendars/persian';
+import persian_fa from 'react-date-object/locales/persian_fa';
+import DateObject from 'react-date-object';
 
 interface AddFoodModalProps {
   isOpen: boolean;
@@ -17,16 +21,43 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
   onClose, 
   onAdd 
 }) => {
+  const [selectedDate, setSelectedDate] = useState<DateObject>(() => {
+    return new DateObject({ calendar: persian });
+  });
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const calendarRef = useRef<any>(null);
+  
   const [formData, setFormData] = useState({
     name: '',
     price: '',
     mealType: 'ناهار' as MealType,
     location: 'مرکزی' as LocationType,
-    date: new Date().toISOString().split('T')[0]
   });
 
   const locations: LocationType[] = ['مرکزی', 'یاس', 'مقتدایی', 'خوابگاه خواهران', 'خوابگاه برادران'];
   const mealTypes: MealType[] = ['ناهار', 'شام'];
+
+  const formatPersianDate = (date: DateObject): string => {
+    if (!date) return '';
+    
+    const year = date.year;
+    const month = date.month.toString().padStart(2, '0');
+    const day = date.day.toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleCalendarIconClick = () => {
+    setIsCalendarOpen(true);
+    if (calendarRef.current && calendarRef.current.openCalendar) {
+      calendarRef.current.openCalendar();
+    }
+  };
+
+  const handleCalendarChange = (date: DateObject) => {
+    setSelectedDate(date);
+    setIsCalendarOpen(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,12 +73,17 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
       return;
     }
 
+    if (!selectedDate) {
+      alert('لطفاً تاریخ را انتخاب کنید');
+      return;
+    }
+
     const newFood: Omit<FoodItem, 'id' | 'isSoldOut'> = {
       name: formData.name.trim(),
       price: priceNumber,
       mealType: formData.mealType,
       location: formData.location,
-      date: formData.date
+      date: formatPersianDate(selectedDate)
     };
     
     onAdd(newFood);
@@ -60,8 +96,9 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
       price: '',
       mealType: 'ناهار',
       location: 'مرکزی',
-      date: new Date().toISOString().split('T')[0]
     });
+    setSelectedDate(new DateObject({ calendar: persian }));
+    setIsCalendarOpen(false);
     onClose();
   };
 
@@ -158,19 +195,60 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
             </div>
           </div>
 
+          {/* بخش تقویم یکپارچه */}
           <div className="form-group">
-            <label htmlFor="date">
+            <label>
               تاریخ
               <span className="required-star">*</span>
             </label>
-            <input
-              type="date"
-              id="date"
-              value={formData.date}
-              onChange={(e) => setFormData({...formData, date: e.target.value})}
-              required
-              className="form-input"
-            />
+            <div className="persian-calendar-container">
+              <div className="calendar-input-wrapper">
+                <div className="selected-date-display" onClick={handleCalendarIconClick}>
+                  <div className="calendar-icon-minimal" onClick={handleCalendarIconClick}>
+                    <CalendarIcon size={20} className="calendar-icon" />
+                  </div>
+                  <div className="date-display-content">
+                    <div className="date-text">
+                      <div className="date-value-large">
+                        {selectedDate ? selectedDate.format("dddd، D MMMM YYYY") : 'برای انتخاب تاریخ کلیک کنید'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Calendar
+                ref={calendarRef}
+                value={selectedDate}
+                onChange={handleCalendarChange}
+                calendar={persian}
+                locale={persian_fa}
+                calendarPosition="bottom-right"
+                className="persian-calendar-input"
+                containerClassName="persian-calendar-wrapper"
+                inputClass="custom-calendar-input"
+                format="YYYY/MM/DD"
+                required
+                editable={false}
+                placeholder="برای انتخاب تاریخ کلیک کنید"
+                shadow={false}
+                arrow={false}
+                weekStartDayIndex={6}
+                style={{ display: 'none' }}
+              />
+              {selectedDate && (
+                <div className="date-actions-right">
+                  <div className="date-info-right">
+                  </div>
+                  <button 
+                    type="button" 
+                    className="today-btn-small"
+                    onClick={() => setSelectedDate(new DateObject({ calendar: persian }))}
+                  >
+                    امروز
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="form-actions">

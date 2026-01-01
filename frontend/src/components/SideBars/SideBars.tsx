@@ -234,7 +234,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen = true }) => {
 
   // Additional items for contact and logout
   const additionalItems: NavItem[] = [
-    { id: 'contact', label: 'تماس و راهنما', icon: Phone, path: '/contact' },
+    { id: 'contact', label: 'تماس و راهنما', icon: Phone, path: '/contactUs' },
     { id: 'logout', label: 'خروج', icon: LogOut }
   ];
 
