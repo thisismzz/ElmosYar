@@ -5,6 +5,13 @@ import NoteCard from '../../components/Notes/NoteCard';
 import NoteForm from '../../components/Notes/NoteForm';
 import NoteDetailModal from '../../components/Notes/NoteDetailModal';
 import FoldersSidebar from '../../components/Notes/FoldersSidebar';
+import {
+  initGoogleTokenClient,
+  savePayloadToDrive,
+  loadPayloadFromDrive,
+} from "../../services/driveSync";
+import { DriveSyncButton } from '../../components/Notes/DriveSyncButton';
+
 
 type Note = {
   id: string;
@@ -20,6 +27,7 @@ type Folder = {
   name: string;
 };
 
+const GOOGLE_CLIENT_ID = "288963586582-tc0mhbp0te272ghsvl0or8l775oii4rp.apps.googleusercontent.com";
 const STORAGE_KEY = 'elmosyar_notes_v1';
 
 const NotesPage: React.FC = () => {
@@ -30,6 +38,8 @@ const NotesPage: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [modalNote, setModalNote] = useState<Note | null>(null);
   const [modalSize, setModalSize] = useState<'default' | 'popup'>('default');
+
+  const [driveStatus, setDriveStatus] = useState<string>("");
 
   const [formData, setFormData] = useState({
     title: '',
@@ -47,7 +57,7 @@ const NotesPage: React.FC = () => {
         setNotes(parsed.notes || []);
         setFolders(parsed.folders || []);
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, []);
@@ -57,6 +67,42 @@ const NotesPage: React.FC = () => {
     const payload = { notes, folders };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   }, [notes, folders]);
+
+  // Initialize GIS client once the script is loaded
+  useEffect(() => {
+    try {
+      initGoogleTokenClient(GOOGLE_CLIENT_ID);
+    } catch (e) {
+      // If script hasn't loaded yet, you can retry after a short delay or on user click.
+      // For simplicity, just ignore here and initialize lazily on button click if needed.
+    }
+  }, []);
+
+  async function onSaveToDrive() {
+    try {
+      setDriveStatus("Saving to Drive...");
+      await savePayloadToDrive({ notes, folders });
+      setDriveStatus("Saved to Drive.");
+    } catch (e: any) {
+      setDriveStatus(`Save failed: ${e?.message ?? String(e)}`);
+    }
+  }
+
+  async function onLoadFromDrive() {
+    try {
+      setDriveStatus("Loading from Drive...");
+      const remote = await loadPayloadFromDrive<{ notes: any[]; folders: any[] }>();
+      if (!remote) {
+        setDriveStatus("No Drive backup found yet.");
+        return;
+      }
+      setNotes(remote.notes || []);
+      setFolders(remote.folders || []);
+      setDriveStatus("Loaded from Drive.");
+    } catch (e: any) {
+      setDriveStatus(`Load failed: ${e?.message ?? String(e)}`);
+    }
+  }
 
   // close modal on Escape
   useEffect(() => {
@@ -99,13 +145,13 @@ const NotesPage: React.FC = () => {
       s.map((n) =>
         n.id === id
           ? {
-              ...n,
-              title: data.title,
-              content: data.content,
-              folderId: data.folderId || null,
-              pinned: data.pinned,
-              updatedAt: new Date().toISOString(),
-            }
+            ...n,
+            title: data.title,
+            content: data.content,
+            folderId: data.folderId || null,
+            pinned: data.pinned,
+            updatedAt: new Date().toISOString(),
+          }
           : n
       )
     );
@@ -171,6 +217,7 @@ const NotesPage: React.FC = () => {
     );
 
   return (
+
     <div className="notes-page notes-page-container">
       <div className="notes-page-layout">
         <FoldersSidebar
@@ -183,7 +230,21 @@ const NotesPage: React.FC = () => {
 
         <div className="notes-page-main">
           <div className="notes-page-header">
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={onSaveToDrive}>Save</button>
+              <button onClick={onLoadFromDrive}>Load</button>
+            </div>
+            <div className='rtl'>{driveStatus}</div>
             <div />
+
+            <DriveSyncButton
+              onSave={async () => {
+                onSaveToDrive();
+              }}
+              onLoad={async () => {
+                onLoadFromDrive();
+              }}
+            />
             <button
               onClick={() => {
                 setIsCreating(true);
