@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FoodItem } from "../../../types/food_posts";
 import { Sun, Moon, Plus } from 'lucide-react';
 import PaymentModal from '../../Transaction/PaymentModal';
-import AddFoodModal from '../../Transaction/AddFoodModal';
+import { CreateFoodPost } from '../../../pages/CreatePost';
 import './FoodPostFeed.css';
 
 interface FoodPostCardProps {
@@ -27,7 +27,6 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 				return '🍽️';
 		}
 	};
-	console.log(item);
 	return (
 		<div key={item.id} className={`food-card ${item.isSoldOut ? 'sold-out' : ''}`}>
 			<div className="card-header">
@@ -217,7 +216,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 				/>
 			)}
 
-			<AddFoodModal
+			<CreateFoodPost
 				isOpen={isAddModalOpen}
 				onClose={handleCloseAddModal}
 				onAdd={handleAddFood}

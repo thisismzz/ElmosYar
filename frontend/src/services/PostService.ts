@@ -116,27 +116,21 @@ class UltimatePostService {
 		tags?: string;
 		media?: File[];
 		attributes?: any;
-	})
-	// : Promise<Post>
-	{
+	}): Promise<Post> {
 		try {
-			const formData = new FormData();
-			formData.append('content', postData.content);
+			const requestBody: any = {
+				content: postData.content,
+			};
 
-			if (postData.category) formData.append('category', postData.category);
-			if (postData.tags) formData.append('tags', postData.tags);
-			if (postData.media) {
-				postData.media.forEach((file, index) => {
-					formData.append(`media_${index}`, file);
-				});
-			}
-			if (postData.attributes) formData.append('attributes', JSON.stringify(postData.attributes));
-
-			const response = await api.post('/posts/', formData, {
-				headers: { 'Content-Type': 'multipart/form-data' },
+			if (postData.category) requestBody.category = postData.category;
+			if (postData.tags) requestBody.tags = postData.tags;
+			if (postData.attributes) requestBody.attributes = postData.attributes;
+			console.log('📡 در حال ایجاد پست جدید با داده‌ها:', requestBody);
+			const response = await api.post('/posts/', requestBody, {
+				headers: { 'Content-Type': 'application/json' },
 			});
 
-			// return this.mapBackendPostToFrontend(response.data);
+			return this.mapBackendPostToFrontend(response.data.post || response.data);
 		} catch (error: any) {
 			console.error('❌ خطا در ایجاد پست:', error);
 			throw error;

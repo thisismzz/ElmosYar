@@ -22,9 +22,7 @@ import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
 import TransactionHistoryPage from './pages/TransactionHistory';
 import { ReviewPage } from './pages/Professors/Reviews';
 import { ProfessorProfilePage } from './pages/Professors/ProfessorProfile';
-import { CreateReviewPage } from './pages/Professors/CreateReview';
-import DiscussionPostForm from './components/Discussion/Posts/DiscussionPostForm';
-import AddFoodModal from './components/Transaction/AddFoodModal';
+import { CreateReviewPage, CreateDiscussionPost, CreateFoodPost } from './pages/CreatePost';
 import ContactUs from './pages/Contact/Contact';
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
@@ -182,16 +180,16 @@ const ProtectedRoutes: React.FC = () => {
 			<Route path='contactUs' element={<ContactUs />} />
 			<Route path='/topic/:topicId' element={<TopicDiscussion />} />
 			<Route path='/topic/professors/:professorName' element={<ProfessorProfilePage />} />
-			<Route path='/topic/professors/new' element={<CreateReviewPage />} />
-			<Route path='/topic/discussion/new' element={<DiscussionPostForm
-				onClose={() => { }}
-				onSubmit={async (data) => { }} />
+			<Route path='/create/review' element={<CreateReviewPage />} />
+			<Route path='/create/discussion' element={<CreateDiscussionPost
+				onClose={() => navigate(-1)}
+				onSubmit={async (data) => { console.log('Discussion post:', data); }} />
 			} />
-			<Route path='/topic/food/new' element={<AddFoodModal
-			isOpen = {true}
-			onClose={() => {navigate("/topic/food")}} //!
-			onAdd={() => {}}
-			 />} />
+			<Route path='/create/food' element={<CreateFoodPost
+				isOpen={true}
+				onClose={() => navigate(-1)}
+				onAdd={(data) => { console.log('Food post:', data); }} />
+			} />
 
 		</Routes>
 	);

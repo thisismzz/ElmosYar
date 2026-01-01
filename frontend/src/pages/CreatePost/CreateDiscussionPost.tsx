@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, ChangeEvent, FormEvent } from 'react';
-import './DiscussionPostForm.css';
-import { ChatPostData, ChatPostFormProps, FormErrors } from '../../../types/post.types';
+import './CreateDiscussionPost.css';
+import { ChatPostData, ChatPostFormProps, FormErrors } from '../../types/post.types';
 
 const MAX_CONTENT_LENGTH = 5000;
 const MAX_TAGS = 10;
