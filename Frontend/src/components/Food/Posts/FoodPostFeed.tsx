@@ -93,7 +93,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 };
 
 // Type for days of week
-type Day = "saturday" | "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday";
+type Day = "شنبه" | "یکشنبه" | "دوشنبه" | "سه شنبه" | "چهارشنبه" | "پنج شنبه" | "جمعه";
 
 interface FoodPostFeedProps {
 	items: FoodItem[];
@@ -105,7 +105,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-	const [selectedDay, setSelectedDay] = useState<Day>("saturday");
+	const [selectedDay, setSelectedDay] = useState<Day>("شنبه");
 
 	
 
@@ -186,9 +186,9 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 			</div> */}
 
 			{items.length === 0 ? (
-				<div className="empty-state">
+				<div className="food-empty-state">
 					<div className="empty-state-icon">🍽️</div>
-					<h3>هیچ غذایی برای {(selectedDay)} موجود نیست</h3>
+					<h3>هیچ غذایی موجود نیست</h3>
 					<p>برای شروع، غذای جدیدی اضافه کنید</p>
 					<button 
 						className="add-post-button empty-state-button"

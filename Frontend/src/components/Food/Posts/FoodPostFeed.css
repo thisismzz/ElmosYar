@@ -396,6 +396,11 @@
 .add-post-button.empty-state-button {
 	margin-top: 30px;
 	animation: pulseGreen 2s infinite;
+  position: absolute;
+  top: 72%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
 }
 
 @keyframes pulseGreen {
@@ -580,7 +585,7 @@
 	font-weight: 500;
 }
 
-.empty-state {
+.food-empty-state {
 	text-align: center;
 	padding: 100px 40px;
 	background: white;
@@ -602,14 +607,14 @@
 	50% { transform: translateY(-25px); }
 }
 
-.empty-state h3 {
+.food-empty-state h3 {
 	color: #1e293b;
 	margin: 0 0 20px 0;
 	font-size: 2rem;
 	font-weight: 800;
 }
 
-.empty-state p {
+.food-empty-state p {
 	color: #64748b;
 	margin: 0;
 	font-size: 1.2rem;
@@ -632,6 +637,7 @@
 	.add-post-button {
 		width: 100%;
 		justify-content: center;
+    align-items: center;
 	}
 
 	.day-buttons {

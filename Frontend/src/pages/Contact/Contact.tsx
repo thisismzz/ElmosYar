@@ -106,11 +106,11 @@ const ContactUs: React.FC = () => {
 
 	return (
 		<div className="contact-us-container">
-			<div className="contact-header">
+			<div className="contactus-header">
 				<div className="header-content">
-					<h1 className="page-title">گزارش مشکل </h1>
-					<p className="page-subtitle">ما اینجا هستیم تا به شما کمک کنیم</p>
-					<div className="header-description">
+					<h1 className="contact-page-title">گزارش مشکل </h1>
+					<p className="contact-page-subtitle">ما اینجا هستیم تا به شما کمک کنیم</p>
+					<div className="contact-header-description">
 						<p>
 							هر سوال، پیشنهاد یا مشکلی دارید، تیم پشتیبانی ما آماده کمک به شماست.
 							<br />
