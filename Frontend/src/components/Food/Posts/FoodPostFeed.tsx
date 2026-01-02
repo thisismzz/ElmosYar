@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { FoodItem } from "../../../types/food_posts";
 import { Sun, Moon, Plus } from 'lucide-react';
 import PaymentModal from '../../Transaction/PaymentModal';
-import AddFoodModal from '../../Transaction/AddFoodModal';
 import './FoodPostFeed.css';
 
 interface FoodPostCardProps {
@@ -216,12 +215,6 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 					foodItem={selectedItem}
 				/>
 			)}
-
-			<AddFoodModal
-				isOpen={isAddModalOpen}
-				onClose={handleCloseAddModal}
-				onAdd={handleAddFood}
-			/>
 		</div>
 	);
 };

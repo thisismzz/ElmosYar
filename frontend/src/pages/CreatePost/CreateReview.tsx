@@ -231,12 +231,10 @@ export function CreateReviewPage() {
 							formData.comment ?? "null",
 							"professor-review",
 							"idk,this,that",
-							// [],
 							{
 								"id": "200",
 								"professorName": formData.professorName,
-								// "faculty": formData.faculty,
-								"faculty": "ComputerScience",
+								"faculty": formData.faculty,
 								"courseName": formData.courseName,
 								"semester": formData.semester,
 								"overallRating": formData.overallRating,

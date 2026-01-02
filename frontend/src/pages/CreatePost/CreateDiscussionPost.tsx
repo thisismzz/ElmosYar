@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, ChangeEvent, FormEvent } from 'react';
 import './CreateDiscussionPost.css';
 import { ChatPostData, ChatPostFormProps, FormErrors } from '../../types/post.types';
-import { simplePostService } from '../../services/postCreationService';
+import { createPost, postService } from "../../services/PostService";
 
 const MAX_CONTENT_LENGTH = 5000;
 const MAX_TAGS = 10;
@@ -147,49 +147,7 @@ const ChatPostForm: React.FC<ChatPostFormProps> = ({
       return;
     }
 
-    setIsSubmitting(true);
-    
-    try {
-      const result = await simplePostService.createPost({
-        content: content.trim(),
-        category: category,
-        tags: tags.join(','), 
-      });
-
-      if (result.success) {
-        if (onSubmit) {
-          const postData: ChatPostData = {
-            content: content.trim(),
-            tags: tags.map(tag => `#${tag}`),
-            category: category as 'discussion' | 'food-exchange' | 'teacher-review',
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            title: ''
-          };
-          await onSubmit(postData);
-        }
-        
-        setContent('');
-        setTags([]);
-        setErrors({});
-        setShowAvailableTags(false);
-        setTimeout(() => {
-          onClose();
-        }, 1000);
-        
-      } else {
-        setErrors({
-          general: result.error || 'خطایی در ارسال پست رخ داد'
-        });
-      }
-      
-    } catch (error) {
-      setErrors({
-        general: error instanceof Error ? error.message : 'خطایی در ارسال پست رخ داد'
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    // setIsSubmitting(true);
   };
 
   useEffect(() => {
