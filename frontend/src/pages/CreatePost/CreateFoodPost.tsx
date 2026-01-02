@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, Calendar as CalendarIcon } from 'lucide-react';
 import { FoodItem } from "../../types/food_posts";
-import './AddFoodModal.css';
+import './CreateFoodPost.css';
 import Calendar from 'react-multi-date-picker';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
