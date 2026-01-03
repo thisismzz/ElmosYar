@@ -197,7 +197,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   return (
     <div className={`comment ${comment.replies && comment.replies.length > 0 ? 'has-replies' : ''}`}>
       <div className="comment-header">
-        <div className="user-avatar" style={{ backgroundColor: avatarColor }}>
+        <div className="comment-user-avatar" style={{ backgroundColor: avatarColor }}>
           {initials}
         </div>
         <div className="user-info">
