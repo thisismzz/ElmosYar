@@ -407,7 +407,7 @@ const ChatPostForm: React.FC<ChatPostFormProps> = ({
             <button
               type="button"
               onClick={handleClose}
-              className="cancel-button"
+              className="post-cancel-button"
               disabled={isSubmitting}
             >
               انصراف
@@ -415,7 +415,7 @@ const ChatPostForm: React.FC<ChatPostFormProps> = ({
             
             <button
               type="submit"
-              className="submit-button"
+              className="post-submit-button"
               disabled={isSubmitting || !content.trim()}
               onClick={handleSubmit}
             >

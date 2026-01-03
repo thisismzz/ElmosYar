@@ -148,8 +148,8 @@
   opacity: 0;
 }
 
-.cancel-button,
-.submit-button {
+.food-cancel-button,
+.food-submit-button {
   flex: 1;
   padding: 18px;
   border-radius: 16px;
@@ -163,13 +163,13 @@
   overflow: hidden;
 }
 
-.cancel-button {
+.food-cancel-button {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   color: #64748b;
   border: 2px solid #e2e8f0;
 }
 
-.cancel-button::before {
+.food-cancel-button::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -182,24 +182,24 @@
   transition: width 0.6s, height 0.6s;
 }
 
-.cancel-button:hover::before {
+.food-cancel-button:hover::before {
   width: 300px;
   height: 300px;
 }
 
-.cancel-button:hover {
+.food-cancel-button:hover {
   color: #475569;
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   border-color: #cbd5e1;
 }
 
-.submit-button {
+.food-submit-button {
   background: linear-gradient(135deg, #16519f 0%, #3a5ce5 100%);
   color: white;
 }
 
-.submit-button::before {
+.food-submit-button::before {
   content: '';
   position: absolute;
   top: 0;
@@ -210,18 +210,18 @@
   transition: left 0.6s ease;
 }
 
-.submit-button:hover::before {
+.food-submit-button:hover::before {
   left: 100%;
 }
 
-.submit-button:hover {
+.food-submit-button:hover {
   background: linear-gradient(135deg, #16519f 0%, #3a5ce5 100%);
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 12px 35px rgba(29, 78, 216, 0.3);
 }
 
-.cancel-button:active,
-.submit-button:active {
+.food-cancel-button:active,
+.food-submit-button:active {
   transform: translateY(0) scale(0.98);
 }
 
@@ -252,8 +252,8 @@
     gap: 16px;
   }
 
-  .cancel-button,
-  .submit-button {
+  .food-cancel-button,
+  .food-submit-button {
     width: 100%;
   }
 }

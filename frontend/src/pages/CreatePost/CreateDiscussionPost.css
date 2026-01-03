@@ -578,8 +578,8 @@
   flex-shrink: 0; 
 }
 
-.cancel-button,
-.submit-button {
+.post-cancel-button,
+.post-submit-button {
   flex: 1;
   max-width: 48%; 
   padding: 16px 28px;
@@ -598,7 +598,7 @@
   min-width: 140px;
 }
 
-.cancel-button {
+.post-cancel-button {
   background: #ffffff;
   color: #374151;
   border: 2px solid #e5e7eb;
@@ -616,7 +616,7 @@
   letter-spacing: 0.3px;
 }
 
-.cancel-button:hover:not(:disabled) {
+.post-cancel-button:hover:not(:disabled) {
   background: #f9fafb;
   color: #111827;
   border-color: #d1d5db;
@@ -624,12 +624,12 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.cancel-button:active:not(:disabled) {
+.post-cancel-button:active:not(:disabled) {
   transform: translateY(0);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-.submit-button:hover:not(:disabled) {
+.post-submit-button:hover:not(:disabled) {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   border-color: #2563eb;
   transform: translateY(-2px);
@@ -649,7 +649,7 @@
   opacity: 0.7;
 }
 
-.cancel-button:disabled {
+.post-cancel-button:disabled {
   background: #f3f4f6;
   border-color: #e5e7eb;
   color: #9ca3af;
@@ -801,8 +801,8 @@
     border-radius: 0;
   }
   
-  .cancel-button,
-  .submit-button {
+  .post-cancel-button,
+  .post-submit-button {
     padding: 12px 16px;
     font-size: 14px;
     min-height: 44px;
@@ -816,8 +816,8 @@
     gap: 8px;
   }
   
-  .cancel-button,
-  .submit-button {
+  .post-cancel-button,
+  .post-submit-button {
     width: auto;
     flex: 1;
   }
