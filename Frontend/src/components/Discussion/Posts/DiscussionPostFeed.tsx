@@ -96,11 +96,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDislike, onC
             }}
           />
         </div>
-        <div className="user-info">
           <div className="user-name">{post.user.name}</div>
           <div className="user-username">@{post.user.username}</div>
           <div className="post-time">{formatTimeAgo(post.timestamp)}</div>
-        </div>
       </div>
       
       {post.content && (

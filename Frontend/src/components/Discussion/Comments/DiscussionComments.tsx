@@ -11,7 +11,8 @@ import {
 import { likeComment, dislikeComment } from '../../../services/commentService';
 import { ThumbsUp, ThumbsDown, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import './DiscussionComments.css';
-import { createComment, createReply } from '../../../services/PostService';
+import { createComment } from '../../../services/PostService';
+// import {createReply} from '../../../services/PostService';
 
 const getInitials = (name: string): string => {
   return name
@@ -383,7 +384,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
 };
 
 const ReplyModal: React.FC<ReplyModalProps> = ({
-  isOpen,
+  isOpen,	
   onClose,
   onSubmit,
   currentUserName,
@@ -405,7 +406,7 @@ const ReplyModal: React.FC<ReplyModalProps> = ({
 
   if (!isOpen) return null;
 
-  return 
+  return null;
 };
 
 const Comments: React.FC<CommentsProps> = ({
