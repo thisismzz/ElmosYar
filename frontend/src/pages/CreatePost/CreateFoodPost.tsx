@@ -252,10 +252,10 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
           </div>
 
           <div className="form-actions">
-            <button type="button" className="cancel-button" onClick={handleClose}>
+            <button type="button" className="food-cancel-button" onClick={handleClose}>
               انصراف
             </button>
-            <button type="submit" className="submit-button">
+            <button type="submit" className="food-submit-button">
               اضافه کردن غذا
             </button>
           </div>
