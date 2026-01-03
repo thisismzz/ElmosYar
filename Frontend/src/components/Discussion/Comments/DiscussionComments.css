@@ -921,7 +921,6 @@
 .comment-submit-button:hover {
   background: #16519F;
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(29, 37, 53, 0.4);
 }
 
 .comment-submit-button:active {

@@ -141,18 +141,17 @@
 }
 
 .tag-item {
-  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-  color: #0369a1;
+  background: #4fcbe9;
+  color: #4fcbe9;
   padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
+  border-radius: 10px;
+  font-size: 10px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   transition: all 0.2s ease;
-  border: 1px solid #bae6fd;
 }
 
 .tag-item:hover {
@@ -771,7 +770,7 @@
   }
   
   .tag-item {
-    font-size: 13px;
+    font-size: 10px;
     padding: 6px 12px;
   }
   
