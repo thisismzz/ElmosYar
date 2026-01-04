@@ -140,29 +140,14 @@
 
 .food-details {
   display: flex;
-  flex-wrap: nowrap; /* جلوگیری از شکسته شدن خط */
+  flex-wrap: nowrap;
   gap: 15px;
   flex: 1;
   order: 1;
-  overflow-x: auto; /* اسکرول افقی در صورت نیاز */
-  padding-bottom: 8px; /* فضا برای اسکرول بار */
+  overflow-x: auto;
+  padding-bottom: 8px;
   scrollbar-width: thin;
   scrollbar-color: #ddd transparent;
-}
-
-/* استایل اسکرول بار برای مرورگرهای وبکیت */
-.food-details::-webkit-scrollbar {
-  height: 6px;
-}
-
-.food-details::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 3px;
-}
-
-.food-details::-webkit-scrollbar-thumb {
-  background: #ddd;
-  border-radius: 3px;
 }
 
 .detail-item {
@@ -178,12 +163,6 @@
   border: 1px solid transparent;
 }
 
-.detail-item:hover {
-  background: #ecf0f1;
-  border-color: #d5d8dc;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-}
 
 .detail-icon {
   font-size: 18px;
