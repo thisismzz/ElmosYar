@@ -6,30 +6,75 @@ import FoodFilters from '../../components/Food/Filter/FoodFilters';
 import { postService } from '../../services/PostService';
 import { useFilters } from '../../contexts/FilterContext';
 import { FoodPostSearchProps } from '../../types/food_posts';
+import { FilterButton, FilterValues, FilterField } from '../../components/FilterButton';
+
+type FilterKey = "day" | "cafeteria" | "meal";
+type FilterVal = string;
+
+const filterFields: FilterField<FilterKey, FilterVal>[] = [
+	{
+		key: "day",
+		label: "روز",
+		placeholder: "همه روزها",
+		options: [
+			{ value: "شنبه", label: "شنبه" },
+			{ value: "یکشنبه", label: "یکشنبه" },
+			{ value: "دوشنبه", label: "دوشنبه" },
+		],
+	},
+	{
+		key: "cafeteria",
+		label: "سلف",
+		placeholder: "همه سلف‌ها",
+		options: [
+			{ value: "مرکزی", label: "مرکزی" },
+			{ value: "دانشکده مهندسی", label: "دانشکده مهندسی" },
+		],
+	},
+	{
+		key: "meal",
+		label: "وعده",
+		placeholder: "همه وعده‌ها",
+		options: [
+			{ value: "ناهار", label: "ناهار" },
+			{ value: "شام", label: "شام" },
+		],
+	},
+];
+
 
 const FoodPage: React.FC = () => {
 	const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const { getFilter, serializeSearch } = useFilters();
+	const [filters, setFilters] = useState<FilterValues<FilterKey, FilterVal>>({});
+
 
 	// Get filter values with defaults
 	const mealType = getFilter('mealType', '');
 	const location = getFilter('location', '');
 	const day = getFilter('day', '');
 	const searchQuery = getFilter('q', '');
-	
+
+
+
 	// Create filter dependency array for useEffect
 	const filterDependencies = useMemo(() => {
 		return { mealType, location, day, searchQuery };
 	}, [mealType, location, day, searchQuery]);
 
-		const getFoodPosts = async (search?: string): Promise<FoodItem[]> => {
 
-			const food_posts = await postService.getPosts({
-				category: "food",
-				search,
-			});
+
+
+
+
+	const getFoodPosts = async (search?: string): Promise<FoodItem[]> => {
+
+		const food_posts = await postService.getPosts({
+			category: "food",
+			search,
+		});
 
 		const result: FoodItem[] = [];
 
@@ -53,13 +98,13 @@ const FoodPage: React.FC = () => {
 		const fetchFoodItems = async () => {
 			try {
 				setLoading(true);
-				
+
 				const response = await getFoodPosts(
 					serializeSearch && serializeSearch(['mealType', 'location', 'day', 'name'])
 				);
 
 				setFoodItems(response);
-				
+
 			} catch (err) {
 				setError('خطا در دریافت اطلاعات غذاها');
 				console.error(err);
@@ -93,7 +138,7 @@ const FoodPage: React.FC = () => {
 
 	return (
 		<div className="food-page-container">
-			<FoodFilters />
+			<FilterButton fields={filterFields} values={filters} onChange={setFilters} />
 			<FoodPostFeed items={foodItems} />
 		</div>
 	);

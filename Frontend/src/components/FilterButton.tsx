@@ -1,244 +1,293 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-type OptionId = string;
-
-export type MenuOption = {
-  id: OptionId;
-  label: string; // Persian label preferred
-  icon?: React.ReactNode; // optional (keep deps minimal; pass your own)
-  disabled?: boolean;
+export type FilterFieldOption<V extends string> = {
+	value: V;
+	label: string; // Persian label
 };
 
-type BaseMenuButtonProps = {
-  label: string; // button label e.g. "فیلتر" / "مرتب‌سازی"
-  options: MenuOption[];
-  align?: "start" | "end";
-  className?: string;
-  buttonClassName?: string;
-  dir?: "rtl" | "ltr";
+export type FilterField<K extends string, V extends string> = {
+	key: K;
+	label: string; // e.g. "روز"
+	options: FilterFieldOption<V>[];
+	placeholder?: string; // e.g. "همه"
 };
 
-type SingleSelectMenuButtonProps = BaseMenuButtonProps & {
-  mode: "single";
-  value?: OptionId;
-  onChange: (next: OptionId | undefined) => void;
-  clearText?: string; // e.g. "پاک کردن"
-  placeholder?: string; // shown when no selection
+export type FilterValues<K extends string, V extends string> = Partial<
+	Record<K, V>
+>;
+
+type FilterButtonProps<K extends string, V extends string> = {
+	label?: string; // e.g. "فیلتر"
+	fields: FilterField<K, V>[];
+	values: FilterValues<K, V>;
+	onChange: (values: FilterValues<K, V>) => void;
+
+	className?: string;
+	disabled?: boolean;
+
+	clearLabel?: string; // e.g. "پاک‌کردن"
+	allLabel?: string; // e.g. "همه"
 };
 
-type MultiSelectMenuButtonProps = BaseMenuButtonProps & {
-  mode: "multi";
-  value: OptionId[];
-  onChange: (next: OptionId[]) => void;
-  clearText?: string; // e.g. "حذف همه"
-};
-
-type MenuButtonProps = SingleSelectMenuButtonProps | MultiSelectMenuButtonProps;
-
-function useOnClickOutside(
-  refs: React.RefObject<HTMLElement>[],
-  handler: () => void,
-  enabled: boolean
+function useClickOutside(
+	refs: React.RefObject<HTMLElement | null>[],
+	onOutside: () => void,
+	enabled: boolean
 ) {
-  useEffect(() => {
-    if (!enabled) return;
+	useEffect(() => {
+		if (!enabled) return;
 
-    const onDown = (e: MouseEvent | TouchEvent) => {
-      const target = e.target as Node | null;
-      if (!target) return;
-      const clickedInside = refs.some((r) => r.current?.contains(target));
-      if (!clickedInside) handler();
-    };
+		const handler = (e: MouseEvent | TouchEvent) => {
+			const target = e.target as Node | null;
+			if (!target) return;
+			const inside = refs.some((r) => r.current && r.current.contains(target));
+			if (!inside) onOutside();
+		};
 
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("touchstart", onDown);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("touchstart", onDown);
-    };
-  }, [refs, handler, enabled]);
+		document.addEventListener("mousedown", handler);
+		document.addEventListener("touchstart", handler);
+		return () => {
+			document.removeEventListener("mousedown", handler);
+			document.removeEventListener("touchstart", handler);
+		};
+	}, [refs, onOutside, enabled]);
 }
 
-function cn(...classes: Array<string | undefined | false>) {
-  return classes.filter(Boolean).join(" ");
-}
+export function FilterButton<K extends string, V extends string>({
+	label = "فیلتر",
+	fields,
+	values,
+	onChange,
+	className,
+	disabled,
+	clearLabel = "پاک‌کردن",
+	allLabel = "همه",
+}: FilterButtonProps<K, V>) {
+	const [open, setOpen] = useState(false);
+	const [activeFieldKey, setActiveFieldKey] = useState<K | null>(null);
 
-function badgeText(count: number) {
-  if (count <= 0) return "";
-  return count > 99 ? "۹۹+" : String(count).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[Number(d)]);
-}
+	const btnRef = useRef<HTMLButtonElement>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
 
-export function MenuButton(props: MenuButtonProps) {
-  const {
-    label,
-    options,
-    align = "start",
-    className,
-    buttonClassName,
-    dir = "rtl",
-  } = props;
+	useClickOutside(
+		[btnRef, menuRef],
+		() => {
+			setOpen(false);
+			setActiveFieldKey(null);
+		},
+		open
+	);
 
-  const buttonRef = useRef<HTMLButtonElement>();
-  const panelRef = useRef<HTMLDivElement>();
+	useEffect(() => {
+		const onKey = (e: KeyboardEvent) => {
+			if (!open) return;
+			if (e.key === "Escape") {
+				// if subpanel open, close only subpanel first
+				if (activeFieldKey) setActiveFieldKey(null);
+				else setOpen(false);
+			}
+		};
+		document.addEventListener("keydown", onKey);
+		return () => document.removeEventListener("keydown", onKey);
+	}, [open, activeFieldKey]);
 
-  const [open, setOpen] = useState(false);
+	const appliedCount = useMemo(() => {
+		return Object.values(values).filter(Boolean).length;
+	}, [values]);
 
-  useOnClickOutside([buttonRef ?? , panelRef], () => setOpen(false), open);
+	const activeField = useMemo(() => {
+		if (!activeFieldKey) return null;
+		return fields.find((f) => f.key === activeFieldKey) ?? null;
+	}, [activeFieldKey, fields]);
 
-  const selectedLabel = useMemo(() => {
-    if (props.mode === "single") {
-      const sel = options.find((o) => o.id === props.value);
-      return sel?.label ?? props.placeholder ?? "";
-    }
-    return "";
-  }, [props, options]);
+	const setValue = (key: K, v?: V) => {
+		const next: FilterValues<K, V> = { ...values };
+		if (!v) delete next[key];
+		else next[key] = v;
+		onChange(next);
+	};
 
-  const selectedCount = useMemo(() => {
-    if (props.mode === "multi") return props.value.length;
-    return props.value ? 1 : 0;
-  }, [props]);
+	const clearAll = () => {
+		onChange({});
+		setActiveFieldKey(null);
+	};
 
-  const toggle = () => setOpen((v) => !v);
+	return (
+		<div dir="rtl" className={`relative inline-block ${className ?? ""}`}>
+			<button
+				ref={btnRef}
+				type="button"
+				disabled={disabled}
+				onClick={() => setOpen((v) => !v)}
+				aria-haspopup="menu"
+				aria-expanded={open}
+				className={[
+					"inline-flex items-center gap-2 rounded-full border border-zinc-800/60",
+					"bg-[#16519F] px-3 py-2 text-sm text-zinc-100",
+					"hover:bg-blue-900/60 hover:border-zinc-700/70",
+					"focus:outline-none focus:ring-2 focus:ring-zinc-600/40",
+					"disabled:opacity-50 disabled:cursor-not-allowed",
+					"transition-colors",
+				].join(" ")}
+			>
+				<span className="text-zinc-200">{label}</span>
+				{appliedCount > 0 ? (
+					<span className="rounded-full bg-blue-200/10 px-2 py-0.5 text-xs text-zinc-200">
+						{appliedCount}
+					</span>
+				) : (
+					<span className="text-xs text-zinc-400">{allLabel}</span>
+				)}
+			</button>
 
-  const clear = () => {
-    if (props.mode === "single") props.onChange(undefined);
-    else props.onChange([]);
-  };
+			<div
+				ref={menuRef}
+				role="menu"
+				aria-label={label}
+				className={[
+					"absolute z-50 mt-2 w-[min(90vw,22rem)] overflow-hidden rounded-2xl border border-zinc-800/70",
+					"bg-blue-950/95 shadow-lg shadow-black/30 backdrop-blur",
+					"origin-top-right transition-all duration-150",
+					open
+						? "scale-100 opacity-100 translate-y-0 pointer-events-auto"
+						: "scale-95 opacity-0 -translate-y-1 pointer-events-none",
+				].join(" ")}
+			>
+				{/* Header */}
+				<div className="flex items-center justify-between border-b border-zinc-800/70 px-3 py-2">
+					<div className="text-sm text-zinc-200">
+						{activeField ? activeField.label : "انتخاب فیلترها"}
+					</div>
+					<div className="flex items-center gap-2">
+						{appliedCount > 0 && !activeField && (
+							<button
+								type="button"
+								onClick={clearAll}
+								className={[
+									"rounded-full px-2 py-1 text-xs text-zinc-300",
+									"hover:bg-blue-900/60 focus:outline-none focus:ring-2 focus:ring-zinc-600/40",
+									"transition-colors",
+								].join(" ")}
+							>
+								{clearLabel}
+							</button>
+						)}
+						{ activeField &&
+							<button
+								type="button"
+								onClick={() => {
+									 setActiveFieldKey(null);
+								}}
+								className={[
+									"rounded-full px-2 py-1 text-xs text-zinc-400",
+									"hover:bg-blue-900/60 focus:outline-none focus:ring-2 focus:ring-zinc-600/40",
+									"transition-colors",
+								].join(" ")}
+							>
+								بازگشت
+							</button>
+						}
+					</div>
+				</div>
 
-  const onSelect = (id: OptionId) => {
-    if (props.mode === "single") {
-      props.onChange(id);
-      setOpen(false);
-      buttonRef.current?.focus();
-    } else {
-      const exists = props.value.includes(id);
-      const next = exists ? props.value.filter((x) => x !== id) : [...props.value, id];
-      props.onChange(next);
-    }
-  };
+				{/* Body */}
+				<div className="p-2">
+					{!activeField && (
+						<div className="grid gap-2">
+							{fields.map((f) => {
+								const chosen = values[f.key];
+								const chosenLabel =
+									f.options.find((o) => o.value === chosen)?.label ??
+									f.placeholder ??
+									allLabel;
 
-  return (
-    <div dir={dir} className={cn("relative inline-flex", className)}>
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={toggle}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className={cn(
-          "inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-sm",
-          "text-zinc-800 shadow-sm hover:bg-zinc-50 active:bg-zinc-100",
-          "focus:outline-none focus:ring-2 focus:ring-zinc-300",
-          buttonClassName
-        )}
-      >
-        <span className="font-medium">{label}</span>
+								return (
+									<button
+										key={f.key}
+										type="button"
+										onClick={() => setActiveFieldKey(f.key)}
+										className={[
+											"flex w-full items-center justify-between rounded-xl border border-zinc-800/70",
+											"bg-blue-950/30 px-3 py-2 text-sm",
+											"hover:bg-blue-900/60 hover:border-zinc-700/70",
+											"focus:outline-none focus:ring-2 focus:ring-zinc-600/40",
+											"transition-colors",
+										].join(" ")}
+									>
+										<span className="text-zinc-200">{f.label}</span>
+										<span
+											className={[
+												"text-xs",
+												chosen ? "text-zinc-200" : "text-zinc-500",
+											].join(" ")}
+										>
+											{chosenLabel}
+										</span>
+									</button>
+								);
+							})}
+						</div>
+					)}
 
-        {/* single-select preview */}
-        {props.mode === "single" && selectedLabel ? (
-          <span className="max-w-[14rem] truncate text-zinc-600 hidden sm:inline">
-            {selectedLabel}
-          </span>
-        ) : null}
+					{activeField && (
+						<div
+							className={[
+								"grid gap-1",
+								"animate-[fadeIn_150ms_ease-out]",
+							].join(" ")}
+						>
+							{/* Clear current field */}
+							<button
+								type="button"
+								onClick={() => setValue(activeField.key, undefined)}
+								className={[
+									"flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm",
+									"text-zinc-300 hover:bg-blue-900/60",
+									"focus:outline-none focus:ring-2 focus:ring-zinc-600/40",
+									"transition-colors",
+								].join(" ")}
+							>
+								<span>{activeField.placeholder ?? allLabel}</span>
+								<span className="text-xs text-zinc-500">بدون محدودیت</span>
+							</button>
 
-        {/* selection count badge */}
-        {selectedCount > 0 ? (
-          <span className="inline-flex min-w-6 justify-center rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700">
-            {badgeText(selectedCount)}
-          </span>
-        ) : null}
+							<div className="my-1 h-px bg-blue-800/70" />
 
-        <span className="text-zinc-500">▾</span>
-      </button>
+							{activeField.options.map((opt) => {
+								const active = values[activeField.key] === opt.value;
+								return (
+									<button
+										key={opt.value}
+										type="button"
+										onClick={() => {
+											setValue(activeField.key, opt.value);
+											setActiveFieldKey(null);
+										}}
+										className={[
+											"flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm",
+											"text-zinc-100 hover:bg-blue-900/60",
+											"focus:outline-none focus:ring-2 focus:ring-zinc-600/40",
+											"transition-colors",
+											active ? "bg-blue-900/70" : "",
+										].join(" ")}
+									>
+										<span>{opt.label}</span>
+										{active ? (
+											<span className="text-xs text-zinc-400">انتخاب‌شده</span>
+										) : (
+											<span className="text-xs text-zinc-500"> </span>
+										)}
+									</button>
+								);
+							})}
+						</div>
+					)}
+				</div>
+			</div>
 
-      {open ? (
-        <div
-          ref={panelRef}
-          role="menu"
-          className={cn(
-            "absolute z-50 mt-2 w-72 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-lg",
-            align === "start" ? "right-0" : "left-0"
-          )}
-        >
-          <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-zinc-100">
-            <div className="text-sm font-semibold text-zinc-800">{label}</div>
-            <button
-              type="button"
-              onClick={clear}
-              className="text-xs text-zinc-600 hover:text-zinc-900"
-            >
-              {props.clearText ?? "پاک کردن"}
-            </button>
-          </div>
-
-          <div className="max-h-72 overflow-auto py-1">
-            {options.map((opt) => {
-              const checked =
-                props.mode === "single"
-                  ? props.value === opt.id
-                  : props.value.includes(opt.id);
-
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  role="menuitemcheckbox"
-                  aria-checked={checked}
-                  disabled={opt.disabled}
-                  onClick={() => onSelect(opt.id)}
-                  className={cn(
-                    "w-full px-3 py-2 text-right flex items-center gap-2",
-                    "hover:bg-zinc-50 active:bg-zinc-100",
-                    "disabled:opacity-50 disabled:cursor-not-allowed"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "h-4 w-4 rounded border flex items-center justify-center",
-                      checked ? "bg-zinc-900 border-zinc-900" : "border-zinc-300"
-                    )}
-                    aria-hidden="true"
-                  >
-                    {checked ? <span className="text-white text-[10px]">✓</span> : null}
-                  </span>
-
-                  {opt.icon ? <span className="text-zinc-500">{opt.icon}</span> : null}
-
-                  <span className="flex-1 text-sm text-zinc-800">{opt.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-/** Convenience wrappers */
-export function SortButton(
-  props: Omit<SingleSelectMenuButtonProps, "mode" | "label"> & { label?: string }
-) {
-  return (
-    <MenuButton
-      mode="single"
-      label={props.label ?? "مرتب‌سازی"}
-      {...props}
-      clearText={props.clearText ?? "بازنشانی"}
-      placeholder={props.placeholder ?? "انتخاب کنید"}
-    />
-  );
-}
-
-export function FilterButton(
-  props: Omit<MultiSelectMenuButtonProps, "mode" | "label"> & { label?: string }
-) {
-  return (
-    <MenuButton
-      mode="multi"
-      label={props.label ?? "فیلتر"}
-      {...props}
-      clearText={props.clearText ?? "حذف همه"}
-    />
-  );
+			{/* Keyframes for the tiny body fade (Tailwind arbitrary animate uses existing keyframes only if defined).
+          If you don't have custom keyframes configured, remove the animate-[fadeIn...] class above.
+          The component still animates open/close via scale/opacity on the container. */}
+		</div>
+	);
 }
