@@ -1897,8 +1897,145 @@ curl -X POST http://89.106.206.119:8000/api/wallet/payment/verify/ \
   -d '{"authority": "5d9d7a1b-756b-4c81-995e-812967720b182"}'
 ```
 #### Response
+```json
+{
+  "error": false,
+  "message": "خرید با موفقیت انجام شد",
+  "code": "PURCHASE_SUCCESS",
+  "data": {
+    "balance": 120000
+  }
+}
+```
 
 
+### 🛒 Getting user's purchased posts
+
+#### Request
+```bash
+curl -X GET http://89.106.206.119:8000/api/wallet/purchases/ \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+  -H "Content-Type: application/json" \
+```
+
+#### Response
+```json
+{
+    "error": false,
+    "message": "پست های خریداری شده کاربر یافت شد",
+    "code": "USER_TRANSACTION_FETCHED",
+    "data": [
+        {
+            "id": 3,
+            "author": 3,
+            "author_info": {
+                "id": 3,
+                "username": "mahdizz",
+                "email": "mahdizz@iust.ac.ir",
+                "first_name": "",
+                "last_name": "",
+                "profile_picture": null,
+                "bio": "",
+                "student_id": null,
+                "is_email_verified": true,
+                "followers_count": 0,
+                "following_count": 0,
+                "posts_count": 2,
+                "is_following": false,
+                "is_me": false,
+                "created_at": "2025-12-07T14:23:45.603647Z",
+                "info": null,
+                "phone_number": null
+            },
+            "content": "this is pizza",
+            "created_at": "2025-12-27T12:48:13.955499Z",
+            "updated_at": "2025-12-27T13:21:54.566767Z",
+            "tags": "",
+            "mentions": [],
+            "media": [],
+            "category": null,
+            "parent": null,
+            "is_repost": false,
+            "original_post": null,
+            "likes_count": 0,
+            "dislikes_count": 0,
+            "comments_count": 0,
+            "reposts_count": 0,
+            "replies_count": 0,
+            "user_reaction": null,
+            "is_saved": false,
+            "attributes": {
+                "price": 3000,
+                "isSoldOut": true
+            }
+        }
+    ]
+}
+```
+
+### 💰 Getting user's sold posts
+
+#### Request
+```bash
+curl -X GET http://89.106.206.119:8000/api/wallet/sales/ \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+  -H "Content-Type: application/json" \
+```
+
+#### Response
+```json
+{
+"error": false,
+    "message": "پست های فروخته شده کاربر یافت شد",
+    "code": "USER_TRANSACTION_FETCHED",
+    "data": [
+        {
+            "id": 1,
+            "author": 2,
+            "author_info": {
+                "id": 2,
+                "username": "mahdiz",
+                "email": "mahdiz@iust.ac.ir",
+                "first_name": "",
+                "last_name": "",
+                "profile_picture": null,
+                "bio": "",
+                "student_id": null,
+                "is_email_verified": true,
+                "followers_count": 0,
+                "following_count": 0,
+                "posts_count": 1,
+                "is_following": false,
+                "is_me": false,
+                "created_at": "2025-12-07T14:12:32.650550Z",
+                "info": null,
+                "phone_number": null
+            },
+            "content": "ghorme sabzi",
+            "created_at": "2025-12-07T14:14:37.163864Z",
+            "updated_at": "2025-12-07T14:54:11.589259Z",
+            "tags": "",
+            "mentions": [],
+            "media": [],
+            "category": null,
+            "parent": null,
+            "is_repost": false,
+            "original_post": null,
+            "likes_count": 0,
+            "dislikes_count": 0,
+            "comments_count": 0,
+            "reposts_count": 0,
+            "replies_count": 0,
+            "user_reaction": null,
+            "is_saved": false,
+            "attributes": {
+                "price": 1000,
+                "is_sold": false
+            }
+        }
+    ]
+}
+```
 
 ### 📝 Post Attributes Schema
 
