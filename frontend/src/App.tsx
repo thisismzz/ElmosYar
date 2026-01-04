@@ -182,10 +182,10 @@ const ProtectedRoutes: React.FC = () => {
 			<Route path='contactUs' element={<ContactUs />} />
 			<Route path='/topic/:topicId' element={<TopicDiscussion />} />
 			<Route path='/topic/professors/:professorName' element={<ProfessorProfilePage />} />
-			<Route path='/create-post/food' element={<CreatePostPage starting_category='food' />} />
-			<Route path='/create-post/review' element={<CreatePostPage starting_category='review' />} />
-			<Route path='/create-post/discussion' element={<CreatePostPage starting_category='discussion' />} />
-			<Route path='/create-post' element={<CreatePostPage />} />
+			<Route path='/create/food' element={<CreatePostPage starting_category='food' />} />
+			<Route path='/create/review' element={<CreatePostPage starting_category='review' />} />
+			<Route path='/create/discussion' element={<CreatePostPage starting_category='discussion' />} />
+			<Route path='/create' element={<CreatePostPage />} />
 
 		</Routes>
 	);

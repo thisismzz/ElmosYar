@@ -198,7 +198,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   return (
     <div className={`comment ${comment.replies && comment.replies.length > 0 ? 'has-replies' : ''}`}>
       <div className="comment-header">
-        <div className="user-avatar" style={{ backgroundColor: avatarColor }}>
+        <div className="comment-user-avatar" style={{ backgroundColor: avatarColor }}>
           {initials}
         </div>
         <div className="user-info">
@@ -274,14 +274,14 @@ const CommentItem: React.FC<CommentItemProps> = ({
             <div className="reply-form-actions">
               <button 
                 type="button" 
-                className="cancel-btn small"
+                className="comment-cancel-btn small"
                 onClick={() => setShowReplyInput(false)}
               >
                 انصراف
               </button>
               <button 
                 type="submit" 
-                className="submit-button small"
+                className="comment-submit-button small"
                 disabled={!replyText.trim()}
               >
                 ارسال پاسخ
@@ -365,12 +365,12 @@ const CommentModal: React.FC<CommentModalProps> = ({
             required
           />
           <div className="modal-actions">
-            <button type="button" className="cancel-btn" onClick={onClose}>
+            <button type="button" className="comment-cancel-btn" onClick={onClose}>
               انصراف
             </button>
             <button 
               type="submit" 
-              className="submit-button" 
+              className="comment-submit-button" 
               onClick={() => createComment(postId, text)}
               disabled={!text.trim()}
             >

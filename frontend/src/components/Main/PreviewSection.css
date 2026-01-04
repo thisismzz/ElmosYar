@@ -56,7 +56,7 @@
 
 .preview-section-toggle-btn:hover {
   background: rgba(29, 161, 242, 0.1);
-  color: #1da1f2;
+  color: #4fcbe9;
 }
 
 .preview-section-toggle-active {
@@ -69,7 +69,7 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  color: #1da1f2;
+  color: #4fcbe9;
   text-decoration: none;
   font-size: 0.75rem;
   font-weight: 500;
@@ -77,7 +77,7 @@
 }
 
 .preview-section-link:hover {
-  color: #1a91da;
+  color: #4fcbe9;
 }
 
 .preview-section-content {

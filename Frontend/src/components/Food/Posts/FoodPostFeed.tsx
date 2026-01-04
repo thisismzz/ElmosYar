@@ -215,7 +215,6 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 					foodItem={selectedItem}
 				/>
 			)}
-
 		</div>
 	);
 };

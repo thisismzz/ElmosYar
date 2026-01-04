@@ -59,7 +59,7 @@
 
 .note-folders-input:focus {
   outline: none;
-  border-color: #0b6df0;
+  border-color: #4FCBE9;
 }
 
 .note-folders-submit-btn {
@@ -74,12 +74,12 @@
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  background: #0b6df0;
+  background: #4FCBE9;
   color: #fff;
 }
 
 .note-folders-submit-btn:hover {
-  background: #095ed1;
+  background: #4FCBE9;
 }
 
 .note-folders-all-btn {
@@ -100,7 +100,7 @@
 
 .note-folders-all-btn.note-folders-active {
   background: #f0f6ff;
-  color: #0b6df0;
+  color: #4FCBE9;
 }
 
 .note-folder-item {
@@ -115,7 +115,7 @@
 
 .note-folder-item.note-folders-active {
   background: #f0f6ff;
-  color: #0b6df0;
+  color: #4FCBE9;
 }
 
 .note-folder-link {

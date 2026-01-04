@@ -1,6 +1,5 @@
 import React from 'react';
 import { Edit2, Trash2, Pin, Folder } from 'lucide-react';
-import moment from 'moment-jalaali';
 import './NoteCard.css';
 
 type Note = {
@@ -40,19 +39,8 @@ const NoteCard: React.FC<NoteCardProps> = ({
     return { displayed, isLong };
   };
 
-  const formatPersianDate = (dateString: string): string => {
-    try {
-      const m = moment(dateString, 'YYYY-MM-DD');
-      return m.format('jYYYY/jMM/jDD');
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return dateString;
-    }
-  };
-
   const titlePreview = getPreview(note.title, titlePreviewLimit);
   const contentPreview = getPreview(note.content, contentPreviewLimit);
-  const persianDate = formatPersianDate(note.updatedAt);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -103,7 +91,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
             <Folder size={14} /> {folderName}
           </span>
         )}
-        <span className="note-card-date">{persianDate}</span>
+        <span className="note-card-date">{new Date(note.updatedAt).toLocaleDateString()}</span>
       </footer>
     </div>
   );

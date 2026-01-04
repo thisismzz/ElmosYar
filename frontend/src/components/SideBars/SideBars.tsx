@@ -90,11 +90,6 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeNav, setActiveNav] = useState<string>('');
-
-  const [showDiscussionForm, setShowDiscussionForm] = useState(false);
-  // const [showFoodForm, setShowFoodForm] = useState(false);
-  // const [showTeacherForm, setShowTeacherForm] = useState(false);
-
   
   const currentPage = () => {
     if (location.pathname.includes('/discussion') || location.pathname.includes('/topic/discussion')) {
@@ -115,17 +110,16 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
     
     switch(page) {
       case 'discussion':
-        setShowDiscussionForm(true);
-		navigate("/create-post/discussion");
+        navigate('/create/discussion');
         break;
       case 'food':
-        navigate("/create-post/food");
-       break;
+        navigate('/create/food');
+        break;
       case 'teacher':
-        navigate("/create-post/review");
+        navigate('/create/review');
         break;
       default:
-        navigate('/create-post');
+        navigate('/create');
     }
   };
 
@@ -154,23 +148,6 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
     }
   }
 
-  const handleSubmitPost = async (data: any, type: string) => {
-    try {
-      console.log(`ارسال پست ${type}:`, data);
-      // API call بر اساس type
-      // await postService.createPost(type, data);
-      
-      setShowDiscussionForm(false);
-      // setShowFoodForm(false);
-      // setShowTeacherForm(false);
-    
-      window.location.reload();
-    } catch (error) {
-      console.error('خطا در ارسال پست:', error);
-    }
-  };
-
-
   const computedActiveNav = useActiveNav(navItems, location.pathname);
 
   useEffect(() => {
@@ -183,39 +160,29 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
   };
 
    return (
-    <>
-      <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
-        <div className="sidebar-panel">
-          <SidebarHeader title="منوی اصلی" subtitle="دسترسی سریع" />
-          
-          <nav className="sidebar-nav">
-            {navItems.map((item, index) => (
-              <NavItemComponent
-                key={item.id}
-                item={item}
-                isActive={activeNav === item.id}
-                onClick={(item) => {
-                  if (item.onClick) {
-                    item.onClick();
-                  } else if (item.path) {
-                    navigate(item.path);
-                  }
-                }}
-                showDivider={index < navItems.length - 1}
-              />
-            ))}
-          </nav>
-        </div>
-      </aside>
-
-      {/* نمایش فرم بر اساس نوع */}
-      {/* {showDiscussionForm && (
-        <DiscussionPostForm
-          onClose={() => setShowDiscussionForm(false)}
-          onSubmit={(data) => handleSubmitPost(data, 'discussion')}
-        />
-      )} */}
-    </>
+    <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+      <div className="sidebar-panel">
+        <SidebarHeader title="منوی اصلی" subtitle="دسترسی سریع" />
+        
+        <nav className="sidebar-nav">
+          {navItems.map((item, index) => (
+            <NavItemComponent
+              key={item.id}
+              item={item}
+              isActive={activeNav === item.id}
+              onClick={(item) => {
+                if (item.onClick) {
+                  item.onClick();
+                } else if (item.path) {
+                  navigate(item.path);
+                }
+              }}
+              showDivider={index < navItems.length - 1}
+            />
+          ))}
+        </nav>
+      </div>
+    </aside>
   );
 };
 
