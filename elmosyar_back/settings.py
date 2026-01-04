@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     "messaging",
     "wallet",
     "log_manager",
+    "planner",
 
     "django.contrib.admin",
     "django.contrib.auth",
