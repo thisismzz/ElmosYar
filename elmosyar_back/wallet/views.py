@@ -4,7 +4,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
-from posts.models import Post, PostMedia
+from posts.models import Post
+from posts.serializers import PostSerializer
 from django.conf import settings
 from .models import UserWallet, Transaction, WalletService, WalletError, InsufficientBalance
 from .serializer import UserWalletSerializer, TransactionSerializer
@@ -207,7 +208,8 @@ def purchase(request, post_id):
         request.user,
         post.author,
         price,
-        True
+        True,
+        post
     )
 
     if response.status_code == 200:
@@ -271,7 +273,8 @@ def create_payment(request, post_id):
         type="payment",
         from_user=request.user,
         to_user=post.author,
-        authority=str(uuid.uuid4())+str(post.pk)
+        authority=str(uuid.uuid4())+str(post.pk),
+        post=post
     )
     
     return Response({"error" : False,
@@ -342,4 +345,56 @@ def verify_payment(request):
                          "message" : "اطلاعات پرداخت معتبر نیست",
                          "code" : "PAYMENT_VERIFICATION_FAILED"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_purchased_posts(request):
+    """Get user's purchased posts"""
+    try:
+        wallet = UserWallet.objects.get(user=request.user)
+    except UserWallet.DoesNotExist:
+        log_warning(f"Transactions requested for non-existent wallet", request)
+        return Response({"error": True,
+                         "message": "کیف پول یافت نشد",
+                         "code": "USER_WALLET_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+        
+    posts = Post.objects.filter(transaction__wallet=wallet, transaction__type="payment")
+    if not posts.exists():
+        log_info(f"No payment transactions found for user", request)
+        return Response({"error": True,
+                         "message": "تراکنش خریدی وجود ندارد",
+                         "code": "USER_TRANSACTION_NOT_EXIST"}, status=status.HTTP_200_OK)
+    log_info(f"User viewed purchased transactions history ({posts.count()} transactions)", request)
+    
+    serializer = PostSerializer(posts, many=True)
+    return Response({"error": False,
+                     "message": "پست های خریداری شده کاربر یافت شد",
+                     "code": "USER_TRANSACTION_FETCHED",
+                     "data": serializer.data}, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_sold_posts(request):
+    """Get user's sold posts"""
+    try:
+        wallet = UserWallet.objects.get(user=request.user)
+    except UserWallet.DoesNotExist:
+        log_warning(f"Transactions requested for non-existent wallet", request)
+        return Response({"error": True,
+                         "message": "کیف پول یافت نشد",
+                         "code": "USER_WALLET_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+        
+    posts = Post.objects.filter(transaction__wallet=wallet, transaction__type="recieve")
+    if not posts.exists():
+        log_info(f"No recieved transactions found for user", request)
+        return Response({"error": True,
+                         "message": "تراکنش فروشی وجود ندارد",
+                         "code": "USER_TRANSACTION_NOT_EXIST"}, status=status.HTTP_200_OK)
+    log_info(f"User viewed recieved transactions history ({posts.count()} transactions)", request)
+    
+    serializer = PostSerializer(posts, many=True)
+    return Response({"error": False,
+                     "message": "پست های فروخته شده کاربر یافت شد",
+                     "code": "USER_TRANSACTION_FETCHED",
+                     "data": serializer.data}, status=status.HTTP_200_OK)
 

@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.db import transaction
+from posts.models import Post
 
 User = settings.AUTH_USER_MODEL
 
@@ -40,7 +41,8 @@ class Transaction(models.Model):
     to_user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='recieved_transactions')
     is_processed = models.BooleanField(default=False)
     authority = models.CharField(max_length=100, null=True, blank=True)
-
+    post = models.OneToOneField(Post, on_delete=models.SET_NULL, blank=True, null=True, related_name='transaction')
+    
     def __str__(self):
         return str(self.id)
     
@@ -112,7 +114,7 @@ class WalletService:
     
     @staticmethod
     @transaction.atomic
-    def purchase_or_transfer(from_user, to_user, amount, is_purchase=False, authority=None):
+    def purchase_or_transfer(from_user, to_user, amount, is_purchase=False, authority=None, post=None):
         try:
             wallets = (UserWallet.objects.select_for_update().filter(user_id__in=sorted([from_user.id, to_user.id])))
             sender_wallet = next(w for w in wallets if w.user.id == from_user.id)
@@ -144,6 +146,7 @@ class WalletService:
                     status="success",
                     from_user=from_user,
                     to_user=to_user,
+                    post=post
                 )
             
             Transaction.objects.create(
@@ -152,7 +155,8 @@ class WalletService:
                 type="recieve",
                 status="success",
                 from_user=from_user,
-                to_user=to_user
+                to_user=to_user,
+                post=post
             )
             if is_purchase:
                 return f"خرید با موفقیت انجام شد", "PURCHASE_SUCCESS", {"balance" : sender_wallet.balance}
