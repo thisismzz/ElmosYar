@@ -3,8 +3,7 @@ import { ReactNode } from "react";
 export type PaymentMethod = 'wallet' | 'online';
 
 export interface FoodItem {
-//   day: ReactNode; //??
-  id: string;
+  id: number;
   name: string;
   mealType: string;
   location: string;

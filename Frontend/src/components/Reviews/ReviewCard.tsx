@@ -7,7 +7,7 @@ import { Review } from "../../types/review_posts";
 
 interface ReviewCardProps {
 	review: Review;
-	onLike?: (id: string) => void;
+	onLike?: (id: number) => void;
 	onComment?: (id: string) => void;
 	onClick?: (professorName: string) => void;
 	showDetailedRatings?: boolean;

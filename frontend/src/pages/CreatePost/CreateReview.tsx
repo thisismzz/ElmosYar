@@ -228,21 +228,18 @@ export function CreateReviewPage() {
 						className="w-full h-14 bg-[#16519F] hover:bg-[#0d3a73] rounded-xl shadow-lg hover:shadow-xl transition-all"
 						disabled={!isFormValid()}
 						onClick={() => createPost(
-							formData.comment ?? "null",
 							"professor-review",
-							"idk,this,that",
 							{
-								"id": "200",
 								"professorName": formData.professorName,
 								"faculty": formData.faculty,
 								"courseName": formData.courseName,
 								"semester": formData.semester,
-								"overallRating": formData.overallRating,
-								"ratingsTeaching": formData.ratings.teaching,
-								"ratingsGrading": formData.ratings.grading,
-								"ratingsClarity": formData.ratings.clarity,
-								"ratingsHelpfulness": formData.ratings.helpfulness,
-								"ratingsSatisfaction": formData.ratings.satisfaction,
+								"overallRating": formData.overallRating.toString(),
+								"ratingsTeaching": formData.ratings.teaching.toString(),
+								"ratingsGrading": formData.ratings.grading.toString(),
+								"ratingsClarity": formData.ratings.clarity.toString(),
+								"ratingsHelpfulness": formData.ratings.helpfulness.toString(),
+								"ratingsSatisfaction": formData.ratings.satisfaction.toString(),
 								"body": formData.comment
 
 							}

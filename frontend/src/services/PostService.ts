@@ -111,19 +111,15 @@ class UltimatePostService {
 	}
 
 	async createPost(postData: {
-		content: string;
-		category?: string;
-		tags?: string;
+		category: string;
 		media?: File[];
 		attributes?: any;
 	}): Promise<Post> {
 		try {
+			console.log('📡 در حال ایجاد پست جدید...', postData);
 			const requestBody: any = {
-				content: postData.content,
+				category: postData.category,
 			};
-
-			if (postData.category) requestBody.category = postData.category;
-			if (postData.tags) requestBody.tags = postData.tags;
 			if (postData.attributes) requestBody.attributes = postData.attributes;
 			console.log('📡 در حال ایجاد پست جدید با داده‌ها:', requestBody);
 			const response = await api.post('/posts/', requestBody, {
@@ -222,26 +218,41 @@ class UltimatePostService {
 		return [];
 	}
 
-	mapBackendPostToFrontend = (backendPost: BackendPost): Post => ({
-		id: backendPost.id,
-		user: {
-			id: backendPost.author_info.id,
-			name: `${backendPost.author_info.first_name} ${backendPost.author_info.last_name}`.trim() || backendPost.author_info.username,
-			avatar: backendPost.author_info.profile_picture || '/default-avatar.png',
-			username: backendPost.author_info.username,
-		},
-		content: backendPost.attributes.body,
-		timestamp: backendPost.created_at,
-		likes: backendPost.likes_count,
-		dislikes: backendPost.dislikes_count,
-		comments: backendPost.comments_count,
-		isLiked: backendPost.user_reaction === 'like',
-		isDisliked: backendPost.user_reaction === 'dislike',
-		category: backendPost.category,
-		media: backendPost.media,
-		tags: backendPost.tags ? backendPost.tags.split(',').map(tag => tag.trim()) : [],
-		attributes: backendPost.attributes,
-	});
+	mapBackendPostToFrontend = (backendPost: BackendPost): Post => {
+		// Parse tags from comma-separated string to array
+		const tagsString = backendPost.attributes?.tags || '';
+		const tagsArray = tagsString ? tagsString.split(',').filter((tag: string) => tag.trim()) : [];
+		
+		// Handle missing or null author_info
+		const authorInfo = backendPost.author_info || {
+			id: 0,
+			username: 'unknown',
+			first_name: '',
+			last_name: '',
+			profile_picture: ''
+		};
+		
+		return {
+			id: backendPost.id,
+			user: {
+				id: authorInfo.id,
+				name: `${authorInfo.first_name} ${authorInfo.last_name}`.trim() || authorInfo.username,
+				avatar: authorInfo.profile_picture || '/default-avatar.png',
+				username: authorInfo.username,
+			},
+			content: backendPost.attributes?.body || '',
+			timestamp: backendPost.created_at,
+			likes: backendPost.likes_count || 0,
+			dislikes: backendPost.dislikes_count || 0,
+			comments: backendPost.comments_count || 0,
+			isLiked: backendPost.user_reaction === 'like',
+			isDisliked: backendPost.user_reaction === 'dislike',
+			category: backendPost.category,
+			media: backendPost.media || [],
+			attributes: backendPost.attributes || {},
+			tags: tagsArray,
+		};
+	};
 }
 
 export const postService = new UltimatePostService();
@@ -250,16 +261,10 @@ export const fetchPosts = () => postService.fetchPosts();
 export const likePost = (postId: number) => postService.likePost(postId);
 export const dislikePost = (postId: number) => postService.dislikePost(postId);
 export const createPost = (
-	content: string,
-	category?: string,
-	tags?: string,
-	// media?: File[],
+	category: string,
 	attributes?: any,) =>
 	postService.createPost({
-		content,
 		category,
-		tags,
-		// media,
 		attributes
 	});
 export const getPostById = (postId: number) => postService.getPostById(postId);

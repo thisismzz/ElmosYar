@@ -16,17 +16,6 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 		return `تومان ${price}`;
 	};
 
-	const getMealTypeIcon = (mealType: string) => {
-		switch (mealType) {
-			case 'ناهار':
-				return <Sun />;
-			case 'شام':
-				return <Moon />;
-			default:
-				return '🍽️';
-		}
-	};
-	console.log(item);
 	return (
 		<div key={item.id} className={`food-card ${item.isSoldOut ? 'sold-out' : ''}`}>
 			<div className="card-header">
@@ -124,36 +113,11 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 		setSelectedItem(null);
 	};
 
-	const handleCloseAddModal = () => {
-		setIsAddModalOpen(false);
-	};
-
 	const handlePaymentSuccess = (_method: any, foodItem: FoodItem) => {
 		setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
 	};
 
-	const handleAddFood = (newFoodData: Omit<FoodItem, 'id' | 'isSoldOut'>) => {
-		// Create new food item with unique ID
-		const newFood: FoodItem = {
-			...newFoodData,
-			id: Date.now().toString(),
-			isSoldOut: false
-		};
-		
-		// Add to the beginning of the list
-		setItems(prev => [newFood, ...prev]);
-		setIsAddModalOpen(false);
-		
-		// Show success message
-		alert(`غذای ${newFood.name} با موفقیت اضافه شد!`);
-	};
-
-	const handleDayChange = (day: Day) => {
-		setSelectedDay(day);
-		// Here you can add logic to filter items by day
-		// For now, we'll just show all items
-	};
-
+	
 	if (isLoading) {
 		return (
 			<div className="food-order-container loading">

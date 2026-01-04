@@ -1,6 +1,6 @@
 
 export interface Review {
-  id: string;
+  id: number;
   professorName: string;
   faculty: string;
   courseName: string;

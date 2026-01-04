@@ -36,13 +36,13 @@ const FoodPage: React.FC = () => {
 		for (const post of food_posts.posts) {
 			const post_content_json = post.attributes;
 			result.push({
-				id: post_content_json.id,
+				id: post.id,
 				name: post_content_json.name,
 				mealType: post_content_json.mealType,
 				location: post_content_json.location,
 				date: post_content_json.date,
 				price: post_content_json.price,
-				isSoldOut: post_content_json.isSoldOut,
+				isSoldOut: post_content_json.isSoldOut === "true",
 			});
 		}
 
