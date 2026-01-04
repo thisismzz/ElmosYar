@@ -3,6 +3,7 @@ import { X, Calendar as CalendarIcon } from 'lucide-react';
 import { FoodItem } from "../../types/food_posts";
 import './CreateFoodPost.css';
 import Calendar from 'react-multi-date-picker';
+import { createPost } from '../../services/PostService';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
 import DateObject from 'react-date-object';
@@ -15,6 +16,7 @@ interface AddFoodModalProps {
 
 type MealType = 'ناهار' | 'شام';
 type LocationType = 'مرکزی' | 'یاس' | 'مقتدایی' | 'خوابگاه خواهران' | 'خوابگاه برادران';
+type DayType = 'شنبه' | 'یکشنبه' | 'دوشنبه' | 'سه‌شنبه' | 'چهارشنبه' | 'پنج‌شنبه' | 'جمعه';
 
 const AddFoodModal: React.FC<AddFoodModalProps> = ({ 
   isOpen, 
@@ -25,7 +27,33 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
     return new DateObject({ calendar: persian });
   });
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const calendarRef = useRef<any>(null);
+
+  // Mappings for Persian to English
+  const mealTypeMap: Record<MealType, string> = {
+    'ناهار': 'lunch',
+    'شام': 'dinner'
+  };
+
+  const locationMap: Record<LocationType, string> = {
+    'مرکزی': 'central_m',
+    'یاس': 'yas',
+    'مقتدایی': 'moghaddayi',
+    'خوابگاه خواهران': 'dormitory_f',
+    'خوابگاه برادران': 'dormitory_m'
+  };
+
+  const dayMap: Record<DayType, string> = {
+    'شنبه': 'saturday',
+    'یکشنبه': 'sunday',
+    'دوشنبه': 'monday',
+    'سه‌شنبه': 'tuesday',
+    'چهارشنبه': 'wednesday',
+    'پنج‌شنبه': 'thursday',
+    'جمعه': 'friday'
+  };
   
   const [formData, setFormData] = useState({
     name: '',
@@ -36,6 +64,13 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
 
   const locations: LocationType[] = ['مرکزی', 'یاس', 'مقتدایی', 'خوابگاه خواهران', 'خوابگاه برادران'];
   const mealTypes: MealType[] = ['ناهار', 'شام'];
+  
+  // Helper function to get Persian day name from date
+  const getPersianDayFromDate = (date: DateObject): DayType => {
+    const dayIndex = date.weekDay.index; // 0 = Saturday in Persian calendar
+    const persianDays: DayType[] = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+    return persianDays[dayIndex];
+  };
 
   const formatPersianDate = (date: DateObject): string => {
     if (!date) return '';
@@ -59,35 +94,68 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
     setIsCalendarOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!formData.name.trim() || !formData.price) {
-      alert('لطفاً نام و قیمت غذا را وارد کنید');
+      setError('لطفاً نام و قیمت غذا را وارد کنید');
       return;
     }
 
     const priceNumber = parseFloat(formData.price);
+    console.log(priceNumber, formData.price)
     if (isNaN(priceNumber) || priceNumber <= 0) {
-      alert('لطفاً قیمت معتبر وارد کنید');
+      setError('لطفاً قیمت معتبر وارد کنید');
       return;
     }
 
     if (!selectedDate) {
-      alert('لطفاً تاریخ را انتخاب کنید');
+      setError('لطفاً تاریخ را انتخاب کنید');
       return;
     }
 
-    const newFood: Omit<FoodItem, 'id' | 'isSoldOut'> = {
-      name: formData.name.trim(),
-      price: priceNumber,
-      mealType: formData.mealType,
-      location: formData.location,
-      date: formatPersianDate(selectedDate)
-    };
-    
-    onAdd(newFood);
-    handleClose();
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // Convert Persian date to Gregorian YYYY-MM-DD format
+      const gregorianDate = selectedDate.convert(undefined, undefined).format('YYYY-MM-DD');
+      
+      // Calculate day of week from selected date
+      const persianDay = getPersianDayFromDate(selectedDate);
+      const englishDay = dayMap[persianDay];
+
+      await createPost(
+        'food',
+        {
+          name: formData.name.trim(),
+          price: priceNumber.toString(),
+          mealType: mealTypeMap[formData.mealType],
+          location: locationMap[formData.location],
+          date: gregorianDate,
+          day: englishDay,
+          isSoldOut: 'false'
+        }
+      );
+
+      // Call onAdd callback for local state update if needed
+      const newFood: Omit<FoodItem, 'id' | 'isSoldOut'> = {
+        name: formData.name.trim(),
+        price: priceNumber,
+        mealType: formData.mealType,
+        location: formData.location,
+        date: formatPersianDate(selectedDate),
+        day: persianDay
+      };
+      onAdd(newFood);
+      
+      handleClose();
+    } catch (err: any) {
+      console.error('❌ خطا در ایجاد پست غذا:', err);
+      setError(err.response?.data?.message || 'خطا در ارسال پست. لطفا دوباره تلاش کنید.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -99,6 +167,8 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
     });
     setSelectedDate(new DateObject({ calendar: persian }));
     setIsCalendarOpen(false);
+    setError(null);
+    setIsSubmitting(false);
     onClose();
   };
 
@@ -251,12 +321,27 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({
             </div>
           </div>
 
+          {error && (
+            <div className="error-message" style={{ color: 'red', marginBottom: '1rem', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
+
           <div className="form-actions">
-            <button type="button" className="food-cancel-button" onClick={handleClose}>
+            <button 
+              type="button" 
+              className="food-cancel-button" 
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
               انصراف
             </button>
-            <button type="submit" className="food-submit-button">
-              اضافه کردن غذا
+            <button 
+              type="submit" 
+              className="food-submit-button"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'در حال ارسال...' : 'اضافه کردن غذا'}
             </button>
           </div>
         </form>

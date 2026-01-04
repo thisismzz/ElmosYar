@@ -41,6 +41,7 @@ const FoodPage: React.FC = () => {
 				mealType: post_content_json.mealType,
 				location: post_content_json.location,
 				date: post_content_json.date,
+				day: post_content_json.day,
 				price: post_content_json.price,
 				isSoldOut: post_content_json.isSoldOut === "true",
 			});

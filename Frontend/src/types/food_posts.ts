@@ -8,6 +8,7 @@ export interface FoodItem {
   mealType: string;
   location: string;
   date: string;
+  day: string;
   price: number;
   isSoldOut: boolean;
 }
