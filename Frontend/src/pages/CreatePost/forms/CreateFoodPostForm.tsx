@@ -6,7 +6,8 @@ import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import DateObject from "react-date-object";
 
-import { Button, InlineError, Input, Label, Select, HelperText, cn } from "../ui";
+import { Button, InlineError, Input, Label, Select, HelperText, cn } from "../../../components/UIOverrides";
+import { createPost } from "../../../services/PostService";
 // import { FoodItem } from "../../../types/food_posts"; // adjust path
 // import { createPost } from "../../../services/PostService"; // if you want to submit via backend
 
@@ -219,11 +220,14 @@ export function CreateFoodPostForm(props: {
 
 			<InlineError>{error}</InlineError>
 
-			<div className="flex items-center justify-end gap-3 pt-2">
+			<div className="flex items-center justify-center gap-3 pt-2">
 				<Button
 					type="submit"
 					disabled={submitting || !isValid()}
-					className="h-11"
+					className="flex h-11"
+					// onClick={() => createPost("", 'food', "", {
+
+					// })}
 				>
 					{submitting ? (
 						<>

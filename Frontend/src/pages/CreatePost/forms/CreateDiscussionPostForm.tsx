@@ -1,5 +1,6 @@
 import React, { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Button, Card, CardBody, InlineError, Label, Textarea, cn, HelperText, Input } from "../ui";
+import { Button, Card, CardBody, InlineError, Label, Textarea, cn, HelperText, Input } from "../../../components/UIOverrides";
+import { createPost } from "../../../services/PostService";
 
 const MAX_CONTENT_LENGTH = 5000;
 const MAX_TAGS = 10;
@@ -297,6 +298,10 @@ export function CreateDiscussionPostForm(props: {
           type="submit"
           disabled={isSubmitting || !content.trim()}
           className="h-11"
+		  onClick={() => {createPost('discussion', '', {
+			body: content
+		  });
+		console.log(content)}}
         >
           {isSubmitting ? (
             <>

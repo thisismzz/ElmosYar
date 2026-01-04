@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
-import { PageShell, Button, Card, CardHeader, CardBody, SegmentedControl } from "./ui";
+import { PageShell, Button, Card, CardHeader, CardBody, SegmentedControl } from "../../components/UIOverrides";
 import { CreateFoodPostForm } from "./forms/CreateFoodPostForm";
 import { CreateProfessorReviewPostForm } from "./forms/CreateProfessorReviewPostForm";
 import { CreateDiscussionPostForm } from "./forms/CreateDiscussionPostForm";

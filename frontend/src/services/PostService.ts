@@ -111,7 +111,7 @@ class UltimatePostService {
 	}
 
 	async createPost(postData: {
-		content: string;
+		// content: string;
 		category?: string;
 		tags?: string;
 		media?: File[];
@@ -119,7 +119,7 @@ class UltimatePostService {
 	}): Promise<Post> {
 		try {
 			const requestBody: any = {
-				content: postData.content,
+				// content: postData.content,
 			};
 
 			if (postData.category) requestBody.category = postData.category;
@@ -250,13 +250,13 @@ export const fetchPosts = () => postService.fetchPosts();
 export const likePost = (postId: number) => postService.likePost(postId);
 export const dislikePost = (postId: number) => postService.dislikePost(postId);
 export const createPost = (
-	content: string,
+	// content: string,
 	category?: string,
 	tags?: string,
 	// media?: File[],
 	attributes?: any,) =>
 	postService.createPost({
-		content,
+		// content,
 		category,
 		tags,
 		// media,

@@ -35,15 +35,15 @@ export const depositToWallet = async (amount: number) => {
 }
 
 
-interface TransactionCardDetails{
+interface TransactionCardDetails {
 	title: string,
-	amount: number, 
+	amount: number,
 	from: string,
-	to: string, 
+	to: string,
 	type: string,
 }
 
-interface BackendTransaction{
+interface BackendTransaction {
 	amount: number,
 	status: string,
 	type: string,
@@ -58,14 +58,16 @@ export const getUserTransactions = async (): Promise<TransactionCardDetails[]> =
 
 	const backend_transactions: BackendTransaction[] = response.data.data
 	var result: TransactionCardDetails[] = []
-	for (const t of backend_transactions){
-		result.push({
-			title: "",
-			amount: t.amount,
-			from: t.from,
-			to: t.to,
-			type: t.type,
-		})
+	if (backend_transactions.length) {
+		for (const t of backend_transactions) {
+			result.push({
+				title: "",
+				amount: t.amount,
+				from: t.from,
+				to: t.to,
+				type: t.type,
+			})
+		}
 	}
 
 	return result

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Star } from "lucide-react";
 
-import { Button, Card, CardBody, CardHeader, InlineError, Input, Label, Select, Textarea } from "../ui";
+import { Button, Card, CardBody, CardHeader, InlineError, Input, Label, Select, Textarea } from "../../../components/UIOverrides";
 import { StarRating } from "../../../components/Reviews/StarRating"; // adjust path
 import { createPost } from "../../../services/PostService"; // adjust path
 
@@ -68,7 +68,7 @@ export function CreateProfessorReviewPostForm() {
 
 			// You were previously doing createPost onClick; doing it in submit is cleaner.
 			await createPost(
-				formData.comment?.trim() || "null",
+				// formData.comment?.trim() || "null",
 				"professor-review",
 				"idk,this,that",
 				{
@@ -218,7 +218,27 @@ export function CreateProfessorReviewPostForm() {
 			<InlineError>{error}</InlineError>
 
 			<div className="flex items-center justify-center pt-2">
-				<Button type="submit" disabled={submitting || !isFormValid()} className="h-11">
+				<Button type="submit" disabled={submitting || !isFormValid()} className="h-11"
+					onClick={() => createPost(
+							// formData.comment,
+							"professor-review",
+							"idk,this,that",
+							{
+								"id": "200",
+								"professorName": formData.professorName,
+								"faculty": formData.faculty,
+								"courseName": formData.courseName,
+								"semester": formData.semester,
+								"overallRating": formData.overallRating,
+								"ratingsTeaching": formData.ratings.teaching,
+								"ratingsGrading": formData.ratings.grading,
+								"ratingsClarity": formData.ratings.clarity,
+								"ratingsHelpfulness": formData.ratings.helpfulness,
+								"ratingsSatisfaction": formData.ratings.satisfaction,
+								"body": formData.comment
+
+							}
+					)}>
 					{submitting ? (
 						<>
 							<span className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-900 border-t-transparent" />
