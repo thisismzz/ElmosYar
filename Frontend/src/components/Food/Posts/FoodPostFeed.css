@@ -145,6 +145,7 @@
   gap: 10px;
   flex: 1;
   min-width: 0;
+  padding-right: 25px;
 }
 
 .meal-type-content {
@@ -211,6 +212,7 @@
   gap: 15px;
   flex: 1;
   order: 1;
+  justify-items: center;
 }
 
 /* استایل اسکرول بار برای مرورگرهای وبکیت */
@@ -239,13 +241,6 @@
   flex-shrink: 0; /* جلوگیری از کوچک شدن */
   min-width: fit-content; /* حداقل عرض مناسب محتوا */
   border: 1px solid transparent;
-}
-
-.detail-item:hover {
-  background: #ecf0f1;
-  border-color: #d5d8dc;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .detail-icon {

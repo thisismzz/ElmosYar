@@ -71,7 +71,7 @@ export const getUserTransactions = async (): Promise<TransactionCardDetails[]> =
 	return result
 }
 
-export const walletPurchase = async (postId: string) => {
+export const walletPurchase = async (postId: number) => {
 	const response = await api.post(`/wallet/purchase/${postId}/`);
 
 	//TODO: change so it returns the message and things

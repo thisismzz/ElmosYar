@@ -53,7 +53,7 @@ const ChatPostForm: React.FC<ChatPostFormProps> = ({
   }, []);
 
   const addTag = (tag: string): void => {
-    const tagToAdd = tag.trim().toLowerCase();
+    const tagToAdd = tag.trim();
     
     if (!tagToAdd || tagToAdd.length < MIN_TAG_LENGTH) {
       setErrors({
@@ -63,10 +63,12 @@ const ChatPostForm: React.FC<ChatPostFormProps> = ({
       return;
     }
     
-    if (tagToAdd.includes(' ')) {
+    // Validate against regex: only Persian letters, English letters, and underscore
+    const tagRegex = /^[آ-یa-zA-Z_]+$/;
+    if (!tagRegex.test(tagToAdd)) {
       setErrors({
         ...errors,
-        tags: 'هشتگ نباید شامل فاصله باشد'
+        tags: 'هشتگ فقط می‌تواند شامل حروف فارسی، انگلیسی و _ باشد'
       });
       return;
     }
@@ -147,7 +149,36 @@ const ChatPostForm: React.FC<ChatPostFormProps> = ({
       return;
     }
 
-    // setIsSubmitting(true);
+    setIsSubmitting(true);
+    
+    try {
+      await createPost(
+        category,
+        {
+          body: content,
+          tags: tags.join(','), // Convert array to comma-separated string
+        }
+      );
+      
+      // Call onSubmit callback if provided
+      if (onSubmit) {
+        onSubmit({
+          content,
+          tags,
+          category
+        });
+      }
+      
+      // Close form on success
+      handleClose();
+    } catch (error: any) {
+      console.error('❌ خطا در ایجاد پست:', error);
+      setErrors({ 
+        general: error.response?.data?.message || 'خطا در ارسال پست. لطفا دوباره تلاش کنید.' 
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {
