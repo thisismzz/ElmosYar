@@ -1,11 +1,8 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Post, PostMedia, CategoryFormat
+from .models import Post, PostMedia, CategoryFormat, Category
 
 
-# =====================================================
-# Inline برای PostMedia
-# =====================================================
 class PostMediaInline(admin.TabularInline):
     model = PostMedia
     extra = 1
@@ -13,91 +10,91 @@ class PostMediaInline(admin.TabularInline):
     readonly_fields = ['created_at']
 
 
-# =====================================================
-# Post Admin
-# =====================================================
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'anonymous', 'created_at', 'updated_at']
+    list_filter = ['anonymous', 'created_at']
+    search_fields = ['name']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Category Information', {
+            'fields': ('name', 'anonymous')
+        }),
+        ('Dates', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'author', 'content_preview', 'category', 
-        'has_media', 'is_repost', 'likes_count', 
-        'dislikes_count', 'comments_count', 'created_at'
+        'id', 'author', 'category', 'has_media', 'is_repost', 
+        'likes_count', 'dislikes_count', 'comments_count', 'created_at'
     ]
     list_filter = ['category', 'is_repost', 'created_at']
-    search_fields = ['content', 'author__username', 'category']
+    search_fields = ['author__username', 'category__name']
     readonly_fields = ['created_at', 'updated_at', 'likes_count', 'dislikes_count', 'comments_count']
     date_hierarchy = 'created_at'
     filter_horizontal = ['mentions', 'saved_by']
     inlines = [PostMediaInline]
     
     fieldsets = (
-        ('اطلاعات اصلی', {
-            'fields': ('author', 'content', 'category', 'tags', 'attributes')
+        ('Basic Information', {
+            'fields': ('author', 'category', 'attributes')
         }),
-        ('ریپوست', {
+        ('Repost', {
             'fields': ('is_repost', 'original_post'),
             'classes': ('collapse',)
         }),
-        ('پاسخ به پست', {
+        ('Reply to Post', {
             'fields': ('parent',),
             'classes': ('collapse',)
         }),
-        ('منشن‌ها و ذخیره‌ها', {
+        ('Mentions and Saves', {
             'fields': ('mentions', 'saved_by'),
             'classes': ('collapse',)
         }),
-        ('آمار', {
+        ('Statistics', {
             'fields': ('likes_count', 'dislikes_count', 'comments_count'),
             'classes': ('collapse',)
         }),
-        ('تاریخ‌ها', {
+        ('Dates', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
     
-    def content_preview(self, obj):
-        """نمایش محتوای کوتاه شده"""
-        if len(obj.content) > 80:
-            return obj.content[:80] + '...'
-        return obj.content
-    content_preview.short_description = 'محتوا'
-    
     def has_media(self, obj):
-        """نمایش وضعیت مدیا"""
         has_extra_media = obj.media.exists()
         
         if has_extra_media:
             return format_html('<span style="color: green;">✓</span>')
         return format_html('<span style="color: red;">✗</span>')
-    has_media.short_description = 'مدیا'
+    has_media.short_description = 'Media'
 
 
-# =====================================================
-# PostMedia Admin
-# =====================================================
 @admin.register(PostMedia)
 class PostMediaAdmin(admin.ModelAdmin):
     list_display = ['id', 'post', 'media_type', 'caption', 'order', 'created_at']
     list_filter = ['media_type', 'created_at']
-    search_fields = ['post__content', 'caption']
+    search_fields = ['post__id', 'caption']
     readonly_fields = ['created_at']
     date_hierarchy = 'created_at'
     
     fieldsets = (
-        ('اطلاعات مدیا', {
+        ('Media Information', {
             'fields': ('post', 'file', 'media_type', 'caption', 'order')
         }),
-        ('تاریخ', {
+        ('Date', {
             'fields': ('created_at',),
             'classes': ('collapse',)
         }),
     )
 
 
-# =====================================================
-# CategoryFormat Admin 
-# =====================================================
 @admin.register(CategoryFormat)
 class CategoryFormatAdmin(admin.ModelAdmin):
     list_display = ['category', 'created_by', 'created_at', 'updated_at']
@@ -106,10 +103,10 @@ class CategoryFormatAdmin(admin.ModelAdmin):
     readonly_fields = ['created_at', 'updated_at']
     
     fieldsets = (
-        ('اطلاعات فرمت', {
+        ('Format Information', {
             'fields': ('category', 'format_file', 'created_by')
         }),
-        ('تاریخ‌ها', {
+        ('Dates', {
             'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
