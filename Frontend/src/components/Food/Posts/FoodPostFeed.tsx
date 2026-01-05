@@ -16,17 +16,6 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 		return `تومان ${price}`;
 	};
 
-	const getMealTypeIcon = (mealType: string) => {
-		switch (mealType) {
-			case 'ناهار':
-				return <Sun />;
-			case 'شام':
-				return <Moon />;
-			default:
-				return '🍽️';
-		}
-	};
-	console.log(item);
 	return (
 		<div key={item.id} className={`food-card ${item.isSoldOut ? 'sold-out' : ''}`}>
 			<div className="card-header">
@@ -67,7 +56,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 			</div>
 
 			<div className="card-footer">
-				{item.isSoldOut ? (
+				{item.isSoldOut != "false" ? (
 					<div className="sold-out-section">
 						<span className="sold-out-badge">تمام شده</span>
 						<span className="sold-out-text">این غذا فعلاً موجود نیست</span>
@@ -82,7 +71,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 				)}
 			</div>
 
-			{item.isSoldOut && (
+			{(item.isSoldOut != "false") && (
 				<div className="sold-out-overlay">
 					<span>تمام شده</span>
 				</div>
@@ -91,8 +80,6 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 	);
 };
 
-// Type for days of week
-type Day = "شنبه" | "یکشنبه" | "دوشنبه" | "سه شنبه" | "چهارشنبه" | "پنج شنبه" | "جمعه";
 
 interface FoodPostFeedProps {
 	items: FoodItem[];
@@ -104,13 +91,12 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	const [selectedItem, setSelectedItem] = useState<FoodItem | null>(null);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-	const [selectedDay, setSelectedDay] = useState<Day>("شنبه");
-
+	
 	
 
 	
 	const handleBuyFood = (item: FoodItem) => {
-		if (item.isSoldOut) {
+		if (item.isSoldOut != "false" ) {
 			alert(`متاسفانه ${item.name} تمام شده است!`);
 			return;
 		}
@@ -124,36 +110,11 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 		setSelectedItem(null);
 	};
 
-	const handleCloseAddModal = () => {
-		setIsAddModalOpen(false);
-	};
-
 	const handlePaymentSuccess = (_method: any, foodItem: FoodItem) => {
 		setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
 	};
 
-	const handleAddFood = (newFoodData: Omit<FoodItem, 'id' | 'isSoldOut'>) => {
-		// Create new food item with unique ID
-		const newFood: FoodItem = {
-			...newFoodData,
-			id: Date.now().toString(),
-			isSoldOut: false
-		};
-		
-		// Add to the beginning of the list
-		setItems(prev => [newFood, ...prev]);
-		setIsAddModalOpen(false);
-		
-		// Show success message
-		alert(`غذای ${newFood.name} با موفقیت اضافه شد!`);
-	};
-
-	const handleDayChange = (day: Day) => {
-		setSelectedDay(day);
-		// Here you can add logic to filter items by day
-		// For now, we'll just show all items
-	};
-
+	
 	if (isLoading) {
 		return (
 			<div className="food-order-container loading">

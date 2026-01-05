@@ -9,14 +9,11 @@ export interface ChatPostData {
   content: string;
   tags: string[];
   category: 'discussion' | 'food-exchange' | 'teacher-review';
-  createdAt: Date;
-  updatedAt: Date;
-  title: string;
 }
 
 export interface ChatPostFormProps {
   onClose: () => void;
-  onSubmit: (postData: ChatPostData) => Promise<void>;
+  onSubmit?: (postData: ChatPostData) => void;
   initialData?: {
     content?: string;
     tags?: string[];

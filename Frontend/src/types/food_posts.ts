@@ -3,14 +3,14 @@ import { ReactNode } from "react";
 export type PaymentMethod = 'wallet' | 'online';
 
 export interface FoodItem {
-//   day: ReactNode; //??
-  id: string;
+  id: number;
   name: string;
   mealType: string;
   location: string;
   date: string;
+  day: string;
   price: number;
-  isSoldOut: boolean;
+  isSoldOut: boolean | string;
 }
 
 export interface PaymentModalProps {
@@ -43,5 +43,5 @@ export type FoodPostSearchProps = {
 	location?: "سلف مرکزی" | "سلف یاس" | "خوابگاه حکیمیه" | "خوابگاه خواهران" | "خوابگاه برادران" | "خوابگاه سراج" | "خوابگاه مجیدیه",
 	date?: string,
 	price?: [number, number],
-	isSoldOut?: boolean,
+	isSoldOut?: boolean | string,
 }

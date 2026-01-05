@@ -22,14 +22,9 @@ export function ProfessorProfilePage(
 ) {
 	const navigate = useNavigate();
 	const {professorName} = useParams();
-	console.log(professorName)
 	const [reviews, setReviews] = useState<Review[]>([]);
 
   const [sortBy, setSortBy] = useState("جدید");
-
-  type ProfReviewSearchProp = {
-	name: string;
-  }
 
 
   useEffect(() => {

@@ -24,16 +24,18 @@ export default function TransactionHistoryPage() {
 	}, []);
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className="min-h-screen">
 			<div className="max-w-4xl mx-auto px-4 py-8">
 				<div className="mb-8">
-					<h1 className="text-gray-600 mb-2">تراکنش های اخیر</h1>
+					<h1 className="text-gray-600 mb-2">
+						 تراکنش های اخیر
+					</h1>
 				</div>
 
 				<div className="space-y-3">
-					{transactionHistory.map((transaction) => (
+					{transactionHistory.length ? transactionHistory.map((transaction) => (
 						<TransactionCard key={transaction.id} transaction={transaction} />
-					))}
+					)) : <div className="text-neutral-400"> .تراکنشی برای شما یافت نشد</div>}
 				</div>
 			</div>
 		</div>

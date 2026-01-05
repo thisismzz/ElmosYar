@@ -20,7 +20,7 @@ export const getReviewPosts = async (search?: string): Promise<Review[]> => {
 	for (const post of review_posts.posts) {
 		const post_content_json = post.attributes;
 		result.push({
-			id: post_content_json.id,
+			id: post.id,
 			professorName: post_content_json.professorName,
 			faculty: post_content_json.faculty,
 			courseName: post_content_json.courseName,
