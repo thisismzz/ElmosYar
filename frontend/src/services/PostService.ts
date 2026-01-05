@@ -220,9 +220,9 @@ class UltimatePostService {
 		}
 	}
 
-	async createComment(postId: number, content: string): Promise<Comment> {
+	async createComment(postId: number, content: string, parentCommentId?: string): Promise<Comment> {
 		try {
-			const response = await api.post(`/posts/${postId}/comment/`, { content });
+			const response = await api.post(`/posts/${postId}/comment/`, { content: content, parent: parentCommentId });
 			const commentData = response.data.comment || response.data;
 
 			return this.mapBackendCommentToFrontend(commentData);

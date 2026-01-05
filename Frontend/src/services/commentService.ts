@@ -120,6 +120,7 @@ export const mapRawCommentsToFrontend = (rawComments: RawComment[]): FrontendCom
 
 		const base: FrontendComment = {
 			id: raw.id,
+			parentId: raw.parent,
 			user: anonymous
 				? undefined
 				: {
@@ -161,8 +162,10 @@ export const getCommentsForPost = async (postId: number): Promise<FrontendCommen
 	return mapRawCommentsToFrontend(res.comments);
 };
 
-export const getRepliesForComment = async (commentId: number, params?: GetPostsParams): Promise<FrontendReply[]> => {
-	const res = await postService.getComments(commentId, params ?? {});
+export const getRepliesForComment = async (postId:number, commentId: number, params?: GetPostsParams): Promise<FrontendReply[]> => {
+	const res = await postService.getComments(postId, params ?? {});
+	console.log("replis", res);
+	
 	console.log("get replies - ", res, mapRawCommentsToFrontend(res.comments).map(toFrontendReply))
 	return mapRawCommentsToFrontend(res.comments).map(toFrontendReply);
 };
@@ -172,9 +175,9 @@ export const createCommentOnPost = async (postId: number, content: string) => {
 	return await postService.createComment(postId, content);
 };
 
-export const createReplyOnComment = async (parentCommentId: number, content: string) => {
+export const createReplyOnComment = async (parentPostId: number, parentCommentId: number, content: string) => {
 	// replies are comments on comments
-	return await postService.createComment(parentCommentId, content);
+	return await postService.createComment(parentPostId, content, parentCommentId.toString());
 };
 
 // ---------- Like / dislike posts ----------

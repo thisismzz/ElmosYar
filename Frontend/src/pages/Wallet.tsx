@@ -2,9 +2,21 @@ import { Card, CardContent } from '../components/UILib';
 import { Button } from '../components/UILib';
 import { ArrowLeft, ArrowDownToLine, History, Plus, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getWalletData } from '../services/paymentService';
+import { useEffect, useState } from 'react';
 
 export function WalletPage() {
   const navigate = useNavigate();
+  const [credit, setCredit] = useState();
+
+  useEffect( () => {
+	const fetchCredit = async () => {
+	setCredit((await getWalletData()).balance);
+	}
+
+	fetchCredit();
+}
+  )
 
   return (
     <div className="min-h-screen pb-20 lg:pb-8">
@@ -31,8 +43,8 @@ export function WalletPage() {
               <Wallet className="w-5 h-5" />
             </div>
             <div className="flex items-baseline gap-2 justify-end" dir="ltr">
-              <span className="text-2xl md:text-3xl">.50</span>
-              <span className="text-5xl md:text-6xl">$1,247,000,000,000,000</span>
+              <span className="text-2xl md:text-3xl"></span>
+              <span className="text-5xl md:text-6xl">{credit}</span>
             </div>
           </CardContent>
         </Card>

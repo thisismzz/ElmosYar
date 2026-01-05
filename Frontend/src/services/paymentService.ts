@@ -41,6 +41,7 @@ interface TransactionCardDetails {
 	from: string,
 	to: string,
 	type: string,
+	postId: string,
 }
 
 interface BackendTransaction {
@@ -49,6 +50,7 @@ interface BackendTransaction {
 	type: string,
 	from: string,
 	to: string,
+	postId: string,
 }
 
 
@@ -66,6 +68,7 @@ export const getUserTransactions = async (): Promise<TransactionCardDetails[]> =
 				from: t.from,
 				to: t.to,
 				type: t.type,
+				postId: t.postId,
 			})
 		}
 	}

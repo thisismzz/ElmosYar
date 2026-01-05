@@ -1,4 +1,6 @@
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { getPostById } from '../../services/PostService';
+import { useEffect, useState } from 'react';
 
 interface Transaction {
   id: string;
@@ -11,10 +13,12 @@ interface Transaction {
 
 interface TransactionCardProps {
   transaction: Transaction;
+  postId: number
 }
 
-export function TransactionCard({ transaction }: TransactionCardProps) {
+export function TransactionCard({ transaction, postId }: TransactionCardProps) {
   const isDeposit = transaction.type === 'payment';
+  const [name, setName] = useState();
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -25,6 +29,12 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
     });
   };
 
+  	useEffect(() => {
+		const get_post_title = async () => {
+			setName( (await getPostById(postId)).attributes.name);
+		}
+		
+	})
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-4">
@@ -42,9 +52,9 @@ export function TransactionCard({ transaction }: TransactionCardProps) {
           <div className="flex-1 min-w-0">
             <h3 className="flex text-gray-900 mb-1">{transaction.title}</h3>
             <p className="text-gray-600 text-sm mb-1">
-              {transaction.user} :{isDeposit ? 'از' : 'به'}
+              {/* {transaction.user} :{isDeposit ? 'از' : 'به'} */}
             <p className="text-gray-500 text-sm">
-              {formatDate(transaction.date)}
+              {name}
             </p>
             </p>
           </div>

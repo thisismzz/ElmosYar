@@ -34,7 +34,7 @@ export default function TransactionHistoryPage() {
 
 				<div className="space-y-3">
 					{transactionHistory.length ? transactionHistory.map((transaction) => (
-						<TransactionCard key={transaction.id} transaction={transaction} />
+						<TransactionCard key={transaction.id} transaction={transaction} postId={transaction.postId} />
 					)) : <div className="text-neutral-400"> .تراکنشی برای شما یافت نشد</div>}
 				</div>
 			</div>

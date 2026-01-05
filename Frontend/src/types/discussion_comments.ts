@@ -28,6 +28,7 @@ export interface Reply {
 
 export interface Comment {
 	id: number;
+	parentId: number;
 
 	// if anonymous, user is undefined
 	user?: {

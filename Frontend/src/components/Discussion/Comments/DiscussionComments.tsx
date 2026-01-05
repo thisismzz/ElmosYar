@@ -344,6 +344,7 @@ const Comments: React.FC<CommentsProps> = ({
 		// optimistic insert
 		const optimistic: Comment = {
 			id: Date.now(),
+			parentId: 0,
 			user: { id: -1, name: currentUserName, username: "none", avatar: undefined },
 			name: currentUserName,
 			username: undefined,
@@ -398,7 +399,7 @@ const Comments: React.FC<CommentsProps> = ({
 		);
 
 		try {
-			await createReplyOnComment(parentCommentId, text);
+			await createReplyOnComment(postId ?? 0, parentCommentId, text);
 		} catch (e) {
 			setComments((prev) =>
 				prev.map((c) =>
@@ -416,7 +417,7 @@ const Comments: React.FC<CommentsProps> = ({
 	};
 
 	const handleLoadReplies = async (commentId: number) => {
-		const replies = await getRepliesForComment(commentId);
+		const replies = await getRepliesForComment(postId ?? 0, commentId);
 		setComments((prev) =>
 			prev.map((c) => (c.id === commentId ? { ...c, replies, replyCount: replies.length } : c))
 		);
