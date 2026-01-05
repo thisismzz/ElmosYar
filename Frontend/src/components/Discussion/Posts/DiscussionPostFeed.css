@@ -43,9 +43,7 @@
   cursor: pointer;
   overflow: hidden;
   position: relative;
-  animation: fadeInUp 0.6s ease forwards;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  animation: fadeInUp 0.35s ease forwards;
 }
 
 .post-card:nth-child(1) { animation-delay: 0.1s; }
@@ -86,13 +84,26 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
   position: relative;
-  animation: slideInRight 0.5s ease forwards;
-  animation-delay: 0.2s;
-  opacity: 0;
+  opacity: 1;
+  animation: none;
 }
+
+.post-header-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.post-content-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 6; /* adjust */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 
 .post-header::after {
   content: '';
@@ -110,12 +121,11 @@
     transparent 100%
   ); */
 }
-
 .user-avatar {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  margin-bottom: 50px;
+  margin-bottom: 0; /* FIX: was 50px causing huge header height */
   background: var(--primary-gradient);
   display: flex;
   align-items: center;
@@ -124,7 +134,7 @@
   font-weight: 700;
   font-size: 22px;
   border: 3px solid white;
-  box-shadow: 
+  box-shadow:
     0 0 15px rgba(102, 126, 234, 0.25),
     0 0 0 1px rgba(255, 255, 255, 0.9),
     inset 0 0 0 2px rgba(255, 255, 255, 0.2);
@@ -385,6 +395,15 @@
   transition: opacity 0.3s ease;
 }
 
+.action-btn.comment-btn:hover::before { opacity: 0 !important; }
+.action-btn.comment-btn:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  color: #718096 !important;
+  background: none !important;
+}
+
+
 .action-btn:hover::before {
   opacity: 1;
 }
@@ -421,12 +440,22 @@
   transform: scale(1.2);
 }
 
-.action-btn.liked {
+/* .action-btn.liked {
   color: #e53e3e;
 }
 
 .action-btn.disliked {
   color: #718096;
+} */
+
+.action-btn.liked:hover {
+  color: #c53030;
+  background: rgba(229, 62, 62, 0.1);
+}
+
+.action-btn.disliked:hover {
+  color: #4a5568;
+  background: rgba(113, 128, 150, 0.1);
 }
 
 .action-btn.liked .action-count {

@@ -28,8 +28,8 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       id: 'new-post',
       label: 'پست جدید',
       icon: PenSquare,
-      path: '/create-post',
-      isActive: location.pathname === '/create-post'
+      path: '/create',
+      isActive: location.pathname === '/create'
     },
     {
       id: 'menu',

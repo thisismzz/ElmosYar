@@ -13,12 +13,42 @@ import { createPost } from "../../../services/PostService";
 
 type MealType = "ناهار" | "شام";
 type LocationType = "مرکزی" | "یاس" | "مقتدایی" | "خوابگاه خواهران" | "خوابگاه برادران";
+type DayType = 'شنبه' | 'یکشنبه' | 'دوشنبه' | 'سه‌شنبه' | 'چهارشنبه' | 'پنج‌شنبه' | 'جمعه';
 
 type FoodFormState = {
 	name: string;
 	price: string;
 	mealType: MealType;
 	location: LocationType;
+};
+
+const mealTypeMap: Record<MealType, string> = {
+	'ناهار': 'lunch',
+	'شام': 'dinner'
+};
+
+const locationMap: Record<LocationType, string> = {
+	'مرکزی': 'central_m',
+	'یاس': 'yas',
+	'مقتدایی': 'moghaddayi',
+	'خوابگاه خواهران': 'dormitory_f',
+	'خوابگاه برادران': 'dormitory_m'
+};
+
+const dayMap: Record<DayType, string> = {
+	'شنبه': 'saturday',
+	'یکشنبه': 'sunday',
+	'دوشنبه': 'monday',
+	'سه‌شنبه': 'tuesday',
+	'چهارشنبه': 'wednesday',
+	'پنج‌شنبه': 'thursday',
+	'جمعه': 'friday'
+};
+
+const getPersianDayFromDate = (date: DateObject): DayType => {
+	const dayIndex = date.weekDay.index; // 0 = Saturday in Persian calendar
+	const persianDays: DayType[] = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+	return persianDays[dayIndex];
 };
 
 function formatPersianDate(date: DateObject): string {
@@ -29,11 +59,11 @@ function formatPersianDate(date: DateObject): string {
 }
 
 const todayPersian = () =>
-  new DateObject({
-    date: new Date(),
-    calendar: persian,
-    locale: persian_fa,
-  });
+	new DateObject({
+		date: new Date(),
+		calendar: persian,
+		locale: persian_fa,
+	});
 
 export function CreateFoodPostForm(props: {
 	onSubmit?: (payload: {
@@ -225,9 +255,26 @@ export function CreateFoodPostForm(props: {
 					type="submit"
 					disabled={submitting || !isValid()}
 					className="flex h-11"
-					// onClick={() => createPost("", 'food', "", {
+					onClick={async () => {
+						// Convert Persian date to Gregorian YYYY-MM-DD format
+						const gregorianDate = selectedDate.convert(undefined, undefined).format('YYYY-MM-DD');
 
-					// })}
+						// Calculate day of week from selected date
+						const persianDay = getPersianDayFromDate(selectedDate);
+						const englishDay = dayMap[persianDay];
+						await createPost(
+							'food',
+							{
+								name: form.name.trim(),
+								price: form.price.toString(),
+								mealType: mealTypeMap[form.mealType],
+								location: locationMap[form.location],
+								date: gregorianDate,
+								day: englishDay,
+								isSoldOut: 'false'
+							}
+						);
+					}}
 				>
 					{submitting ? (
 						<>

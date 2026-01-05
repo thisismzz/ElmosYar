@@ -58,15 +58,13 @@ export function ProfessorProfilePage(
     .slice(0, 2);
 
   // Sort reviews
-  const sortedReviews = [...professorReviews].sort((a, b) => {
-    if (sortBy === "recent") {
-      return 0; // Keep original order (assuming most recent first)
-    } else if (sortBy === "highest") {
-      return b.overallRating - a.overallRating;
-    } else {
-      return a.overallRating - b.overallRating;
-    }
-  });
+  // inside ProfessorProfilePage: sorting
+const sortedReviews = [...professorReviews].sort((a, b) => {
+  if (sortBy === "جدید") return 0;
+  if (sortBy === "بالاترین") return b.overallRating - a.overallRating;
+  return a.overallRating - b.overallRating; // "پایین ترین"
+});
+
 
   return (
     <div className="min-h-screen bg-gray-50/30">
@@ -158,7 +156,7 @@ export function ProfessorProfilePage(
                 key={review.id}
                 review={review}
                 onLike={() => {}}
-                onComment={() => {}}
+                // onComment={() => {}}
                 showDetailedRatings={true}
               />
             ))

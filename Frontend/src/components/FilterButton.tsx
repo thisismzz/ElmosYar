@@ -122,7 +122,7 @@ export function FilterButton<K extends string, V extends string>({
 				aria-haspopup="menu"
 				aria-expanded={open}
 				className={[
-					"inline-flex items-center gap-2 rounded-full border border-zinc-800/60",
+					"inline-flex items-center gap-2 rounded-full ",
 					"bg-[#16519F] px-3 py-2 text-sm text-zinc-100",
 					"hover:bg-blue-900/60 hover:border-zinc-700/70",
 					"focus:outline-none focus:ring-2 focus:ring-zinc-600/40",

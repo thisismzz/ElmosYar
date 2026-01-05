@@ -13,11 +13,11 @@ interface FoodPostCardProps {
 export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 
 	const formatPrice = (price: number): string => {
-		return `تومان ${price}`;
+		return `${price} تومان`;
 	};
 
 	return (
-		<div key={item.id} className={`food-card ${item.isSoldOut ? 'sold-out' : ''}`}>
+		<div key={item.id} className={`food-card ${(item.isSoldOut === "false" || item.isSoldOut === false) ? 'sold-out' : ''}`}>
 			<div className="card-header">
 				<div className="meal-type-section">
 					<h3 className="food-name">{item.name}</h3>
@@ -30,7 +30,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 			<div className="card-body">
 				<div className="food-details">
 					<div className="detail-item">
-						<span className="detail-icon">⏰</span>
+						{/* <span className="detail-icon">⏰</span> */}
 						<div className="detail-content">
 							<span className="detail-label">وعده غذایی</span>
 							<span className="detail-value">{item.mealType}</span>
@@ -38,7 +38,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 					</div>
 
 					<div className="detail-item">
-						<span className="detail-icon">📍</span>
+						{/* <span className="detail-icon">📍</span> */}
 						<div className="detail-content">
 							<span className="detail-label">سلف</span>
 							<span className="detail-value">{item.location}</span>
@@ -46,7 +46,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 					</div>
 
 					<div className="detail-item">
-						<span className="detail-icon">📅</span>
+						{/* <span className="detail-icon">📅</span> */}
 						<div className="detail-content">
 							<span className="detail-label">تاریخ</span>
 							<span className="detail-value">{item.date}</span>
@@ -56,7 +56,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 			</div>
 
 			<div className="card-footer">
-				{item.isSoldOut != "false" ? (
+				{(item.isSoldOut === true || item.isSoldOut === "true") ? (
 					<div className="sold-out-section">
 						<span className="sold-out-badge">تمام شده</span>
 						<span className="sold-out-text">این غذا فعلاً موجود نیست</span>
@@ -71,7 +71,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 				)}
 			</div>
 
-			{(item.isSoldOut != "false") && (
+			{(item.isSoldOut === true || item.isSoldOut === "true") && (
 				<div className="sold-out-overlay">
 					<span>تمام شده</span>
 				</div>
@@ -96,7 +96,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 
 	
 	const handleBuyFood = (item: FoodItem) => {
-		if (item.isSoldOut != "false" ) {
+		if (item.isSoldOut === true || item.isSoldOut === "true" ) {
 			alert(`متاسفانه ${item.name} تمام شده است!`);
 			return;
 		}
@@ -111,7 +111,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	};
 
 	const handlePaymentSuccess = (_method: any, foodItem: FoodItem) => {
-		setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: true } : i));
+		setItems(prev => prev.map(i => i.id === foodItem.id ? { ...i, isSoldOut: "true" } : i));
 	};
 
 	
@@ -127,7 +127,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 	}
 
 	return (
-		<div className={`food-order-container ${items.length === 1 ? 'single-item' : ''}`}>
+		<div className={`food-order-container ${items.length === 1 ? 'single-item' : 'double-item'}`}>
 			{/* <div className="food-header">
 				<div className="header-top">
 					<div className="header-title-section">
@@ -160,7 +160,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 				</div>
 			) : (
 				<>
-					<div className={`food-items-grid ${items.length === 1 ? 'single-item-grid' : ''}`}>
+					<div className={`food-items-grid ${items.length === 1 ? 'single-item-grid' : 'double-item-grid'}`}>
 						{items.map((item) => (
 							<FoodPostCard key={item.id} item={item} onBuy={handleBuyFood} />
 						))}

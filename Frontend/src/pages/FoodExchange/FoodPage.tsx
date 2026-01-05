@@ -136,7 +136,7 @@ const FoodPage: React.FC = () => {
 			{/* <FilterButton fields={filterFields} values={filters} onChange={setFilters} /> */}
 			 <FilterButtonConnected<K, V>
         fields={fields}
-        className="ml-2"
+        className="ml-2 flex align-right pr-12 transform scale-200 "
         // allowedKeys={["day", "meal"]} // optional
       />
 			<FoodPostFeed items={foodItems} />

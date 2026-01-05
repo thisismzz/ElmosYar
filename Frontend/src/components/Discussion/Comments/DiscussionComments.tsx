@@ -1,573 +1,495 @@
-import React, { useState } from 'react';
-import { 
-  Comment, 
-  CommentsProps, 
-  PostHeaderProps, 
-  CommentItemProps, 
-  CommentModalProps,
-  Reply,
-  ReplyModalProps
-} from '../../../types/discussion_comments';
-import { likeComment, dislikeComment } from '../../../services/commentService';
-import { ThumbsUp, ThumbsDown, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import './DiscussionComments.css';
-import { createComment } from '../../../services/PostService';
-// import {createReply} from '../../../services/PostService';
+// src/components/Discussion/Comments/DiscussionComments.tsx
+import React, { useMemo, useState } from "react";
+import type {
+	Comment,
+	CommentsProps,
+	PostHeaderProps,
+	Reply,
+} from "../../../types/discussion_comments";
+import {
+	createCommentOnPost,
+	createReplyOnComment,
+	dislikeComment,
+	getRepliesForComment,
+	likeComment,
+} from "../../../services/commentService";
+import { ThumbsUp, ThumbsDown, MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
+import "./DiscussionComments.css";
 
-const getInitials = (name: string): string => {
-  return name
-    .split(' ')
-    .map(word => word.charAt(0))
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+// ---------- Time ago (Persian) ----------
+const timeAgoFa = (isoOrTs: string) => {
+	const d = new Date(isoOrTs);
+	const now = new Date();
+	const diffMs = now.getTime() - d.getTime();
+
+	const mins = Math.floor(diffMs / (1000 * 60));
+	if (mins < 1) return "همین الان";
+	if (mins < 60) return `${mins} دقیقه پیش`;
+
+	const hours = Math.floor(mins / 60);
+	if (hours < 24) return `${hours} ساعت پیش`;
+
+	const days = Math.floor(hours / 24);
+	if (days < 7) return `${days} روز پیش`;
+
+	const weeks = Math.floor(days / 7);
+	if (weeks < 5) return `${weeks} هفته پیش`;
+
+	const months = Math.floor(days / 30);
+	if (months < 12) return `${months} ماه پیش`;
+
+	const years = Math.floor(days / 365);
+	return `${years} سال پیش`;
 };
+
+const getInitials = (name: string): string =>
+	name
+		.split(" ")
+		.map((w) => w.charAt(0))
+		.join("")
+		.toUpperCase()
+		.slice(0, 2);
 
 const getAvatarColor = (name: string): string => {
-  const colors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
-    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
-  ];
-  const index = name.length % colors.length;
-  return colors[index];
+	const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E9"];
+	return colors[name.length % colors.length];
 };
 
-const PostHeader = ({ post }: PostHeaderProps) => {
-  const formatTimeAgo = (timestamp: string) => {
-    const now = new Date();
-    const postDate = new Date(timestamp);
-    const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
+// ---------- Post header (compact) ----------
+const PostHeader: React.FC<PostHeaderProps> = ({ post }) => {
+	const initials = getInitials(post.user.name);
+	const avatarColor = getAvatarColor(post.user.name);
 
-    if (diffInHours < 1) return 'همین حالا';
-    if (diffInHours === 1) return '1 ساعت پیش';
-    return `${diffInHours} ساعت پیش`;
-  };
+	return (
+		<div className="discussion-post-header compact">
+			<div className="discussion-post-user-info compact">
+				<div className="discussion-user-avatar" style={{ backgroundColor: avatarColor }}>
+					{initials}
+				</div>
 
-  const initials = getInitials(post.user.name);
-  const avatarColor = getAvatarColor(post.user.name);
+				<div className="discussion-user-details">
+					<div className="discussion-author-row">
+						<span className="discussion-author-name">{post.user.name}</span>
+						{post.user.username ? <span className="discussion-author-username">@{post.user.username}</span> : null}
+						<span className="discussion-post-time">{timeAgoFa(post.timestamp)}</span>
+					</div>
+				</div>
+			</div>
 
-  return (
-    <div className="discussion-post-header">
-      <div className="discussion-post-user-info">
-        <div className="discussion-user-avatar" style={{ backgroundColor: avatarColor }}>
-          {initials}
-        </div>
-        <div className="discussion-user-details">
-          <span className="discussion-author-name">{post.user.name}</span>
-          <span className="discussion-post-time">{formatTimeAgo(post.timestamp)}</span>
-        </div>
-      </div>
+			<div className="discussion-post-content-wrapper compact">
+				<p className="discussion-post-content-text">{post.content}</p>
+			</div>
 
-      <div className="discussion-post-content-wrapper">
-        <p className="discussion-post-content-text">{post.content}</p>
-      </div>
-
-      <div className="discussion-post-stats">
-        <div className="discussion-stat-item">
-          <span className="discussion-stat-icon">
-            <span className="discussion-action-icon">
-              <ThumbsUp size={18} fill={false ? "currentColor" : "none"} />
-            </span>
-          </span>
-          <span className="discussion-stat-count">{post.likes}</span>
-        </div>
-        <div className="discussion-stat-item">
-          <span className="discussion-stat-icon">
-            <span className="discussion-action-icon">
-              <ThumbsDown size={18} fill={false ? "currentColor" : "none"} />
-            </span>
-          </span>
-          <span className="discussion-stat-count">{post.dislikes}</span>
-        </div>
-        <div className="discussion-stat-item">
-          <span className="discussion-stat-icon"><MessageCircle size={18} /></span>
-          <span className="discussion-stat-count">{post.comments}</span>
-        </div>
-      </div>
-    </div>
-  );
+			<div className="discussion-post-stats compact">
+				<div className="discussion-stat-item">
+					<span className="discussion-stat-icon">
+						<ThumbsUp size={18} />
+					</span>
+					<span className="discussion-stat-count">{post.likes}</span>
+				</div>
+				<div className="discussion-stat-item">
+					<span className="discussion-stat-icon">
+						<ThumbsDown size={18} />
+					</span>
+					<span className="discussion-stat-count">{post.dislikes}</span>
+				</div>
+				<div className="discussion-stat-item">
+					<span className="discussion-stat-icon">
+						<MessageCircle size={18} />
+					</span>
+					<span className="discussion-stat-count">{post.comments}</span>
+				</div>
+			</div>
+		</div>
+	);
 };
 
-const ReplyItem: React.FC<CommentItemProps> = ({
-  comment,
-  onLike,
-  onDislike,
-}) => {
-  const initials = getInitials(comment.name);
-  const avatarColor = getAvatarColor(comment.name);
+// ---------- Composer ----------
+const CommentComposer: React.FC<{ onSubmit: (text: string) => Promise<void> }> = ({ onSubmit }) => {
+	const [text, setText] = useState("");
+	const [loading, setLoading] = useState(false);
 
-  return (
-    <div className="reply-item">
-      <div className="reply-content">
-        <div className="reply-header">
-          <div className="user-avatar small" style={{ backgroundColor: avatarColor }}>
-            {initials}
-          </div>
-          <div className="user-info">
-            <span className="author-name">{comment.name}</span>
-            <span className="comment-time">{comment.time}</span>
-          </div>
-        </div>
-        <p className="reply-text">{comment.text}</p>
-      </div>
-      <div className="reply-actions">
-        <button
-          className={`action-btn like-btn small ${comment.is_liked ? 'liked' : ''}`}
-          onClick={() => onLike(comment.id)}
-        >
-          <span className="action-icon">
-            <ThumbsUp size={14} fill={comment.is_liked ? "currentColor" : "none"} />
-          </span>
-          <span className="action-count">{comment.likes}</span>
-        </button>
+	const submit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!text.trim() || loading) return;
 
-        <button
-          className={`action-btn dislike-btn small ${comment.is_disliked ? 'disliked' : ''}`}
-          onClick={() => onDislike(comment.id)}
-        >
-          <span className="action-icon">
-            <ThumbsDown size={14} fill={comment.is_disliked ? "currentColor" : "none"} />
-          </span>
-          <span className="action-count">{comment.dislikes}</span>
-        </button>
-      </div>
-    </div>
-  );
+		setLoading(true);
+		try {
+			await onSubmit(text.trim());
+			setText("");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	return (
+		<form className="comment-composer" onSubmit={submit}>
+			<textarea
+				className="comment-input"
+				value={text}
+				onChange={(e) => setText(e.target.value)}
+				placeholder="نظر خود را بنویسید..."
+				rows={4}
+				required
+			/>
+			<div className="composer-actions">
+				<button type="submit" className="comment-submit-button" disabled={!text.trim() || loading}>
+					ارسال
+				</button>
+			</div>
+		</form>
+	);
 };
 
-const CommentItem: React.FC<CommentItemProps> = ({
-  comment,
-  onLike,
-  onDislike,
-  currentUserName = 'کاربر',
-  showReplyButton = true,
-  onReplyClick,
-  onViewReplies,
-  isReply = false,
-}) => {
-  const [showReplies, setShowReplies] = useState(false);
-  const [showReplyInput, setShowReplyInput] = useState(false);
-  const [replyText, setReplyText] = useState('');
-  
-  const initials = getInitials(comment.name);
-  const avatarColor = getAvatarColor(comment.name);
+// ---------- Reply Item ----------
+const ReplyItem: React.FC<{
+	reply: Reply;
+	onLike: (id: number) => void;
+	onDislike: (id: number) => void;
+}> = ({ reply, onLike, onDislike }) => {
+	const displayName = reply.isAnonymous ? "ناشناس" : reply.name;
+	const initials = getInitials(displayName);
+	const avatarColor = getAvatarColor(displayName);
 
-  const handleReplySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (replyText.trim() && onReplyClick) {
-      // اینجا می‌توانید API call برای ذخیره پاسخ اضافه کنید
-      const newReply: Reply = {
-        id: Date.now(),
-        user: {
-          name: currentUserName,
-        },
-        time: 'همین الان',
-        text: replyText.trim(),
-        likes: 0,
-        dislikes: 0,
-        is_liked: false,
-        is_disliked: false,
-      };
-      
-      // اضافه کردن پاسخ به لیست پاسخ‌ها
-      if (comment.replies) {
-        comment.replies.push(newReply);
-      } else {
-        comment.replies = [newReply];
-      }
-      
-      setReplyText('');
-      setShowReplyInput(false);
-      
-      // فراخوانی تابع callback
-      onReplyClick(comment.id);
-    }
-  };
+	return (
+		<div className="reply-item">
+			<div className="reply-content">
+				<div className="reply-header">
+					<div className="user-avatar small" style={{ backgroundColor: avatarColor }}>
+						{initials}
+					</div>
+					<div className="user-info">
+						<span className="author-name">{displayName}</span>
+						{reply.isAnonymous ? null : reply.username ? <span className="reply-username">@{reply.username}</span> : null}
+						<span className="comment-time">{timeAgoFa(reply.time)}</span>
+					</div>
+				</div>
+				<p className="reply-text">{reply.text}</p>
+			</div>
 
-  const toggleReplies = () => {
-    setShowReplies(!showReplies);
-    if (onViewReplies && !showReplies) {
-      onViewReplies(comment.id);
-    }
-  };
+			<div className="reply-actions">
+				<button className={`action-btn like-btn small ${reply.is_liked ? "liked" : ""}`} onClick={() => onLike(reply.id)}>
+					<span className="action-icon">
+						<ThumbsUp size={14} fill={reply.is_liked ? "currentColor" : "none"} />
+					</span>
+					<span className="action-count">{reply.likes}</span>
+				</button>
 
-  if (isReply) {
-    return <ReplyItem comment={comment} onLike={onLike} onDislike={onDislike} />;
-  }
-
-  return (
-    <div className={`comment ${comment.replies && comment.replies.length > 0 ? 'has-replies' : ''}`}>
-      <div className="comment-header">
-        <div className="comment-user-avatar" style={{ backgroundColor: avatarColor }}>
-          {initials}
-        </div>
-        <div className="user-info">
-          <span className="author-name">{comment.name}</span>
-          <span className="comment-time">{comment.time}</span>
-        </div>
-      </div>
-      <p className="comment-content">{comment.text}</p>
-      <div className="comment-actions">
-        <div className="action-group">
-          <button
-            className={`action-btn like-btn ${comment.is_liked ? 'liked' : ''}`}
-            onClick={() => onLike(comment.id)}
-          >
-            <span className="action-icon">
-              <ThumbsUp size={18} fill={comment.is_liked ? "currentColor" : "none"} />
-            </span>
-            <span className="action-count">{comment.likes}</span>
-          </button>
-
-          <button
-            className={`action-btn dislike-btn ${comment.is_disliked ? 'disliked' : ''}`}
-            onClick={() => onDislike(comment.id)}
-          >
-            <span className="action-icon">
-              <ThumbsDown size={18} fill={comment.is_disliked ? "currentColor" : "none"} />
-            </span>
-            <span className="action-count">{comment.dislikes}</span>
-          </button>
-        </div>
-        
-        <div className="action-group">
-          {showReplyButton && (
-            <button 
-              className="action-btn reply-btn"
-              onClick={() => setShowReplyInput(!showReplyInput)}
-            >
-              <span className="action-icon">
-                <MessageCircle size={18} />
-              </span>
-              <span className="action-text">پاسخ</span>
-            </button>
-          )}
-          
-          {comment.replies && comment.replies.length > 0 && (
-            <button 
-              className="action-btn view-replies-btn"
-              onClick={toggleReplies}
-            >
-              <span className="action-icon">
-                {showReplies ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </span>
-              <span className="action-text">
-                {comment.replies.length} پاسخ
-              </span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* فرم پاسخ‌دهی */}
-      {showReplyInput && (
-        <form className="reply-form" onSubmit={handleReplySubmit}>
-          <div className="reply-input-wrapper">
-            <textarea
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder={`پاسخ به ${comment.name}...`}
-              className="reply-input"
-              rows={3}
-              required
-            />
-            <div className="reply-form-actions">
-              <button 
-                type="button" 
-                className="comment-cancel-btn small"
-                onClick={() => setShowReplyInput(false)}
-              >
-                انصراف
-              </button>
-              <button 
-                type="submit" 
-                className="comment-submit-button small"
-                disabled={!replyText.trim()}
-              >
-                ارسال پاسخ
-              </button>
-            </div>
-          </div>
-        </form>
-      )}
-
-      {/* نمایش پاسخ‌ها */}
-      {showReplies && comment.replies && comment.replies.length > 0 && (
-        <div className="replies-list">
-          {comment.replies.map(reply => (
-            <div key={reply.id} className="reply-wrapper">
-              <ReplyItem 
-                comment={{
-                  id: reply.id,
-                  name: reply.user.name,
-                  time: reply.time,
-                  text: reply.text,
-                  likes: reply.likes,
-                  dislikes: reply.dislikes,
-                  is_liked: reply.is_liked,
-                  is_disliked: reply.is_disliked,
-                }}
-                onLike={onLike}
-                onDislike={onDislike}
-                isReply={true}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+				<button className={`action-btn dislike-btn small ${reply.is_disliked ? "disliked" : ""}`} onClick={() => onDislike(reply.id)}>
+					<span className="action-icon">
+						<ThumbsDown size={14} fill={reply.is_disliked ? "currentColor" : "none"} />
+					</span>
+					<span className="action-count">{reply.dislikes}</span>
+				</button>
+			</div>
+		</div>
+	);
 };
 
-const CommentModal: React.FC<CommentModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  onSubmit, 
-  currentUserName, 
-  postId 
-}) => {
-  const [text, setText] = useState('');
+// ---------- Comment Item ----------
+const CommentItem: React.FC<{
+	comment: Comment;
+	onLike: (commentId: number) => void;
+	onDislike: (commentId: number) => void;
+	onReplySubmit: (parentCommentId: number, text: string) => Promise<void>;
+	onLoadReplies: (commentId: number) => Promise<void>;
+}> = ({ comment, onLike, onDislike, onReplySubmit, onLoadReplies }) => {
+	const [showReplies, setShowReplies] = useState(false);
+	const [replyOpen, setReplyOpen] = useState(false);
+	const [replyText, setReplyText] = useState("");
+	const [loadingReplies, setLoadingReplies] = useState(false);
+	const [submittingReply, setSubmittingReply] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (text.trim()) {
-      onSubmit({ text: text.trim() });
-      setText('');
-      onClose();
-    }
-  };
+	const displayName = comment.isAnonymous ? "ناشناس" : comment.name;
+	const initials = getInitials(displayName);
+	const avatarColor = getAvatarColor(displayName);
 
-  const initials = getInitials(currentUserName);
-  const avatarColor = getAvatarColor(currentUserName);
+	const toggleReplies = async () => {
+		const next = !showReplies;
+		setShowReplies(next);
 
-  if (!isOpen) return null;
+		if (next && (comment.replies?.length ?? 0) === 0 && (comment.replyCount ?? 0) > 0) {
+			setLoadingReplies(true);
+			try {
+				await onLoadReplies(comment.id);
+			} finally {
+				setLoadingReplies(false);
+			}
+		}
+	};
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <div className="modal-header">
-          <h3>نظر جدید</h3>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
-        <form onSubmit={handleSubmit} className="comment-form">
-          <div className="modal-user-info">
-            <div className="user-avatar" style={{ backgroundColor: avatarColor }}>
-              {initials}
-            </div>
-            <span className="author-name">{currentUserName}</span>
-          </div>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="نظر خود را بنویسید..."
-            className="comment-input"
-            rows={4}
-            required
-          />
-          <div className="modal-actions">
-            <button type="button" className="comment-cancel-btn" onClick={onClose}>
-              انصراف
-            </button>
-            <button 
-              type="submit" 
-              className="comment-submit-button" 
-              onClick={() => createComment(postId, text)}
-              disabled={!text.trim()}
-            >
-              ارسال نظر
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+	const submitReply = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!replyText.trim() || submittingReply) return;
+
+		setSubmittingReply(true);
+		try {
+			await onReplySubmit(comment.id, replyText.trim());
+			setReplyText("");
+			setReplyOpen(false);
+			setShowReplies(true);
+		} finally {
+			setSubmittingReply(false);
+		}
+	};
+
+	return (
+		<div className={`comment ${(comment.replyCount ?? 0) > 0 ? "has-replies" : ""}`}>
+			<div className="comment-header">
+				<div className="comment-user-avatar" style={{ backgroundColor: avatarColor }}>
+					{initials}
+				</div>
+
+				<div className="user-info">
+					<div className="comment-author-row">
+						<span className="author-name">{displayName}</span>
+						{comment.isAnonymous ? null : comment.username ? <span className="comment-username">@{comment.username}</span> : null}
+						<span className="comment-time">{timeAgoFa(comment.time)}</span>
+					</div>
+				</div>
+			</div>
+
+			<p className="comment-content">{comment.text}</p>
+
+			<div className="comment-actions">
+				<div className="action-group">
+					<button className={`action-btn like-btn ${comment.is_liked ? "liked" : ""}`} onClick={() => onLike(comment.id)}>
+						<span className="action-icon">
+							<ThumbsUp size={18} fill={comment.is_liked ? "currentColor" : "none"} />
+						</span>
+						<span className="action-count">{comment.likes}</span>
+					</button>
+
+					<button className={`action-btn dislike-btn ${comment.is_disliked ? "disliked" : ""}`} onClick={() => onDislike(comment.id)}>
+						<span className="action-icon">
+							<ThumbsDown size={18} fill={comment.is_disliked ? "currentColor" : "none"} />
+						</span>
+						<span className="action-count">{comment.dislikes}</span>
+					</button>
+
+					<button className="action-btn reply-btn" onClick={() => setReplyOpen((p) => !p)}>
+						<span className="action-icon">
+							<MessageCircle size={18} />
+						</span>
+						<span className="action-text">پاسخ</span>
+					</button>
+				</div>
+
+				{(comment.replyCount ?? 0) > 0 && (
+					<button className="action-btn view-replies-btn" onClick={toggleReplies}>
+						<span className="action-icon">{showReplies ? <ChevronUp size={18} /> : <ChevronDown size={18} />}</span>
+						<span className="action-text">{comment.replyCount} پاسخ</span>
+					</button>
+				)}
+			</div>
+
+			{replyOpen && (
+				<form className="reply-form" onSubmit={submitReply}>
+					<div className="reply-input-wrapper">
+						<textarea
+							value={replyText}
+							onChange={(e) => setReplyText(e.target.value)}
+							placeholder={`پاسخ به ${displayName}...`}
+							className="reply-input"
+							rows={3}
+							required
+						/>
+						<div className="reply-form-actions">
+							<button type="button" className="comment-cancel-btn small" onClick={() => setReplyOpen(false)}>
+								انصراف
+							</button>
+							<button type="submit" className="comment-submit-button small" disabled={!replyText.trim() || submittingReply}>
+								ارسال پاسخ
+							</button>
+						</div>
+					</div>
+				</form>
+			)}
+
+			{showReplies && (
+				<div className="replies-list">
+					{loadingReplies ? <div className="replies-loading">در حال بارگذاری پاسخ‌ها...</div> : null}
+
+					{(comment.replies ?? []).map((r) => (
+						<div key={r.id} className="reply-wrapper">
+							<ReplyItem reply={r} onLike={onLike} onDislike={onDislike} />
+						</div>
+					))}
+				</div>
+			)}
+		</div>
+	);
 };
 
-const ReplyModal: React.FC<ReplyModalProps> = ({
-  isOpen,	
-  onClose,
-  onSubmit,
-  currentUserName,
-  parentCommentId
-}) => {
-  const [text, setText] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (text.trim()) {
-      onSubmit({ text: text.trim(), parentId: parentCommentId });
-      setText('');
-      onClose();
-    }
-  };
-
-  const initials = getInitials(currentUserName);
-  const avatarColor = getAvatarColor(currentUserName);
-
-  if (!isOpen) return null;
-
-  return null;
-};
-
+// ---------- Main ----------
 const Comments: React.FC<CommentsProps> = ({
-  initialComments = [],
-  comments: externalComments,
-  setComments: externalSetComments,
-  title = "نظرات",
-  currentUserName = "کاربر",
-  post,
-  showReplyButton = true
+	initialComments = [],
+	comments: externalComments,
+	setComments: externalSetComments,
+	title = "نظرات",
+	currentUserName = "کاربر",
+	post,
+	postId,
+	showComposer = true,
 }) => {
-  const [internalComments, internalSetComments] = useState<Comment[]>(initialComments);
-  const comments = externalComments ?? internalComments;
-  const setComments = externalSetComments ?? internalSetComments;
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
-  const [selectedCommentId, setSelectedCommentId] = useState<number | null>(null);
+	const [internalComments, internalSetComments] = useState<Comment[]>(initialComments);
+	const comments = externalComments ?? internalComments;
+	const setComments = externalSetComments ?? internalSetComments;
 
-  const handleAddComment = (newComment: { text: string }) => {
-    const addedComment: Comment = {
-      id: Date.now(),
-      name: currentUserName,
-      time: 'همین الان',
-      text: newComment.text,
-      likes: 0,
-      dislikes: 0,
-      is_liked: false,
-      is_disliked: false,
-      replies: [],
-      replyCount: 0
-    };
-    setComments(prev => [addedComment, ...prev]);
-  };
+	const targetPostId = useMemo(() => postId ?? post?.id ?? -1, [postId, post]);
 
-  const handleAddReply = (newReply: { text: string; parentId: number }) => {
-    setComments(prev => prev.map(comment => {
-      if (comment.id === newReply.parentId) {
-        const reply: Reply = {
-          id: Date.now(),
-          user: {
-            name: currentUserName,
-          },
-          time: 'همین الان',
-          text: newReply.text,
-          likes: 0,
-          dislikes: 0,
-          is_liked: false,
-          is_disliked: false,
-        };
+	const addTopLevelComment = async (text: string) => {
+		if (targetPostId < 0) return;
 
-        const updatedReplies = [...(comment.replies || []), reply];
-        
-        return {
-          ...comment,
-          replies: updatedReplies,
-          replyCount: updatedReplies.length
-        };
-      }
-      return comment;
-    }));
-  };
+		// optimistic insert
+		const optimistic: Comment = {
+			id: Date.now(),
+			user: { id: -1, name: currentUserName, username: "none", avatar: undefined },
+			name: currentUserName,
+			username: undefined,
+			avatar: undefined,
+			isAnonymous: false,
+			time: new Date().toISOString(),
+			text,
+			likes: 0,
+			dislikes: 0,
+			is_liked: false,
+			is_disliked: false,
+			replies: [],
+			replyCount: 0,
+		};
 
-  const handleLike = async (commentId: number) => {
-    const like_result = await likeComment(commentId);
-    setComments(prev => prev.map(comment =>
-      comment.id === commentId
-        ? {
-          ...comment,
-          likes: like_result.likes_count,
-          dislikes: like_result.dislikes_count,
-          is_liked: like_result.is_liked,
-          is_disliked: like_result.is_disliked,
-        }
-        : comment
-    ));
-  };
+		setComments((prev) => [optimistic, ...prev]);
 
-  const handleDislike = async (commentId: number) => {
-    const dislike_result = await dislikeComment(commentId);
-    setComments(prev => prev.map(comment =>
-      comment.id === commentId
-        ? {
-          ...comment,
-          likes: dislike_result.likes_count,
-          dislikes: dislike_result.dislikes_count,
-          is_liked: dislike_result.is_liked,
-          is_disliked: dislike_result.is_disliked,
-        }
-        : comment
-    ));
-  };
+		try {
+			await createCommentOnPost(targetPostId, text);
+		} catch (e) {
+			setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
+			throw e;
+		}
+	};
 
-  const handleReplyClick = (commentId: number) => {
-    setSelectedCommentId(commentId);
-    setIsReplyModalOpen(true);
-  };
+	const handleReplySubmit = async (parentCommentId: number, text: string) => {
+		const optimisticReply: Reply = {
+			id: Date.now(),
+			user: { name: currentUserName },
+			name: currentUserName,
+			username: undefined,
+			avatar: undefined,
+			isAnonymous: false,
+			time: new Date().toISOString(),
+			text,
+			likes: 0,
+			dislikes: 0,
+			is_liked: false,
+			is_disliked: false,
+		};
 
-  const handleViewReplies = (commentId: number) => {
-    // اینجا می‌توانید برای لود کردن پاسخ‌های بیشتر از API استفاده کنید
-    console.log(`در حال لود کردن پاسخ‌های نظر ${commentId}`);
-  };
+		setComments((prev) =>
+			prev.map((c) =>
+				c.id === parentCommentId
+					? {
+							...c,
+							replies: [...(c.replies ?? []), optimisticReply],
+							replyCount: (c.replyCount ?? 0) + 1,
+					  }
+					: c
+			)
+		);
 
-  return (
-    <div className="comments-container">
-      <div className="comments-card">
-        {post && <PostHeader post={post} />}
+		try {
+			await createReplyOnComment(parentCommentId, text);
+		} catch (e) {
+			setComments((prev) =>
+				prev.map((c) =>
+					c.id === parentCommentId
+						? {
+								...c,
+								replies: (c.replies ?? []).filter((r) => r.id !== optimisticReply.id),
+								replyCount: Math.max(0, (c.replyCount ?? 1) - 1),
+						  }
+						: c
+				)
+			);
+			throw e;
+		}
+	};
 
-        <div className="comments-header">
-          <h2 className="comments-title">{title}</h2>
-          <button
-            className="add-comment-btn"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <span className="btn-icon">✏️</span>
-            نظر خود را بنویسید
-          </button>
-        </div>
+	const handleLoadReplies = async (commentId: number) => {
+		const replies = await getRepliesForComment(commentId);
+		setComments((prev) =>
+			prev.map((c) => (c.id === commentId ? { ...c, replies, replyCount: replies.length } : c))
+		);
+	};
 
-        <div className="comments-list">
-          {comments.map(comment => (
-            <CommentItem
-              key={comment.id}
-              comment={comment}
-              onLike={handleLike}
-              onDislike={handleDislike}
-              currentUserName={currentUserName}
-              showReplyButton={showReplyButton}
-              onReplyClick={handleReplyClick}
-              onViewReplies={handleViewReplies}
-            />
-          ))}
+	// IMPORTANT: likeComment/dislikeComment return Post (frontend), not likes_count fields.
+	const handleLike = async (commentId: number) => {
+		const r = await likeComment(commentId);
+		setComments((prev) =>
+			prev.map((c) =>
+				c.id === commentId
+					? {
+							...c,
+							likes: r.likes,
+							dislikes: r.dislikes,
+							is_liked: r.isLiked ?? true,
+							is_disliked: r.isDisliked ?? false,
+					  }
+					: c
+			)
+		);
+	};
 
-          {comments.length === 0 && (
-            <div className="empty-state">
-              <h3>هنوز نظری ثبت نشده است</h3>
-              <p>اولین نفری باشید که نظر می‌دهد!</p>
-            </div>
-          )}
-        </div>
+	const handleDislike = async (commentId: number) => {
+		const r = await dislikeComment(commentId);
+		setComments((prev) =>
+			prev.map((c) =>
+				c.id === commentId
+					? {
+							...c,
+							likes: r.likes,
+							dislikes: r.dislikes,
+							is_liked: r.isLiked ?? false,
+							is_disliked: r.isDisliked ?? true,
+					  }
+					: c
+			)
+		);
+	};
 
-        <CommentModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSubmit={handleAddComment}
-          currentUserName={currentUserName}
-          postId={post ? post.id : -1}
-        />
+	return (
+		<div className="comments-container">
+			<div className="comments-card">
+				{post ? <PostHeader post={post} /> : null}
 
-        <ReplyModal
-          isOpen={isReplyModalOpen}
-          onClose={() => {
-            setIsReplyModalOpen(false);
-            setSelectedCommentId(null);
-          }}
-          onSubmit={handleAddReply}
-          currentUserName={currentUserName}
-          parentCommentId={selectedCommentId || -1}
-        />
-      </div>
-    </div>
-  );
+				<div className="comments-header simple">
+					<h2 className="comments-title">{title}</h2>
+				</div>
+
+				{showComposer ? <CommentComposer onSubmit={addTopLevelComment} /> : null}
+
+				<div className="comments-list">
+					{comments.map((c) => (
+						<CommentItem
+							key={c.id}
+							comment={c}
+							onLike={handleLike}
+							onDislike={handleDislike}
+							onReplySubmit={handleReplySubmit}
+							onLoadReplies={handleLoadReplies}
+						/>
+					))}
+
+					{comments.length === 0 ? (
+						<div className="empty-state">
+							<h3>هنوز نظری ثبت نشده است</h3>
+							<p>اولین نفری باشید که نظر می‌دهد!</p>
+						</div>
+					) : null}
+				</div>
+			</div>
+		</div>
+	);
 };
 
 export default Comments;

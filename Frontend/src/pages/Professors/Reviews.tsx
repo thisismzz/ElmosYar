@@ -6,7 +6,7 @@ import { Search, TrendingUp } from "lucide-react";
 import { Card } from "../../components/UILib";
 import { useFilters } from "../../contexts/FilterContext";
 import { useNavigate } from "react-router-dom";
-import { postService } from '../../services/PostService';
+import { likePost, postService } from '../../services/PostService';
 
 
 export const getReviewPosts = async (search?: string): Promise<Review[]> => {
@@ -88,9 +88,9 @@ export function ReviewPage() {
 							<ReviewCard
 								key={review.id}
 								review={review}
-								onLike={() => {console.log("tried to like")}}
-								onComment={() => {console.log("tried to comment")}}
-								onClick={() => navigate(`/topic/professors/${review.professorName}`)}
+								onLike={() => {likePost(review.id)}}
+								// onComment={() => {console.log("tried to comment")}}
+								// onClick={() => navigate(`/topic/professors/${review.professorName}`)}
 								showDetailedRatings={true}
 							/>
 						))
