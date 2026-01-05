@@ -151,11 +151,9 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 					<h3>هیچ غذایی موجود نیست</h3>
 					<p>برای شروع، غذای جدیدی اضافه کنید</p>
 					<button 
-						className="add-post-button empty-state-button"
+						className="empty-state-button"
 						onClick={() => setIsAddModalOpen(true)}
 					>
-						<Plus size={20} />
-						<span>اضافه کردن اولین غذا</span>
 					</button>
 				</div>
 			) : (
