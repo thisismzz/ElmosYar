@@ -335,7 +335,6 @@
 }
 
 .buy-button:hover {
-  background: linear-gradient(135deg, #2980b9, #3498db);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
 }
