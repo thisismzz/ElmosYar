@@ -10,7 +10,7 @@ export interface FoodItem {
   location: string;
   date: string;
   price: number;
-  isSoldOut: boolean;
+  isSoldOut: boolean | string;
 }
 
 export interface PaymentModalProps {
@@ -43,5 +43,5 @@ export type FoodPostSearchProps = {
 	location?: "سلف مرکزی" | "سلف یاس" | "خوابگاه حکیمیه" | "خوابگاه خواهران" | "خوابگاه برادران" | "خوابگاه سراج" | "خوابگاه مجیدیه",
 	date?: string,
 	price?: [number, number],
-	isSoldOut?: boolean,
+	isSoldOut?: boolean | string,
 }

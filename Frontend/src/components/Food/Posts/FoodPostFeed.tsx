@@ -67,7 +67,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 			</div>
 
 			<div className="card-footer">
-				{item.isSoldOut ? (
+				{item.isSoldOut != "false" ? (
 					<div className="sold-out-section">
 						<span className="sold-out-badge">تمام شده</span>
 						<span className="sold-out-text">این غذا فعلاً موجود نیست</span>
@@ -82,7 +82,7 @@ export const FoodPostCard: React.FC<FoodPostCardProps> = ({ item, onBuy }) => {
 				)}
 			</div>
 
-			{item.isSoldOut && (
+			{(item.isSoldOut != "false") && (
 				<div className="sold-out-overlay">
 					<span>تمام شده</span>
 				</div>
@@ -110,7 +110,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems 
 
 	
 	const handleBuyFood = (item: FoodItem) => {
-		if (item.isSoldOut) {
+		if (item.isSoldOut != "false" ) {
 			alert(`متاسفانه ${item.name} تمام شده است!`);
 			return;
 		}

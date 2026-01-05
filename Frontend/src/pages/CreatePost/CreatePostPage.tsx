@@ -19,7 +19,7 @@ export function CreatePostPage(props: { starting_category?: CreateCategory }) {
 					<CardBody className="overflow-hidden">
 						<SegmentedControl<CreateCategory>
 							value={category}
-							onChange={setCategory}
+							onChange={(t) => {setCategory(t); navigate("/create/" + t)}}
 							options={[
 								{ value: "food", label: "غذا" },
 								{ value: "review", label: "استاد" },
