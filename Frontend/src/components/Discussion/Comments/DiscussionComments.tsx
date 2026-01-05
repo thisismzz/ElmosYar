@@ -32,8 +32,62 @@ const getAvatarColor = (name: string): string => {
   return colors[index];
 };
 
+const formatTimeAgo = (timestamp: string): string => {
+  const now = new Date();
+  const postDate = new Date(timestamp);
+  
+  if (isNaN(postDate.getTime())) {
+    return 'اخیراً';
+  }
+  
+  const diffInSeconds = Math.floor((now.getTime() - postDate.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return 'همین حالا';
+  
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) return `${diffInMinutes} دقیقه پیش`;
+  
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours === 1) return '1 ساعت پیش';
+  if (diffInHours < 24) return `${diffInHours} ساعت پیش`;
+  
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays === 1) return 'دیروز';
+  if (diffInDays < 30) return `${diffInDays} روز پیش`;
+  
+  const diffInMonths = Math.floor(diffInDays / 30);
+  if (diffInMonths === 1) return '1 ماه پیش';
+  if (diffInMonths < 12) return `${diffInMonths} ماه پیش`;
+  
+  const diffInYears = Math.floor(diffInMonths / 12);
+  if (diffInYears === 1) return '1 سال پیش';
+  return `${diffInYears} سال پیش`;
+};
+
+const formatCommentTime = (timeStr: string): string => {
+  if (!timeStr) return 'اخیراً';
+  
+  try {
+    const date = new Date(timeStr);
+    if (!isNaN(date.getTime())) {
+      return formatTimeAgo(timeStr);
+    }
+  } catch (e) {
+    // ignore
+  }
+  
+  const timeMap: Record<string, string> = {
+    'همین الان': 'همین حالا',
+    'همین حالا': 'همین حالا',
+    'چند لحظه پیش': 'همین حالا',
+    'دقایقی پیش': 'دقایقی پیش',
+  };
+  
+  return timeMap[timeStr] || timeStr || 'اخیراً';
+};
+
 const PostHeader = ({ post }: PostHeaderProps) => {
-  const formatTimeAgo = (timestamp: string) => {
+  const formatPostTimeAgo = (timestamp: string) => {
     const now = new Date();
     const postDate = new Date(timestamp);
     const diffInHours = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60 * 60));
@@ -54,7 +108,7 @@ const PostHeader = ({ post }: PostHeaderProps) => {
         </div>
         <div className="discussion-user-details">
           <span className="discussion-author-name">{post.user.name}</span>
-          <span className="discussion-post-time">{formatTimeAgo(post.timestamp)}</span>
+          <span className="discussion-post-time">{formatPostTimeAgo(post.timestamp)}</span>
         </div>
       </div>
 
@@ -105,7 +159,7 @@ const ReplyItem: React.FC<CommentItemProps> = ({
           </div>
           <div className="user-info">
             <span className="author-name">{comment.name}</span>
-            <span className="comment-time">{comment.time}</span>
+            <span className="comment-time">{formatCommentTime(comment.time)}</span>
           </div>
         </div>
         <p className="reply-text">{comment.text}</p>
@@ -161,7 +215,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
         user: {
           name: currentUserName,
         },
-        time: 'همین الان',
+        time: new Date().toISOString(), // ذخیره timestamp واقعی
         text: replyText.trim(),
         likes: 0,
         dislikes: 0,
@@ -203,7 +257,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
         </div>
         <div className="user-info">
           <span className="author-name">{comment.name}</span>
-          <span className="comment-time">{comment.time}</span>
+          <span className="comment-time">{formatCommentTime(comment.time)}</span>
         </div>
       </div>
       <p className="comment-content">{comment.text}</p>
@@ -429,7 +483,7 @@ const Comments: React.FC<CommentsProps> = ({
     const addedComment: Comment = {
       id: Date.now(),
       name: currentUserName,
-      time: 'همین الان',
+      time: new Date().toISOString(), // ذخیره timestamp واقعی
       text: newComment.text,
       likes: 0,
       dislikes: 0,
@@ -449,7 +503,7 @@ const Comments: React.FC<CommentsProps> = ({
           user: {
             name: currentUserName,
           },
-          time: 'همین الان',
+          time: new Date().toISOString(), // ذخیره timestamp واقعی
           text: newReply.text,
           likes: 0,
           dislikes: 0,
