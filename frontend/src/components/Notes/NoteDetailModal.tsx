@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Edit2, Trash2, Pin, Folder } from 'lucide-react';
+import moment from 'moment-jalaali';
 import './NoteDetailModal.css';
 
 type Note = {
@@ -30,6 +31,20 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
   onDelete,
   showActions = true,
 }) => {
+ 
+const formatToPersianDateTime = (dateString: string): string => {
+  try {
+    const m = moment(dateString);
+    return m.format('jYYYY/jMM/jDD - HH:mm');
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return dateString;
+  }
+};
+
+const persianDateTime = formatToPersianDateTime(note.updatedAt);
+<span className="note-modal-date">{persianDateTime}</span>
+
   const handleEdit = () => {
     {onEdit && onEdit(note.id)};
     onClose();
@@ -74,7 +89,7 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
               <Folder size={14} /> {folderName}
             </span>
           )}
-          <span className="note-modal-date">{new Date(note.updatedAt).toLocaleDateString()}</span>
+          <span className="note-modal-date">{persianDateTime}</span>
         </footer>
       </div>
     </div>
