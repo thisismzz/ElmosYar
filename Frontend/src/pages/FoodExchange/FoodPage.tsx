@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import './FoodPage.css';
 import { FoodItem } from '../../types/food_posts';
 import { FoodPostFeed } from '../../components/Food/Posts/FoodPostFeed';
 import FoodFilters from '../../components/Food/Filter/FoodFilters';
-import { postService } from '../../services/PostService';
-import { useFilters } from '../../contexts/FilterContext';
-import { FoodPostSearchProps } from '../../types/food_posts';
-// import { FilterButton, FilterValues, FilterField } from '../../components/FilterButton';
+import { usePosts } from '../../hooks/usePosts';
+import type { Post } from '../../types/discussion_posts';
 import { FilterButtonConnected } from '../../components/FilterButtonConnected';
 type FilterKey = "day" | "cafeteria" | "meal";
 type FilterVal = string;
@@ -37,79 +35,26 @@ type K = (typeof fields)[number]["key"];
 type V = (typeof fields)[number]["options"][number]["value"];
 
 
+const mapPostToFoodItem = (post: Post): FoodItem => ({
+	id: post.id,
+	name: post.attributes.name,
+	mealType: post.attributes.mealType,
+	location: post.attributes.location,
+	date: post.attributes.date,
+	day: post.attributes.day,
+	price: post.attributes.price,
+	isSoldOut: post.attributes.isSoldOut === "true",
+});
+
 const FoodPage: React.FC = () => {
-	const [foodItems, setFoodItems] = useState<FoodItem[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const { getFilter, serializeSearch } = useFilters();
-	// const [filters, setFilters] = useState<FilterValues<FilterKey, FilterVal>>({});
-
-
-	// Get filter values with defaults
-	const mealType = getFilter('mealType', '');
-	const location = getFilter('location', '');
-	const day = getFilter('day', '');
-	const searchQuery = getFilter('q', '');
-
-
-
-	// Create filter dependency array for useEffect
-	const filterDependencies = useMemo(() => {
-		return { mealType, location, day, searchQuery };
-	}, [mealType, location, day, searchQuery]);
-
-
-
-
-
-
-	const getFoodPosts = async (search?: string): Promise<FoodItem[]> => {
-
-		const food_posts = await postService.getPosts({
-			category: "food",
-			search,
-		});
-
-		const result: FoodItem[] = [];
-
-		for (const post of food_posts.posts) {
-			const post_content_json = post.attributes;
-			result.push({
-				id: post.id,
-				name: post_content_json.name,
-				mealType: post_content_json.mealType,
-				location: post_content_json.location,
-				date: post_content_json.date,
-				day: post_content_json.day,
-				price: post_content_json.price,
-				isSoldOut: post_content_json.isSoldOut === "true",
-			});
-		}
-
-		return result;
-	};
-
-	useEffect(() => {
-		const fetchFoodItems = async () => {
-			try {
-				setLoading(true);
-
-				const response = await getFoodPosts(
-					serializeSearch && serializeSearch(['mealType', 'location', 'day', 'name'])
-				);
-
-				setFoodItems(response);
-				
-			} catch (err) {
-				setError('خطا در دریافت اطلاعات غذاها');
-				console.error(err);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchFoodItems();
-	}, [filterDependencies]); // Depend on the filterDependencies object
+	const { posts, loading, error } = usePosts({ 
+		allowedSearchKeys: ['mealType', 'location', 'day', 'name']
+	});
+	
+	const foodItems = useMemo(() => 
+		posts.map(mapPostToFoodItem),
+		[posts]
+	);
 
 	if (loading) {
 		return (

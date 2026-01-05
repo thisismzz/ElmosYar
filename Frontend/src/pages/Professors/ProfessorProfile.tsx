@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "../../components/UILib"; 
 import { Card } from "../../components/UILib"; 
 import { Avatar, AvatarFallback } from "../../components/UILib"; 
@@ -16,29 +16,42 @@ import {
 } from "../../components/select";
 
 import { useNavigate, useParams } from "react-router-dom";
-import { getReviewPosts } from "./Reviews";
+import { usePosts } from "../../hooks/usePosts";
+import type { Post } from '../../types/discussion_posts';
+
+const mapPostToReview = (post: Post): Review => ({
+	id: post.id,
+	professorName: post.attributes.professorName,
+	faculty: post.attributes.faculty,
+	courseName: post.attributes.courseName,
+	semester: post.attributes.semester,
+	overallRating: parseFloat(post.attributes.overallRating),
+	ratings: {
+		teaching: parseFloat(post.attributes.ratingsTeaching),
+		grading: parseFloat(post.attributes.ratingsGrading),
+		clarity: parseFloat(post.attributes.ratingsClarity),
+		helpfulness: parseFloat(post.attributes.ratingsHelpfulness),
+		satisfaction: parseFloat(post.attributes.ratingsSatisfaction),
+	},
+	comment: post.attributes.body,
+	likes: post.likes,
+	comments: post.comments,
+	isLiked: post.isLiked,
+});
 
 export function ProfessorProfilePage(
 ) {
 	const navigate = useNavigate();
 	const {professorName} = useParams();
-	const [reviews, setReviews] = useState<Review[]>([]);
+	const { posts } = usePosts();
+	
+	const reviews = useMemo(() => 
+		posts.map(mapPostToReview),
+		[posts]
+	);
 
   const [sortBy, setSortBy] = useState("جدید");
 
-
-  useEffect(() => {
-			const fetchReviews = async () => {
-					
-					
-					const response = await getReviewPosts();
-					console.log(response);
-					setReviews(response);
-			};
-	
-			fetchReviews();
-
-  }, [])
   const professorReviews = reviews.filter((r) => r.professorName === professorName);
   
   // Calculate average rating

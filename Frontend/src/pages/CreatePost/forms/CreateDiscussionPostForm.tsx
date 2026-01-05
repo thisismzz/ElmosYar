@@ -298,10 +298,11 @@ export function CreateDiscussionPostForm(props: {
           type="submit"
           disabled={isSubmitting || !content.trim()}
           className="h-11"
-		  onClick={() => {createPost('discussion', '', {
-			body: content
-		  });
-		console.log(content)}}
+          onClick={() => {createPost('discussion', {
+            body: content,
+            tags: tags.join(','),
+          });
+		      console.log(content)}}
         >
           {isSubmitting ? (
             <>
