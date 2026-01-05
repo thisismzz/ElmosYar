@@ -22,8 +22,10 @@ import { MobileBottomNav } from './components/SideBars/MobileBottomNav';
 import TransactionHistoryPage from './pages/TransactionHistory';
 import { ReviewPage } from './pages/Professors/Reviews';
 import { ProfessorProfilePage } from './pages/Professors/ProfessorProfile';
-import { CreateReviewPage, CreateDiscussionPost, CreateFoodPost } from './pages/CreatePost';
 import ContactUs from './pages/Contact/Contact';
+import { CreatePostPage } from './pages/CreatePost/CreatePostPage';
+
+
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
 
@@ -180,16 +182,10 @@ const ProtectedRoutes: React.FC = () => {
 			<Route path='contactUs' element={<ContactUs />} />
 			<Route path='/topic/:topicId' element={<TopicDiscussion />} />
 			<Route path='/topic/professors/:professorName' element={<ProfessorProfilePage />} />
-			<Route path='/create/review' element={<CreateReviewPage />} />
-			<Route path='/create/discussion' element={<CreateDiscussionPost
-				onClose={() => navigate(-1)}
-				onSubmit={async (data) => { console.log('Discussion post:', data); }} />
-			} />
-			<Route path='/create/food' element={<CreateFoodPost
-				isOpen={true}
-				onClose={() => navigate(-1)}
-				onAdd={(data) => { console.log('Food post:', data); }} />
-			} />
+			<Route path='/create/food' element={<CreatePostPage starting_category='food' />} />
+			<Route path='/create/review' element={<CreatePostPage starting_category='review' />} />
+			<Route path='/create/discussion' element={<CreatePostPage starting_category='discussion' />} />
+			<Route path='/create' element={<CreatePostPage />} />
 
 		</Routes>
 	);

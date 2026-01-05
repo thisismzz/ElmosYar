@@ -119,7 +119,7 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
         navigate('/create/review');
         break;
       default:
-        navigate('/create/discussion');
+        navigate('/create');
     }
   };
 
