@@ -305,13 +305,15 @@ def posts_list_create(request):
             posts = posts.filter(category__name=category_name)
         
         if username:
-            user = get_object_or_404(User, username=username)
-            posts = posts.filter(author=user)
+            try:
+                user = User.objects.get(username=username)
+                posts = posts.filter(author=user)
+                posts = posts.exclude(category__anonymous=True)
+            except User.DoesNotExist:
+                # کاربر وجود ندارد، لیست خالی برگردان
+                posts = Post.objects.none()
+                log_info(f"User not found: {username}, returning empty posts list", request)
             
-            # ❌ حذف شده: اگر username مشخص شده، پست‌های کتگوری ناشناس را حذف کن
-            # posts = posts.exclude(category__anonymous=True)
-            # در عوض، تمام پست‌های کاربر را نشان می‌دهیم (حتی در کتگوری ناشناس)
-        
         if search_json:
             try:
                 posts = apply_advanced_search_filter(posts, search_json, category_name)
@@ -834,11 +836,7 @@ def user_posts(request, username):
         'media', 'mentions', 'reactions'
     ).order_by('-created_at')
     
-    # ✅ اصلاح شده: حذف فیلتر کردن پست‌های کتگوری ناشناس
-    # کاربر می‌تواند تمام پست‌های خودش را ببیند (حتی در کتگوری ناشناس)
-    # اما اطلاعات author در کتگوری ناشناس مخفی می‌شود
-    # if request.user.is_authenticated:
-    #     posts = posts.exclude(category__anonymous=True)
+    posts = posts.exclude(category__anonymous=True)
     
     paginator = Paginator(posts, per_page)
     try:
