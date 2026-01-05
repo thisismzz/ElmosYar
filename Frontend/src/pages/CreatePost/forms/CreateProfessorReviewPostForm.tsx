@@ -70,9 +70,7 @@ export function CreateProfessorReviewPostForm() {
 			await createPost(
 				// formData.comment?.trim() || "null",
 				"professor-review",
-				"idk,this,that",
 				{
-					id: "200",
 					professorName: formData.professorName,
 					faculty: formData.faculty || "ComputerScience",
 					courseName: formData.courseName,
@@ -222,9 +220,7 @@ export function CreateProfessorReviewPostForm() {
 					onClick={() => createPost(
 							// formData.comment,
 							"professor-review",
-							"idk,this,that",
 							{
-								"id": "200",
 								"professorName": formData.professorName,
 								"faculty": formData.faculty,
 								"courseName": formData.courseName,
@@ -236,7 +232,6 @@ export function CreateProfessorReviewPostForm() {
 								"ratingsHelpfulness": formData.ratings.helpfulness,
 								"ratingsSatisfaction": formData.ratings.satisfaction,
 								"body": formData.comment
-
 							}
 					)}>
 					{submitting ? (
