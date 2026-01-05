@@ -134,6 +134,18 @@
   color: #9E9E9E;
 }
 
+.search-input:disabled {
+  background-color: #e8e8e8;
+  color: #9E9E9E;
+  cursor:default;
+  opacity: 0.6;
+}
+
+.search-input:disabled:hover {
+  box-shadow: none;
+  border-color: transparent;
+}
+
 .search-icon {
   position: absolute;
   right: 1rem;
@@ -144,6 +156,10 @@
   cursor: pointer;
   font-size: 1.25rem;
   padding: 0;
+}
+
+.search-icon:disabled {
+  opacity: 0.5;
 }
 
 /* Actions Section */
@@ -217,6 +233,17 @@
   color: #9E9E9E;
 }
 
+.mobile-search-input:disabled {
+  background-color: #e8e8e8;
+  color: #9E9E9E;
+  opacity: 0.6;
+}
+
+.mobile-search-input:disabled:hover {
+  box-shadow: none;
+  border-color: transparent;
+}
+
 .mobile-search-icon {
   position: absolute;
   right: 0.75rem;
@@ -227,6 +254,10 @@
   cursor: pointer;
   font-size: 1.25rem;
   padding: 0;
+}
+
+.mobile-search-icon:disabled {
+  opacity: 0.5;
 }
 
 /* Responsive Design */

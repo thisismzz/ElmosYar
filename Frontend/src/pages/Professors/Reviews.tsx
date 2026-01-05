@@ -54,7 +54,7 @@ export function ReviewPage() {
 								review={review}
 								onLike={() => {console.log("tried to like")}}
 								onComment={() => {console.log("tried to comment")}}
-								onClick={() => navigate(`/topic/professors/${review.professorName}`)}
+								onClick={() => navigate(`/topic/professor-review/${review.professorName}`)}
 								showDetailedRatings={true}
 							/>
 						))

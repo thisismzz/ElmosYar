@@ -82,6 +82,9 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
 		setInputValue(urlSearchValue);
 	}, [urlSearchValue]);
 
+	// Check if we're in a topic route
+	const isInTopicRoute = location.pathname.startsWith('/topic');
+
 	const placeholderText = 'جستجو...';
 
 	// Handle form submission - only updates URL
@@ -115,7 +118,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
 
 					<div className="search-section">
 						<form onSubmit={handleSearch} className="search-form">
-							<button type="submit" className="search-icon">
+							<button type="submit" className="search-icon" disabled={!isInTopicRoute}>
 								<Search></Search>
 							</button>
 							<input
@@ -125,6 +128,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
 								placeholder={placeholderText}
 								className="search-input"
 								dir="rtl"
+								disabled={!isInTopicRoute}
 							/>
 						</form>
 					</div>
@@ -159,7 +163,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
 			<header className="mobile-header">
 				<div className="mobile-header-content">
 					<form onSubmit={handleSearch} className="mobile-search-form">
-						<button type="submit" className="mobile-search-icon">
+						<button type="submit" className="mobile-search-icon" disabled={!isInTopicRoute}>
 							<Search></Search>
 						</button>
 						<input
@@ -168,7 +172,8 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
 							onChange={handleInputChange}
 							placeholder={placeholderText}
 							className="mobile-search-input"
-							dir="rtl" // Added: Right-to-left direction
+							disabled={!isInTopicRoute}
+							dir='rtl'
 						/>
 					</form>
 					<button onClick={onHomeClick} className="mobile-logo-button">

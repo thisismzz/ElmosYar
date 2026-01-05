@@ -36,7 +36,7 @@ const getCategoryFromLocation = (pathname: string): string | undefined => {
  */
 export const usePosts = (options: UsePostsOptions = {}): UsePostsResult => {
   const { 
-    username, 
+    username: usernameOption, 
     allowedSearchKeys,
     enabled = true 
   } = options;
@@ -44,7 +44,10 @@ export const usePosts = (options: UsePostsOptions = {}): UsePostsResult => {
   const location = useLocation();
   const category = getCategoryFromLocation(location.pathname);
   
-  const { serializeSearch, filters } = useFilters();
+  const { serializeSearch, getUsername, filters } = useFilters();
+  
+  // Use username from FilterContext if available, otherwise fall back to options
+  const username = getUsername() || usernameOption;
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
