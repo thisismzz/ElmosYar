@@ -9,8 +9,8 @@ User = get_user_model()
 class WalletServiceTest(TestCase):
 
     def setUp(self):
-        self.user1 = User.objects.create_user(username="ali", password="1234")
-        self.user2 = User.objects.create_user(username="reza", password="5678")
+        self.user1 = User.objects.create_user(username="mahdi1", password="1234")
+        self.user2 = User.objects.create_user(username="mahdi2", password="5678")
         self.wallet1 = UserWallet.objects.create(user=self.user1, balance=1000)
         self.wallet2 = UserWallet.objects.create(user=self.user2, balance=500)
 
@@ -67,7 +67,7 @@ class WalletServiceTest(TestCase):
             t.join()
         
         self.wallet1.refresh_from_db()
-        self.assertEqual(self.wallet1.balance, 2000)  # 1000 + (10 * 100)
+        self.assertEqual(self.wallet1.balance, 2000)
 
     def test_transaction_creation_on_deposit(self):
         initial_count = Transaction.objects.count()
@@ -81,7 +81,6 @@ class WalletServiceTest(TestCase):
         self.assertEqual(transaction.status, 'success')
 
     def test_purchase_flow(self):
-        # ایجاد یک پست برای تست
         post = Post.objects.create(
             author=self.user2,
             title="Test Post",
@@ -98,10 +97,9 @@ class WalletServiceTest(TestCase):
         
         self.wallet1.refresh_from_db()
         self.wallet2.refresh_from_db()
-        self.assertEqual(self.wallet1.balance, 700)  # 1000 - 300
-        self.assertEqual(self.wallet2.balance, 800)  # 500 + 300
+        self.assertEqual(self.wallet1.balance, 700)
+        self.assertEqual(self.wallet2.balance, 800)
         
-        # بررسی ایجاد تراکنش‌ها
         payment_transaction = Transaction.objects.filter(
             wallet=self.wallet1, 
             type='payment'
@@ -115,3 +113,4 @@ class WalletServiceTest(TestCase):
         self.assertIsNotNone(receive_transaction)
         self.assertEqual(payment_transaction.amount, 300)
         self.assertEqual(receive_transaction.amount, 300)
+
