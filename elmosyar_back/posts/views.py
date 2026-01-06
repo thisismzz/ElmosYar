@@ -6,12 +6,13 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.core.paginator import Paginator
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 import json
 import mimetypes
 import re
 
 import settings
-from .models import Post, PostMedia, CategoryFormat
+from .models import Post, PostMedia, CategoryFormat, Category
 from .serializers import PostSerializer, PostMediaSerializer, CategoryFormatSerializer
 from notifications.models import Notification
 
@@ -19,11 +20,13 @@ from interactions.models import Comment
 from interactions.serializers import CommentSerializer
 from accounts.serializers import UserSerializer
 
-# جایگزین کردن لاگر قدیمی
 from log_manager.log_config import log_info, log_error, log_warning, log_audit, log_api_request
 
 MAX_POST_CONTENT_LENGTH = 5000
 MAX_MEDIA_FILE_SIZE = 10 * 1024 * 1024
+
+# گرفتن مدل کاربر
+User = get_user_model()
 
 
 # ════════════════════════════════════════════════════════════
@@ -32,27 +35,22 @@ MAX_MEDIA_FILE_SIZE = 10 * 1024 * 1024
 
 def apply_advanced_search_filter(queryset, search_json, category):
     """
-    اعمال فیلترهای پیشرفته بر اساس JSON جستجو و فرمت دسته‌بندی
-    این تابع از Regex هم برای کلیدها و هم برای مقادیر پشتیبانی می‌کند
+    Apply advanced filters based on JSON search and category format
     """
     try:
         search_criteria = json.loads(search_json)
         
-        # بررسی اینکه search_criteria یک دیکشنری است
         if not isinstance(search_criteria, dict):
             raise ValidationError('Search criteria must be a JSON object')
         
-        # اگر دسته‌بندی مشخص نشده، خطا برگردان
         if not category:
             raise ValidationError('Category is required for advanced search')
         
-        # دریافت فرمت JSON مربوط به این دسته‌بندی
         format_obj = CategoryFormat.objects.filter(category=category).first()
         
         if not format_obj:
             raise ValidationError(f'No format found for category: {category}')
         
-        # خواندن فرمت JSON از فایل
         try:
             with open(format_obj.format_file.path, 'r', encoding='utf-8') as f:
                 format_data = json.load(f)
@@ -67,11 +65,12 @@ def apply_advanced_search_filter(queryset, search_json, category):
         matching_keys = {}
 
         for key_regex in search_criteria.keys():
-            # یافتن کلیدهای post_attributes که با key_regex مطابقت دارند
             matching_keys[key_regex] = []
             for attr_key in format_keys:
                 try:
-                    if re.match(key_regex, attr_key):
+                    # تبدیل کلید format به استرینگ برای تطبیق با regex
+                    attr_key_str = str(attr_key)
+                    if re.match(key_regex, attr_key_str):
                         matching_keys[key_regex].append(attr_key)
                 except re.error:
                     log_error(f"Invalid regex pattern for key matching: {key_regex}")
@@ -96,9 +95,24 @@ def apply_advanced_search_filter(queryset, search_json, category):
             for regex_key, possible_keys in matching_keys.items():
                 match_all_criteria = False
                 for key in possible_keys:
-                    if re.match(search_criteria[regex_key], post_attributes[key]):
-                        match_all_criteria = True
-                        break
+                    # تبدیل کلید به استرینگ فقط برای چک کردن وجود
+                    key_str = str(key)
+                    if key_str in post_attributes:
+                        value = post_attributes[key_str]
+                        # برای مقادیر مختلف، رفتارهای مختلف:
+                        if isinstance(value, (list, dict)):
+                            # لیست و دیکشنری را به JSON string تبدیل می‌کنیم
+                            value_str = json.dumps(value, ensure_ascii=False)
+                        elif value is None:
+                            value_str = ""
+                        else:
+                            # سایر انواع را به استرینگ تبدیل می‌کنیم
+                            value_str = str(value)
+                        
+                        # اعمال regex
+                        if re.match(search_criteria[regex_key], value_str):
+                            match_all_criteria = True
+                            break
                 if not match_all_criteria:
                     break
             
@@ -111,7 +125,6 @@ def apply_advanced_search_filter(queryset, search_json, category):
             'matched_posts': len(filtered_posts)
         })
         
-        # فیلتر کردن پست‌ها بر اساس IDهای فیلتر شده
         return queryset.filter(id__in=filtered_posts)
         
     except json.JSONDecodeError:
@@ -127,31 +140,53 @@ def apply_advanced_search_filter(queryset, search_json, category):
 
 def validate_post_attributes(attributes, category):
     """
-    اعتبارسنجی attributes پست بر اساس فرمت دسته‌بندی
+    Validate post attributes based on category format
     """
     if not attributes or not category:
         return True, None
     
     format_obj = CategoryFormat.objects.filter(category=category).first()
     if not format_obj:
-        return True, None  # اگر فرمتی وجود ندارد، اعتبارسنجی نکن
+        return True, None
     
     try:
         with open(format_obj.format_file.path, 'r', encoding='utf-8') as f:
             format_data = json.load(f)
         
+        # یک کپی از attributes برای validation ایجاد می‌کنیم
+        # تا تغییرات روی رفرنس اصلی اعمال نشود
+        attrs_for_validation = {}
         for key, value in attributes.items():
-            if key in format_data:
-                # اعتبارسنجی با regex فرمت
-                # اگر مقدار لیست یا دیکشنری است، آن را به JSON تبدیل کن
-                if isinstance(value, (list, dict)):
-                    value_to_check = json.dumps(value, ensure_ascii=False)
-                else:
-                    value_to_check = str(value)
-
-                if not re.match(format_data[key], value_to_check):
-                    log_warning(f"Attribute validation failed: {key}={value} doesn't match pattern")
-                    return False, f'Attribute "{key}" does not match format pattern'
+            # کلید را به استرینگ تبدیل می‌کنیم (فقط برای validation)
+            key_str = str(key)
+            attrs_for_validation[key_str] = value
+        
+        for key_str, value in attrs_for_validation.items():
+            # کلید format_data هم به استرینگ تبدیل می‌کنیم برای تطبیق
+            format_keys = [str(k) for k in format_data.keys()]
+            if key_str in format_keys:
+                # پیدا کردن الگوی اصلی (با کلید اصلی)
+                original_key = None
+                for k in format_data.keys():
+                    if str(k) == key_str:
+                        original_key = k
+                        break
+                
+                if original_key:
+                    pattern = format_data[original_key]
+                    # آماده‌سازی مقدار برای validation
+                    if isinstance(value, (list, dict)):
+                        # لیست و دیکشنری را به JSON string تبدیل می‌کنیم
+                        value_to_check = json.dumps(value, ensure_ascii=False)
+                    elif value is None:
+                        value_to_check = ""
+                    else:
+                        # سایر انواع را به استرینگ تبدیل می‌کنیم
+                        value_to_check = str(value)
+                    
+                    if not re.match(pattern, value_to_check):
+                        log_warning(f"Attribute validation failed: {key_str}={value} doesn't match pattern")
+                        return False, f'Attribute "{key_str}" does not match format pattern'
         
         return True, None
     except Exception as e:
@@ -161,9 +196,8 @@ def validate_post_attributes(attributes, category):
 
 def validate_post_update_attributes(post, attributes, category):
     """
-    اعتبارسنجی attributes برای به‌روزرسانی پست
+    Validate attributes for post update
     """
-
     if not category:
         return True, None
     
@@ -175,30 +209,56 @@ def validate_post_update_attributes(post, attributes, category):
         with open(format_obj.format_file.path, 'r', encoding='utf-8') as f:
             format_data = json.load(f)
         
-        # اگر attributes جدید ارسال شده
-
         if attributes is not None:
             post_attributes = post.attributes or {}
-            merged_attributes = {**post_attributes, **attributes}
             
-            for key, value in merged_attributes.items():
-                if key in format_data:
-                    # اعتبارسنجی با regex فرمت
-                    # اگر مقدار لیست یا دیکشنری است، آن را به JSON تبدیل کن تا با regex سازگار باشد
-                    if isinstance(value, (list, dict)):
-                        value_to_check = json.dumps(value, ensure_ascii=False)
-                    else:
-                        value_to_check = str(value)
-
-                    if not re.match(format_data[key], value_to_check):
-                        log_warning(f"Update attribute validation failed: {key}={value}")
-                        return False, f'Attribute "{key}" does not match format pattern'
+            # یک کپی از merged attributes ایجاد می‌کنیم
+            merged_attributes = {}
             
-            # بررسی کلیدهای اجباری در فرمت
-            for key, pattern in format_data.items():
-                if key not in merged_attributes:
-                    log_warning(f"Required attribute missing: {key}")
-                    return False, f'Attribute "{key}" is required and cannot be removed'
+            # اول post_attributes را اضافه می‌کنیم
+            for key, value in post_attributes.items():
+                key_str = str(key)
+                merged_attributes[key_str] = value
+            
+            # سپس attributes جدید را اضافه می‌کنیم (با تبدیل کلیدها)
+            for key, value in attributes.items():
+                key_str = str(key)
+                merged_attributes[key_str] = value
+            
+            # لیست کلیدهای format_data به صورت استرینگ
+            format_keys_str = [str(k) for k in format_data.keys()]
+            
+            for key_str, value in merged_attributes.items():
+                if key_str in format_keys_str:
+                    # پیدا کردن الگوی اصلی
+                    original_key = None
+                    for k in format_data.keys():
+                        if str(k) == key_str:
+                            original_key = k
+                            break
+                    
+                    if original_key:
+                        pattern = format_data[original_key]
+                        # آماده‌سازی مقدار برای validation
+                        if isinstance(value, (list, dict)):
+                            # لیست و دیکشنری را به JSON string تبدیل می‌کنیم
+                            value_to_check = json.dumps(value, ensure_ascii=False)
+                        elif value is None:
+                            value_to_check = ""
+                        else:
+                            # سایر انواع را به استرینگ تبدیل می‌کنیم
+                            value_to_check = str(value)
+                        
+                        if not re.match(pattern, value_to_check):
+                            log_warning(f"Update attribute validation failed: {key_str}={value}")
+                            return False, f'Attribute "{key_str}" does not match format pattern'
+            
+            # بررسی وجود کلیدهای اجباری (با تبدیل به استرینگ)
+            for original_key, pattern in format_data.items():
+                key_str = str(original_key)
+                if key_str not in merged_attributes:
+                    log_warning(f"Required attribute missing: {key_str}")
+                    return False, f'Attribute "{key_str}" is required and cannot be removed'
         
         return True, None
     except Exception as e:
@@ -207,6 +267,20 @@ def validate_post_update_attributes(post, attributes, category):
             'category': category
         })
         return False, f'Error validating format: {str(e)}'
+
+
+def can_user_modify_post(user, post):
+    """
+    بررسی می‌کند که آیا کاربر می‌تواند پست را ویرایش یا حذف کند
+    برای کتگوری‌های ناشناس، کاربر نمی‌تواند پست خودش را حذف/ویرایش کند
+    """
+    if post.category and post.category.anonymous:
+        # در کتگوری ناشناس، کاربر نمی‌تواند پست خودش را حذف/ویرایش کند
+        # (چون نویسنده ناشناس است)
+        return False
+    
+    # در کتگوری معمولی، فقط نویسنده می‌تواند پست را حذف/ویرایش کند
+    return post.author == user
 
 
 # ════════════════════════════════════════════════════════════
@@ -219,27 +293,30 @@ def posts_list_create(request):
     """List all posts or create new post"""
     
     if request.method == 'GET':
-        # Search parameters
-        category = request.GET.get('category')
+        category_name = request.GET.get('category')
         username = request.GET.get('username')
         search_json = request.GET.get('search')
         page = int(request.GET.get('page', 1))
         per_page = min(int(request.GET.get('per_page', 20)), 100)
 
-        # Build query
         posts = Post.objects.all()
         
-        if category:
-            posts = posts.filter(category=category)
+        if category_name:
+            posts = posts.filter(category__name=category_name)
         
         if username:
-            user = get_object_or_404(settings.AUTH_USER_MODEL, username=username)
-            posts = posts.filter(author=user)
-        
-        # اگر پارامتر search وجود داشت، فیلترهای پیشرفته را اعمال کن
+            try:
+                user = User.objects.get(username=username)
+                posts = posts.filter(author=user)
+                posts = posts.exclude(category__anonymous=True)
+            except User.DoesNotExist:
+                # کاربر وجود ندارد، لیست خالی برگردان
+                posts = Post.objects.none()
+                log_info(f"User not found: {username}, returning empty posts list", request)
+            
         if search_json:
             try:
-                posts = apply_advanced_search_filter(posts, search_json, category)
+                posts = apply_advanced_search_filter(posts, search_json, category_name)
             except ValidationError as e:
                 log_warning(f"Advanced search validation error: {str(e)}", request)
                 return Response({
@@ -247,12 +324,10 @@ def posts_list_create(request):
                     'message': str(e)
                 }, status=status.HTTP_400_BAD_REQUEST)
         
-        # Optimize queries
-        posts = posts.select_related('author').prefetch_related(
+        posts = posts.select_related('author', 'category').prefetch_related(
             'media', 'mentions', 'reactions', 'saved_by'
         ).order_by('-created_at')
         
-        # Pagination
         paginator = Paginator(posts, per_page)
         try:
             posts_page = paginator.page(page)
@@ -260,7 +335,7 @@ def posts_list_create(request):
             posts_page = paginator.page(1)
         
         log_api_request(f"Posts list retrieved", request, {
-            'category': category,
+            'category': category_name,
             'username': username,
             'has_search': bool(search_json),
             'page': page,
@@ -286,57 +361,53 @@ def posts_list_create(request):
     # POST - Create new post
     try:
         with transaction.atomic():
-            content = request.data.get('content', '').strip()
-            tags = request.data.get('tags', '').strip()
             mentions_raw = request.data.get('mentions', '').strip()
             parent_id = request.data.get('parent')
-            category = request.data.get('category', '').strip()
+            category_name = request.data.get('category', '').strip()
             attributes = request.data.get('attributes', {})
 
-            # Validation
-            if not content and not request.FILES and not attributes:
-                log_warning("Post creation attempt without content, media or attributes", request)
+            if not request.FILES and not attributes:
+                log_warning("Post creation attempt without media or attributes", request)
                 return Response({
                     'success': False,
-                    'message': 'Post content, media or attributes required'
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            if len(content) > MAX_POST_CONTENT_LENGTH:
-                log_warning(f"Post content too long: {len(content)} characters", request, {
-                    'max_allowed': MAX_POST_CONTENT_LENGTH
-                })
-                return Response({
-                    'success': False,
-                    'message': f'Post content is too long (max {MAX_POST_CONTENT_LENGTH} characters)'
+                    'message': 'Post media or attributes required'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             parent = None
             if parent_id:
                 parent = Post.objects.filter(id=parent_id).first()
 
-            # Category is required for main posts
-            if not parent and not category:
+            if not parent and not category_name:
                 log_warning("Post creation without category for main post", request)
                 return Response({
                     'success': False,
                     'message': 'Category is required'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
-            # اعتبارسنجی attributes بر اساس فرمت دسته‌بندی
-            if attributes and category:
-                
-                # تبدیل attributes از string به dictionary اگر لازم باشد
-                if attributes and isinstance(attributes, str):
+            category = None
+            if category_name:
+                category, created = Category.objects.get_or_create(
+                    name=category_name,
+                    defaults={'anonymous': False}
+                )
+                if created:
+                    log_info(f"New category created: {category_name}", request)
+
+            if attributes and category_name:
+                if isinstance(attributes, str):
                     try:
                         attributes = json.loads(attributes)
                     except json.JSONDecodeError:
-                        log_warning(f"Invalid JSON in attributes string")
-                    return False, 'Attributes must be valid JSON'
+                        log_warning(f"Invalid JSON in attributes string", request)
+                        return Response({
+                            'success': False,
+                            'message': 'Attributes must be valid JSON'
+                        }, status=status.HTTP_400_BAD_REQUEST)
                 
-                is_valid, error_message = validate_post_attributes(attributes, category)
+                is_valid, error_message = validate_post_attributes(attributes, category_name)
                 if not is_valid:
                     log_warning(f"Post attributes validation failed: {error_message}", request, {
-                        'category': category,
+                        'category': category_name,
                         'attributes': attributes
                     })
                     return Response({
@@ -346,17 +417,14 @@ def posts_list_create(request):
 
             post = Post.objects.create(
                 author=request.user,
-                content=content,
-                tags=tags,
                 parent=parent,
                 category=category,
                 attributes=attributes
             )
 
-            # Handle mentions
             if mentions_raw:
                 usernames = [u.strip() for u in mentions_raw.split(',') if u.strip()]
-                mentioned_users = settings.AUTH_USER_MODEL.objects.filter(username__in=usernames)
+                mentioned_users = User.objects.filter(username__in=usernames)
                 for mu in mentioned_users:
                     post.mentions.add(mu)
                     if mu != request.user:
@@ -371,10 +439,8 @@ def posts_list_create(request):
                     'mentioned_users': usernames
                 })
 
-            # Handle media files
             media_files = []
             for f in request.FILES.getlist('media'):
-                # Validate file type
                 ctype = f.content_type or mimetypes.guess_type(f.name)[0] or ''
                 if ctype.startswith('image/'):
                     mtype = 'image'
@@ -385,13 +451,12 @@ def posts_list_create(request):
                 else:
                     mtype = 'file'
                 
-                # Validate file size
                 if f.size > MAX_MEDIA_FILE_SIZE:
                     log_warning(f"Media file too large: {f.size} bytes, skipping", request, {
                         'filename': f.name,
                         'max_allowed': MAX_MEDIA_FILE_SIZE
                     })
-                    continue  # Skip large files
+                    continue
                     
                 PostMedia.objects.create(post=post, file=f, media_type=mtype)
                 media_files.append({
@@ -402,13 +467,13 @@ def posts_list_create(request):
 
             log_audit(f"Post created successfully", request, {
                 'post_id': post.id,
-                'category': category,
+                'category': category_name,
                 'has_media': len(media_files) > 0,
                 'media_count': len(media_files),
                 'has_parent': parent is not None,
                 'parent_id': parent.id if parent else None,
                 'has_attributes': bool(attributes),
-                'content_length': len(content)
+                'is_anonymous_category': category.anonymous if category else False
             })
 
             serializer = PostSerializer(post, context={'request': request})
@@ -419,7 +484,7 @@ def posts_list_create(request):
 
     except Exception as e:
         log_error(f"Post creation failed: {str(e)}", request, {
-            'category': category if 'category' in locals() else None,
+            'category': category_name if 'category_name' in locals() else None,
             'has_media': bool(request.FILES)
         })
         return Response({
@@ -434,28 +499,31 @@ def post_detail(request, post_id):
     """Get single post details with comments and replies"""
     try:
         post = get_object_or_404(
-            Post.objects.select_related('author')
+            Post.objects.select_related('author', 'category')
             .prefetch_related('media', 'mentions', 'reactions', 'saved_by'),
             id=post_id
         )
         
+        # ✅ اصلاح شده: کاربران واردشده می‌توانند پست‌های کتگوری ناشناس را ببینند
+        # فقط اطلاعات author و mentions در سریالایزر مخفی می‌شود
         log_info(f"Post details viewed", request, {
             'post_id': post_id,
-            'author': post.author.username,
-            'category': post.category
+            'author': post.author.username if post.author else 'anonymous',
+            'category': post.category.name if post.category else None,
+            'is_anonymous_category': post.category.anonymous if post.category else False
         })
         
-        # Get post data
         post_serializer = PostSerializer(post, context={'request': request})
         data = post_serializer.data
         
-        # Get comments with optimization
+        # برای کتگوری‌های ناشناس، اطلاعات author و mentions باید مخفی باشند
+        # که این کار در سریالایزر انجام شده است
+        
         comments = Comment.objects.filter(post=post).select_related('user').prefetch_related('likes').order_by('created_at')
         comment_serializer = CommentSerializer(comments, many=True, context={'request': request})
         data['comments'] = comment_serializer.data
         
-        # Get replies with optimization
-        replies = Post.objects.filter(parent=post).select_related('author').prefetch_related(
+        replies = Post.objects.filter(parent=post).select_related('author', 'category').prefetch_related(
             'media', 'mentions', 'reactions'
         ).order_by('created_at')
         reply_serializer = PostSerializer(replies, many=True, context={'request': request})
@@ -481,19 +549,29 @@ def delete_post(request, post_id):
         with transaction.atomic():
             post = get_object_or_404(Post, id=post_id)
             
-            if post.author != request.user:
-                log_warning(f"User attempted to delete another user's post", request, {
+            # ✅ اصلاح شده: استفاده از تابع کمکی برای بررسی اجازه حذف
+            if not can_user_modify_post(request.user, post):
+                log_warning(f"User attempted to delete post they cannot modify", request, {
                     'post_id': post_id,
-                    'post_author': post.author.username
+                    'post_author': post.author.username if post.author else 'anonymous',
+                    'is_anonymous_category': post.category.anonymous if post.category else False
                 })
-                return Response({
-                    'success': False,
-                    'message': 'You can only delete your own posts'
-                }, status=status.HTTP_403_FORBIDDEN)
+                
+                if post.category and post.category.anonymous:
+                    return Response({
+                        'success': False,
+                        'message': 'Cannot delete posts in anonymous categories'
+                    }, status=status.HTTP_403_FORBIDDEN)
+                else:
+                    return Response({
+                        'success': False,
+                        'message': 'You can only delete your own posts'
+                    }, status=status.HTTP_403_FORBIDDEN)
             
-            post_category = post.category
-            post_author = post.author.username
+            post_category = post.category.name if post.category else None
+            post_author = post.author.username if post.author else 'anonymous'
             has_media = post.media.exists()
+            is_anonymous = post.category.anonymous if post.category else False
             
             post.delete()
             
@@ -501,7 +579,8 @@ def delete_post(request, post_id):
                 'post_id': post_id,
                 'category': post_category,
                 'author': post_author,
-                'had_media': has_media
+                'had_media': has_media,
+                'was_anonymous': is_anonymous
             })
             
             return Response({
@@ -524,25 +603,39 @@ def update_post(request, post_id):
         with transaction.atomic():
             post = get_object_or_404(Post, id=post_id)
             
-            if post.author != request.user:
-                log_warning(f"User attempted to edit another user's post", request, {
+            # ✅ اصلاح شده: استفاده از تابع کمکی برای بررسی اجازه ویرایش
+            if not can_user_modify_post(request.user, post):
+                log_warning(f"User attempted to edit post they cannot modify", request, {
                     'post_id': post_id,
-                    'post_author': post.author.username
+                    'post_author': post.author.username if post.author else 'anonymous',
+                    'is_anonymous_category': post.category.anonymous if post.category else False
                 })
-                return Response({
-                    'success': False,
-                    'message': 'You can only edit your own posts'
-                }, status=status.HTTP_403_FORBIDDEN)
+                
+                if post.category and post.category.anonymous:
+                    return Response({
+                        'success': False,
+                        'message': 'Cannot edit posts in anonymous categories'
+                    }, status=status.HTTP_403_FORBIDDEN)
+                else:
+                    return Response({
+                        'success': False,
+                        'message': 'You can only edit your own posts'
+                    }, status=status.HTTP_403_FORBIDDEN)
             
-            # دریافت داده‌های به‌روزرسانی
-            content = request.data.get('content')
-            tags = request.data.get('tags')
-            category = request.data.get('category')
+            category_name = request.data.get('category')
             attributes = request.data.get('attributes')
             
-            # اعتبارسنجی attributes بر اساس فرمت دسته‌بندی
-            if category or post.category:
-                current_category = category or post.category
+            if category_name:
+                category, created = Category.objects.get_or_create(
+                    name=category_name,
+                    defaults={'anonymous': False}
+                )
+                request.data['category'] = category.id
+                current_category = category_name
+            else:
+                current_category = post.category.name if post.category else None
+            
+            if current_category and attributes is not None:
                 is_valid, error_message = validate_post_update_attributes(post, attributes, current_category)
                 if not is_valid:
                     log_warning(f"Post update validation failed: {error_message}", request, {
@@ -554,19 +647,15 @@ def update_post(request, post_id):
                         'message': error_message
                     }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Use serializer for validation
             serializer = PostSerializer(post, data=request.data, partial=True, context={'request': request})
             
             if serializer.is_valid():
-                old_content = post.content
-                old_category = post.category
+                old_category = post.category.name if post.category else None
                 
                 serializer.save()
                 
                 changes = {}
-                if content and content != old_content:
-                    changes['content_changed'] = True
-                if category and category != old_category:
+                if category_name and category_name != old_category:
                     changes['category_changed'] = True
                 if attributes:
                     changes['attributes_updated'] = True
@@ -574,7 +663,8 @@ def update_post(request, post_id):
                 log_audit(f"Post updated", request, {
                     'post_id': post_id,
                     **changes,
-                    'new_category': category or post.category
+                    'new_category': category_name or (post.category.name if post.category else None),
+                    'is_anonymous_category': post.category.anonymous if post.category else False
                 })
                 
                 return Response({
@@ -609,7 +699,15 @@ def post_repost(request, post_id):
         with transaction.atomic():
             original_post = get_object_or_404(Post, id=post_id)
             
-            # Check if user is reposting their own post
+            # ✅ اصلاح شده: کاربران می‌توانند از کتگوری‌های ناشناس ریپوست کنند
+            # اما باید دقت کرد که اطلاعات نویسنده مخفی بماند
+            if original_post.category and original_post.category.anonymous:
+                log_info(f"User reposting from anonymous category", request, {
+                    'post_id': post_id,
+                    'category': original_post.category.name
+                })
+                # اجازه ریپوست از کتگوری ناشناس داده می‌شود
+            
             if original_post.author == request.user:
                 log_warning(f"User attempted to repost their own post", request, {'post_id': post_id})
                 return Response({
@@ -617,7 +715,6 @@ def post_repost(request, post_id):
                     'message': 'You cannot repost your own post'
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Check if already reposted
             existing_repost = Post.objects.filter(
                 author=request.user, 
                 original_post=original_post,
@@ -633,32 +730,31 @@ def post_repost(request, post_id):
             
             new_post = Post.objects.create(
                 author=request.user,
-                content=original_post.content,
                 is_repost=True,
                 original_post=original_post,
-                tags=original_post.tags,
                 category=original_post.category,
-                attributes=original_post.attributes  # کپی کردن attributes
+                attributes=original_post.attributes
             )
             
-            # Copy mentions
             for mu in original_post.mentions.all():
                 new_post.mentions.add(mu)
             
-            # Create notification
-            Notification.objects.create(
-                recipient=original_post.author,
-                sender=request.user,
-                notif_type='repost',
-                post=original_post,
-                message=f'{request.user.username} reposted your post'
-            )
+            # فقط اگر پست اصلی در کتگوری معمولی باشد، نوتیفیکیشن ایجاد کن
+            if not (original_post.category and original_post.category.anonymous):
+                Notification.objects.create(
+                    recipient=original_post.author,
+                    sender=request.user,
+                    notif_type='repost',
+                    post=original_post,
+                    message=f'{request.user.username} reposted your post'
+                )
             
             log_audit(f"Post reposted", request, {
                 'original_post_id': post_id,
                 'repost_id': new_post.id,
-                'original_author': original_post.author.username,
-                'category': original_post.category
+                'original_author': original_post.author.username if original_post.author else 'anonymous',
+                'category': original_post.category.name if original_post.category else None,
+                'is_anonymous_category': original_post.category.anonymous if original_post.category else False
             })
             
             serializer = PostSerializer(new_post, context={'request': request})
@@ -683,11 +779,16 @@ def posts_by_category(request, category_id):
     per_page = min(int(request.GET.get('per_page', 20)), 100)
     
     posts = Post.objects.filter(
-        category=category_id,
+        category__name=category_id,
         parent=None
-    ).select_related('author').prefetch_related(
+    ).select_related('author', 'category').prefetch_related(
         'media', 'mentions', 'reactions'
     ).order_by('-created_at')
+    
+    # ✅ اصلاح شده: حذف فیلتر کردن پست‌های کتگوری ناشناس
+    # کاربران واردشده می‌توانند پست‌های کتگوری ناشناس را ببینند
+    # if request.user.is_authenticated:
+    #     posts = posts.exclude(category__anonymous=True)
     
     paginator = Paginator(posts, per_page)
     try:
@@ -723,7 +824,7 @@ def posts_by_category(request, category_id):
 @permission_classes([AllowAny])
 def user_posts(request, username):
     """Get posts by specific user with pagination"""
-    user = get_object_or_404(settings.AUTH_USER_MODEL, username=username)
+    user = get_object_or_404(User, username=username)
     
     page = int(request.GET.get('page', 1))
     per_page = min(int(request.GET.get('per_page', 20)), 100)
@@ -731,9 +832,11 @@ def user_posts(request, username):
     posts = Post.objects.filter(
         author=user,
         parent=None
-    ).select_related('author').prefetch_related(
+    ).select_related('author', 'category').prefetch_related(
         'media', 'mentions', 'reactions'
     ).order_by('-created_at')
+    
+    posts = posts.exclude(category__anonymous=True)
     
     paginator = Paginator(posts, per_page)
     try:
@@ -773,22 +876,31 @@ def post_thread(request, post_id):
     """Get post thread (post with all its replies)"""
     try:
         post = get_object_or_404(
-            Post.objects.select_related('author').prefetch_related('media', 'mentions'),
+            Post.objects.select_related('author', 'category').prefetch_related('media', 'mentions'),
             id=post_id
         )
         
+        # ✅ اصلاح شده: کاربران واردشده می‌توانند پست‌های کتگوری ناشناس را ببینند
+        # if request.user.is_authenticated and post.category and post.category.anonymous:
+        #     log_warning(f"Authenticated user attempted to access anonymous category post thread", request, {
+        #         'post_id': post_id
+        #     })
+        #     return Response({
+        #         'success': False,
+        #         'message': 'Access to posts in anonymous categories is not allowed for authenticated users'
+        #     }, status=status.HTTP_403_FORBIDDEN)
+        
         log_api_request(f"Post thread viewed", request, {
             'post_id': post_id,
-            'author': post.author.username,
-            'category': post.category
+            'author': post.author.username if post.author else 'anonymous',
+            'category': post.category.name if post.category else None,
+            'is_anonymous_category': post.category.anonymous if post.category else False
         })
         
-        # Get post data
         post_serializer = PostSerializer(post, context={'request': request})
         data = post_serializer.data
         
-        # Get replies with optimization
-        replies = post.replies.select_related('author').prefetch_related(
+        replies = post.replies.select_related('author', 'category').prefetch_related(
             'media', 'mentions', 'reactions'
         ).order_by('created_at')
         replies_serializer = PostSerializer(replies, many=True, context={'request': request})
@@ -814,6 +926,17 @@ def save_post(request, post_id):
         with transaction.atomic():
             post = get_object_or_404(Post, id=post_id)
             
+            # ✅ اصلاح شده: کاربران می‌توانند پست‌های کتگوری ناشناس را ذخیره کنند
+            # if post.category and post.category.anonymous:
+            #     log_warning(f"User attempted to save post in anonymous category", request, {
+            #         'post_id': post_id,
+            #         'category': post.category.name
+            #     })
+            #     return Response({
+            #         'success': False,
+            #         'message': 'Cannot save posts in anonymous categories'
+            #     }, status=status.HTTP_403_FORBIDDEN)
+            
             if post.saved_by.filter(id=request.user.id).exists():
                 log_warning(f"User attempted to save already saved post", request, {'post_id': post_id})
                 return Response({
@@ -825,8 +948,9 @@ def save_post(request, post_id):
             
             log_audit(f"Post saved", request, {
                 'post_id': post_id,
-                'author': post.author.username,
-                'category': post.category
+                'author': post.author.username if post.author else 'anonymous',
+                'category': post.category.name if post.category else None,
+                'is_anonymous_category': post.category.anonymous if post.category else False
             })
             
             return Response({
@@ -849,6 +973,17 @@ def unsave_post(request, post_id):
         with transaction.atomic():
             post = get_object_or_404(Post, id=post_id)
             
+            # ✅ اصلاح شده: کاربران می‌توانند پست‌های کتگوری ناشناس را از ذخیره‌ها حذف کنند
+            # if post.category and post.category.anonymous:
+            #     log_warning(f"User attempted to unsave post in anonymous category", request, {
+            #         'post_id': post_id,
+            #         'category': post.category.name
+            #     })
+            #     return Response({
+            #         'success': False,
+            #         'message': 'Cannot unsave posts in anonymous categories'
+            #     }, status=status.HTTP_403_FORBIDDEN)
+            
             if not post.saved_by.filter(id=request.user.id).exists():
                 log_warning(f"User attempted to unsave non-saved post", request, {'post_id': post_id})
                 return Response({
@@ -860,8 +995,9 @@ def unsave_post(request, post_id):
             
             log_audit(f"Post unsaved", request, {
                 'post_id': post_id,
-                'author': post.author.username,
-                'category': post.category
+                'author': post.author.username if post.author else 'anonymous',
+                'category': post.category.name if post.category else None,
+                'is_anonymous_category': post.category.anonymous if post.category else False
             })
             
             return Response({
@@ -883,9 +1019,13 @@ def saved_posts(request):
     page = int(request.GET.get('page', 1))
     per_page = min(int(request.GET.get('per_page', 20)), 100)
     
-    saved_posts = request.user.saved_posts.filter(parent=None).select_related('author').prefetch_related(
+    saved_posts = request.user.saved_posts.filter(parent=None).select_related('author', 'category').prefetch_related(
         'media', 'mentions', 'reactions'
     ).order_by('-created_at')
+    
+    # ✅ اصلاح شده: حذف فیلتر کردن پست‌های کتگوری ناشناس
+    # کاربر می‌تواند پست‌های ذخیره شده در کتگوری ناشناس را هم ببیند
+    # saved_posts = saved_posts.exclude(category__anonymous=True)
     
     paginator = Paginator(saved_posts, per_page)
     try:
@@ -922,7 +1062,7 @@ def saved_posts(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def upload_category_format(request):
-    """آپلود فایل فرمت برای یک دسته‌بندی (فقط سوپر یوزرها)"""
+    """Upload format file for a category (superusers only)"""
     if not request.user.is_superuser:
         log_warning(f"Non-superuser attempted to upload format file", request)
         return Response({
@@ -948,7 +1088,6 @@ def upload_category_format(request):
                 'message': 'Format file is required'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # بررسی نوع فایل
         if not format_file.name.endswith('.json'):
             log_warning(f"Non-JSON file upload attempt: {format_file.name}", request)
             return Response({
@@ -956,11 +1095,10 @@ def upload_category_format(request):
                 'message': 'Only JSON files are allowed'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # بررسی valid بودن JSON
         try:
             format_file.seek(0)
             format_data = json.load(format_file)
-            format_file.seek(0)  # بازگشت به ابتدای فایل
+            format_file.seek(0)
         except json.JSONDecodeError as e:
             log_warning(f"Invalid JSON file: {str(e)}", request)
             return Response({
@@ -968,7 +1106,6 @@ def upload_category_format(request):
                 'message': 'Invalid JSON file'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # ایجاد یا آپدیت فرمت
         format_obj, created = CategoryFormat.objects.update_or_create(
             category=category,
             defaults={
@@ -995,7 +1132,6 @@ def upload_category_format(request):
 
     except Exception as e:
         log_error(f"Format upload failed: {str(e)}", request)
-        # Return detailed error when in DEBUG to aid debugging; keep generic otherwise
         detail = str(e) if getattr(settings, 'DEBUG', False) else 'Failed to upload format'
         return Response({
             'success': False,
@@ -1007,7 +1143,7 @@ def upload_category_format(request):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_category_format(request, cat):
-    """حذف فایل فرمت یک دسته‌بندی (فقط سوپر یوزرها)"""
+    """Delete format file for a category (superusers only)"""
     if not request.user.is_superuser:
         log_warning(f"Non-superuser attempted to delete format file", request, {'category': cat})
         return Response({
@@ -1045,7 +1181,7 @@ def delete_category_format(request, cat):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_format(request, cat):
-    """دریافت فایل فرمت برای یک دسته‌بندی (برای همه کاربران)"""
+    """Get format file for a category (for all users)"""
     try:
         format_obj = CategoryFormat.objects.filter(category=cat).first()
         
@@ -1056,7 +1192,6 @@ def get_format(request, cat):
                 'message': f'No format found for category: {cat}'
             }, status=status.HTTP_404_NOT_FOUND)
 
-        # خواندن محتوای فایل JSON
         try:
             with open(format_obj.format_file.path, 'r', encoding='utf-8') as f:
                 format_data = json.load(f)
@@ -1067,17 +1202,22 @@ def get_format(request, cat):
                 'message': 'Error reading format file'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        category_obj = Category.objects.filter(name=cat).first()
+        is_anonymous = category_obj.anonymous if category_obj else False
+
         log_info(f"Format file retrieved", request, {
             'category': cat,
             'keys_count': len(format_data.keys()) if format_data else 0,
-            'last_updated': format_obj.updated_at
+            'last_updated': format_obj.updated_at,
+            'is_anonymous': is_anonymous
         })
 
         return Response({
             'success': True,
             'category': cat,
             'format': format_data,
-            'last_updated': format_obj.updated_at
+            'last_updated': format_obj.updated_at,
+            'is_anonymous': is_anonymous
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
@@ -1089,7 +1229,7 @@ def get_format(request, cat):
 
 
 def get_format_data(cat):
-    """تابع کمکی برای دریافت داده‌های فرمت از هر جای برنامه"""
+    """Helper function to get format data from anywhere in the app"""
     try:
         format_obj = CategoryFormat.objects.filter(category=cat).first()
         if format_obj and format_obj.format_file:
