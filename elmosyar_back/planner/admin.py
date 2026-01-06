@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Planner, Task
 
-# Register your models here.
+admin.site.register(Planner)
+admin.site.register(Task)

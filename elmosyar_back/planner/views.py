@@ -144,7 +144,7 @@ def get_planner(request, planner_id):
     tasks = planner.tasks.all()
     serializer = TaskSerializer(tasks, many=True)
     return Response({"error" : False,
-                    "message" : "تسک ها با موفقیت یافت شد",
+                    "message" : "پلنر با موفقیت یافت شد",
                     "code" : "TASK_FOUND",
                     "data" : serializer.data}, status=status.HTTP_200_OK)
 
