@@ -34,7 +34,7 @@ const TopicDiscussion: React.FC = () => {
 	// Use FoodPage for the 'food' topic
 	if (topicId === 'food') return <FoodPage />;
 	if (topicId === 'discussion') return <DiscussionPage category={topicId} />;
-	if (topicId === 'professors') return <ReviewPage />;
+	if (topicId === 'professor-review') return <ReviewPage />;
 
 	// For all other topics, show the general discussion feed.
 	return <GeneralDiscussion />;
@@ -181,7 +181,7 @@ const ProtectedRoutes: React.FC = () => {
 			<Route path='/profile/transactions' element={<TransactionHistoryPage />} />
 			<Route path='contactUs' element={<ContactUs />} />
 			<Route path='/topic/:topicId' element={<TopicDiscussion />} />
-			<Route path='/topic/professors/:professorName' element={<ProfessorProfilePage />} />
+			<Route path='/topic/professor-review/:professorName' element={<ProfessorProfilePage />} />
 			<Route path='/create/food' element={<CreatePostPage starting_category='food' />} />
 			<Route path='/create/review' element={<CreatePostPage starting_category='review' />} />
 			<Route path='/create/discussion' element={<CreatePostPage starting_category='discussion' />} />

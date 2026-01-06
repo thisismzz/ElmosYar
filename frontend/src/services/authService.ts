@@ -29,16 +29,12 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry &&
-      (
-      error.response?.code === "AUTH_TOKEN_INVALID" ||
-      error.response?.code === "AUTH_TOKEN_EXPIRED" ||
-      error.response?.code === "AUTH_TOKEN_MISSING"
-      )
+      error.response?.data?.code === "token_not_valid"
     ) {
       originalRequest._retry = true;
       try {
+        localStorage.removeItem('access');
         const newToken = await refreshToken();
         if (newToken) {
           setToken(newToken);
@@ -46,7 +42,6 @@ api.interceptors.response.use(
           return api(originalRequest);
         }
       } catch (refreshError) {
-        console.error('Token refresh failed:', refreshError);
         await logout();
         return Promise.reject(refreshError);
       }
@@ -57,24 +52,24 @@ api.interceptors.response.use(
 );
 
 export const getToken = (): string | null => {
-  return localStorage.getItem('access_token');
+  return localStorage.getItem('access');
 };
 
 export const getRefreshToken = (): string | null => {
-  return localStorage.getItem('refresh_token');
+  return localStorage.getItem('refresh');
 };
 
 export const setToken = (token: string): void => {
-  localStorage.setItem('access_token', token);
+  localStorage.setItem('access', token);
 };
 
 export const setRefreshToken = (token: string): void => {
-  localStorage.setItem('refresh_token', token);
+  localStorage.setItem('refresh', token);
 };
 
 export const removeTokens = (): void => {
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('access');
+  localStorage.removeItem('refresh');
   localStorage.removeItem('userData');
 };
 
@@ -122,7 +117,6 @@ export const refreshToken = async (): Promise<string | null> => {
     if (!refresh) {
       throw new Error('No refresh token available');
     }
-
     const response = await api.post('/token/refresh/', { refresh });
     const access = response.data?.access;
     if (access) {

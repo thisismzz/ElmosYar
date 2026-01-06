@@ -156,7 +156,7 @@ const ChatPostForm: React.FC<ChatPostFormProps> = ({
         category,
         {
           body: content,
-          tags: tags.join(','), // Convert array to comma-separated string
+          tags: tags.join(','),
         }
       );
       

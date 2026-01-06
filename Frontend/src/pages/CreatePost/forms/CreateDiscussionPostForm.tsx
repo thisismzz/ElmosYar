@@ -298,13 +298,11 @@ export function CreateDiscussionPostForm(props: {
           type="submit"
           disabled={isSubmitting || !content.trim()}
           className="h-11"
-		  onClick={async () => await createPost(
-				  'discussion',
-				  {
-					body: content,
-					tags: tags.join(','), // Convert array to comma-separated string
-				  }
-				)}
+          onClick={() => {createPost('discussion', {
+            body: content,
+            tags: tags.join(','),
+          });
+		      console.log(content)}}
         >
           {isSubmitting ? (
             <>

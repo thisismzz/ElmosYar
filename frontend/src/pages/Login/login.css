@@ -374,7 +374,8 @@
 
 
 .floating-input .form-input:focus + .floating-label,
-.floating-input .form-input:not(:placeholder-shown) + .floating-label {
+.floating-input .form-input:not(:placeholder-shown) + .floating-label, 
+.floating-input .form-input:-webkit-autofill + .floating-label {
   top: -10px;
   transform: none;
   font-size: 13px;

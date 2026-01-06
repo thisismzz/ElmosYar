@@ -95,6 +95,7 @@ interface FilterContextType {
   setFilters: (filters: FilterState) => void;
   resetFilters: () => void;
   getFilter: (key: string, defaultValue?: string) => string;
+  getUsername: () => string | undefined;
   serializeSearch?: (allowedKeys?: string[]) => string | undefined;
 }
 
@@ -132,6 +133,7 @@ export const FilterProvider: React.FC<{
 
     Object.entries(filters).forEach(([k, v]) => {
       if (k === 'q') return; // skip search bar here
+      if (k === 'username') return; // skip username - handled separately
       if (allowedKeys && !allowedKeys.includes(k)) return;
       if (v === undefined || v === null || v === '') return;
       filtersToUse[k] = v;
@@ -201,14 +203,20 @@ export const FilterProvider: React.FC<{
     return filters[key] || defaultValue;
   }, [filters]);
 
+  const getUsername = useCallback(() => {
+    const username = filters['username'];
+    return username && username !== '' ? username : undefined;
+  }, [filters]);
+
   const contextValue = useMemo(() => ({
     filters,
     setFilters,
     updateFilter,
     resetFilters,
     getFilter,
+    getUsername,
     serializeSearch
-  }), [filters, setFilters, updateFilter, resetFilters, getFilter, serializeSearch]);
+  }), [filters, setFilters, updateFilter, resetFilters, getFilter, getUsername, serializeSearch]);
 
   return (
     <FilterContext.Provider value={contextValue}>

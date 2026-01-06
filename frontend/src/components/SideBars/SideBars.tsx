@@ -98,7 +98,7 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
     if (location.pathname.includes('/food') || location.pathname.includes('/topic/food')) {
       return 'food';
     }
-    if (location.pathname.includes('/professors') || location.pathname.includes('/topic/professors')) {
+    if (location.pathname.includes('/professor-review') || location.pathname.includes('/topic/professor-review')) {
       return 'teacher';
     }
     return 'other';
@@ -194,7 +194,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen = true }) => {
 
   const topics: NavItem[] = [
     { id: '1', label: 'تبادل غذا', icon: Utensils, path: '/topic/food' },
-    { id: '2', label: 'نظرسنجی اساتید', icon: Star, path: '/topic/professors' },
+    { id: '2', label: 'نظرسنجی اساتید', icon: Star, path: '/topic/professor-review' },
     { id: '3', label: 'بحث و گفتگو', icon: MessageSquare, path: '/topic/discussion' }
   ];
 
