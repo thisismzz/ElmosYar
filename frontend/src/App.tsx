@@ -25,6 +25,7 @@ import { ProfessorProfilePage } from './pages/Professors/ProfessorProfile';
 import ContactUs from './pages/Contact/Contact';
 import { CreatePostPage } from './pages/CreatePost/CreatePostPage';
 import PostCommentsPage from "./pages/Discussion/PostCommentsPage";
+import { WalletGatewayPage } from "./pages/WalletGatewayPage";
 
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
@@ -187,6 +188,7 @@ const ProtectedRoutes: React.FC = () => {
 			<Route path='/create/discussion' element={<CreatePostPage starting_category='discussion' />} />
 			<Route path='/create' element={<CreatePostPage />} />
 			<Route path="/post/:postId/comments" element={<PostCommentsPage />} />
+			<Route path="/wallet/gateway" element={<WalletGatewayPage />} />
 
 		</Routes>
 	);

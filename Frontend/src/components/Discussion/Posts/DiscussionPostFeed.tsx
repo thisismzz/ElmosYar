@@ -72,7 +72,6 @@ const PostActions: React.FC<PostActionsProps & { onOpenComments: (postId: number
 	);
 };
 
-<<<<<<< HEAD
 export const PostCard: React.FC<PostCardProps & { onOpenComments: (postId: number) => void }> = ({
 	post,
 	onLike,
@@ -105,40 +104,6 @@ export const PostCard: React.FC<PostCardProps & { onOpenComments: (postId: numbe
 						}}
 					/>
 				</div>
-=======
-export const PostCard: React.FC<PostCardProps> = ({ post, onLike, onDislike, onComment }) => {
-  const formatTimeAgo = (timestamp: string) => {
-    const now = new Date();
-    const postDate = new Date(timestamp);
-    
-    if (isNaN(postDate.getTime())) {
-      return 'اخیراً';
-    }
-    
-    const diffInSeconds = Math.floor((now.getTime() - postDate.getTime()) / 1000);
-    
-    if (diffInSeconds < 60) return 'همین حالا';
-    
-    const diffInMinutes = Math.floor(diffInSeconds / 60);
-    if (diffInMinutes < 60) return `${diffInMinutes} دقیقه پیش`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours === 1) return '1 ساعت پیش';
-    if (diffInHours < 24) return `${diffInHours} ساعت پیش`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays === 1) return 'دیروز';
-    if (diffInDays < 30) return `${diffInDays} روز پیش`;
-    
-    const diffInMonths = Math.floor(diffInDays / 30);
-    if (diffInMonths === 1) return '1 ماه پیش';
-    if (diffInMonths < 12) return `${diffInMonths} ماه پیش`;
-    
-    const diffInYears = Math.floor(diffInMonths / 12);
-    if (diffInYears === 1) return '1 سال پیش';
-    return `${diffInYears} سال پیش`;
-  };
->>>>>>> 6eeaa316a1b48dbc007dfd547409aeb2feb2e566
 
 				<div className="post-header-meta">
 					<div className="user-name">{post.user.name}</div>

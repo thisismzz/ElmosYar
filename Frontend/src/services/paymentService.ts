@@ -2,37 +2,23 @@ import { TransactionCard } from "../components/Transaction/TransactionCard"
 import api from "./authService"
 
 export const getWalletData = async () => {
-	const response = await api.get('/wallet/mywallet')
-	if (!response.data.error) {
-		return response.data.data
-	} else {
-		console.log(response.data.message)
-	}
-}
+  const response = await api.get('/wallet/mywallet');
+  if (!response.data.error) return response.data.data;
+  throw new Error(response.data.message || "خطا در دریافت اطلاعات کیف پول");
+};
 
 export const withdrawFromWallet = async (amount: number) => {
-	const response = await api.post('/wallet/withdraw/', {
-		amount: amount
-	})
-
-	if (!response.data.error) {
-		return response.data.data
-	} else {
-		console.log(response.data.message)
-	}
-}
+  const response = await api.post('/wallet/withdraw/', { amount });
+  if (!response.data.error) return response.data.data;
+  throw new Error(response.data.message || "برداشت ناموفق بود");
+};
 
 export const depositToWallet = async (amount: number) => {
-	const response = await api.post('/wallet/deposit/', {
-		amount: amount
-	})
+  const response = await api.post('/wallet/deposit/', { amount });
+  if (!response.data.error) return response.data.data;
+  throw new Error(response.data.message || "واریز ناموفق بود");
+};
 
-	if (!response.data.error) {
-		return response.data.data
-	} else {
-		console.log(response.data.message)
-	}
-}
 
 
 interface TransactionCardDetails {

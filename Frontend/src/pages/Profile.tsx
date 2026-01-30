@@ -36,7 +36,7 @@ export function ProfilePage() {
   return (
     <div className="min-h-screen">
       <div className="max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8 md:flex-row-reverse">
+        <div className="flex flex-col md:flex-row items-center gap-6 mb-8 md:flex-row-reverse">
           
           <div className="flex flex-col gap-2 items-center">
             <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-white shadow-lg">
@@ -64,7 +64,7 @@ export function ProfilePage() {
             </Button>
 
           </div>
-          <div className="flex-1 text-center md:text-right">
+          <div className="flex-1 text-center md:text-right md:">
             <h1 className="mb-1" style={{ color: "#16519F" }}>
               {userProfile.username}
             </h1>
@@ -114,27 +114,6 @@ export function ProfilePage() {
                 <div className="md:text-right">
                   <h3 className="mb-1">کیف پول</h3>
                   <p className="text-gray-500">مشاهده موجودی و تراکنش ها</p>
-                </div>
-              </div>
-              <ChevronLeft className="w-5 h-5 text-gray-400" />
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md bg-gray-50">
-            <CardContent className="flex items-center justify-between p-6 flex-row-reverse">
-              <div className="flex items-center gap-4 flex-row-reverse">
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: "#4FCBE920" }}
-                >
-                  <HelpCircle
-                    className="w-6 h-6"
-                    style={{ color: "#4FCBE9" }}
-                  />
-                </div>
-                <div className="md:text-right">
-                  <h3 className="mb-1 ">سوالات و ارتباط با ما</h3>
-                  <p className="text-gray-500">از ما کمک بخواهید</p>
                 </div>
               </div>
               <ChevronLeft className="w-5 h-5 text-gray-400" />

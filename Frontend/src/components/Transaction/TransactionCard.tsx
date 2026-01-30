@@ -7,7 +7,7 @@ interface Transaction {
   amount: number;
   title: string;
   user: string;
-  type: 'payment' | 'recieve';
+  type: 'withdraw' | 'deposit' | 'payment';
   date: string;
 }
 
@@ -17,7 +17,7 @@ interface TransactionCardProps {
 }
 
 export function TransactionCard({ transaction, postId }: TransactionCardProps) {
-  const isDeposit = transaction.type === 'payment';
+  const isDepositOrPayment = transaction.type === "deposit";
   const [name, setName] = useState();
   
   const formatDate = (dateString: string) => {
@@ -40,9 +40,9 @@ export function TransactionCard({ transaction, postId }: TransactionCardProps) {
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4 flex-1">
           <div className={`rounded-full p-2.5 ${
-            isDeposit ? 'bg-green-100' : 'bg-red-100'
+            isDepositOrPayment ? 'bg-green-100' : 'bg-red-100'
           }`}>
-            {isDeposit ? (
+            {isDepositOrPayment ? (
               <ArrowDownLeft className="w-5 h-5 text-green-600" />
             ) : (
               <ArrowUpRight className="w-5 h-5 text-red-600" />
@@ -52,7 +52,7 @@ export function TransactionCard({ transaction, postId }: TransactionCardProps) {
           <div className="flex-1 min-w-0">
             <h3 className="flex text-gray-900 mb-1">{transaction.title}</h3>
             <p className="text-gray-600 text-sm mb-1">
-              {/* {transaction.user} :{isDeposit ? 'از' : 'به'} */}
+              {/* {transaction.user} :{isDepositOrPayment ? 'از' : 'به'} */}
             <p className="text-gray-500 text-sm">
               {name}
             </p>
@@ -62,16 +62,18 @@ export function TransactionCard({ transaction, postId }: TransactionCardProps) {
 
         <div className="text-right">
           <p className={`mb-1 ${
-            isDeposit ? 'text-green-600' : 'text-red-600'
+            isDepositOrPayment ? 'text-green-600' : 'text-red-600'
           }`}>
-            {isDeposit ? '+' : '-'}${transaction.amount.toFixed(2)}
+            {isDepositOrPayment ? '+' : '-'}${transaction.amount.toFixed(2)}
           </p>
           <span className={`inline-block px-2.5 py-1 rounded-full text-xs ${
-            isDeposit 
+            isDepositOrPayment 
               ? 'bg-green-100 text-green-700' 
               : 'bg-red-100 text-red-700'
           }`}>
-            {isDeposit ? 'دریافت' : 'واریز'}
+            {transaction.type === "payment" ? 'پرداخت' :
+			 transaction.type === "deposit" ? 'واریز' : 
+			 "برداشت"}
           </span>
         </div>
       </div>
