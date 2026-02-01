@@ -26,33 +26,28 @@ export interface Reply {
 	is_disliked: boolean;
 }
 
-export interface Comment {
+export interface Comment { //this type of comment in: postservice.craetecomment, commentservice.createcommentonpost
 	id: number;
-	parentId: number;
-
-	// if anonymous, user is undefined
-	user?: {
+	user: {
 		id: number;
 		name: string;
-		username: string;
 		avatar?: string;
+		username?: string;
 	};
-
-	name: string;
-	username?: string;
-	avatar?: string;
-	isAnonymous: boolean;
-
-	time: string; // ISO or backend timestamp
-	text: string;
+	content: string;
+	timestamp: string;
 
 	likes: number;
 	dislikes: number;
-	is_liked: boolean;
-	is_disliked: boolean;
 
-	replies?: Reply[];
-	replyCount?: number;
+	isLiked: boolean;
+	isDisliked: boolean;
+
+	isAnonymous: boolean;
+
+    parent: number | null;
+
+	repliesCount?: number;
 }
 
 export interface CommentsProps {
@@ -68,6 +63,7 @@ export interface CommentsProps {
 		content: string;
 		timestamp: string;
 		user: {
+            id: number;
 			name: string;
 			username?: string;
 			avatar?: string;
@@ -75,6 +71,11 @@ export interface CommentsProps {
 		likes: number;
 		dislikes: number;
 		comments: number;
+        isLiked?: boolean;
+        isDisliked?: boolean;
+        category?: string;
+        tags?: string[]; 
+        attributes: any;
 	};
 
 	postId?: number;

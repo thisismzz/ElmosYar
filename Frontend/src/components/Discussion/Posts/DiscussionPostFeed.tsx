@@ -6,7 +6,7 @@ import { ThumbsUp, ThumbsDown, MessageCircle } from "lucide-react";
 import "./DiscussionPostFeed.css";
 import { useNavigate } from "react-router-dom";
 
-const PostActions: React.FC<PostActionsProps & { onOpenComments: (postId: number) => void }> = ({
+export const PostActions: React.FC<PostActionsProps & { onOpenComments: (postId: number) => void }> = ({
 	postId,
 	likes,
 	dislikes,
@@ -62,7 +62,7 @@ const PostActions: React.FC<PostActionsProps & { onOpenComments: (postId: number
 				<span className="action-count">{dislikes}</span>
 			</button>
 
-			<button className="action-btn comment-btn" onClick={handleComment}>
+			<button className="action-btn comment-btn">
 				<span className="action-icon">
 					<MessageCircle size={18} />
 				</span>
@@ -72,14 +72,7 @@ const PostActions: React.FC<PostActionsProps & { onOpenComments: (postId: number
 	);
 };
 
-export const PostCard: React.FC<PostCardProps & { onOpenComments: (postId: number) => void }> = ({
-	post,
-	onLike,
-	onDislike,
-	onComment,
-	onOpenComments,
-}) => {
-	const formatTimeAgo = (timestamp: string) => {
+export const formatTimeAgo = (timestamp: string) => {
 		const now = new Date();
 		const postDate = new Date(timestamp);
 		const diffMins = Math.floor((now.getTime() - postDate.getTime()) / (1000 * 60));
@@ -90,6 +83,14 @@ export const PostCard: React.FC<PostCardProps & { onOpenComments: (postId: numbe
 		const diffDays = Math.floor(diffHours / 24);
 		return `${diffDays} روز پیش`;
 	};
+export const PostCard: React.FC<PostCardProps & { onOpenComments: (postId: number) => void }> = ({
+	post,
+	onLike,
+	onDislike,
+	onComment,
+	onOpenComments,
+}) => {
+	
 
 	return (
 		<div className="post-card" onClick={() => onOpenComments(post.id)} role="button" tabIndex={0}>

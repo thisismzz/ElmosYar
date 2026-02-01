@@ -111,6 +111,7 @@ const toFrontendReply = (c: FrontendComment): FrontendReply => ({
 });
 
 export const mapRawCommentsToFrontend = (rawComments: RawComment[]): FrontendComment[] => {
+    console.log("raw_comments: ", rawComments)
 	return rawComments.map((raw) => {
 		const anonymous = isAnonymousRaw(raw);
 		const u = anonymous ? null : pickUserFields(raw);
@@ -158,7 +159,7 @@ export const mapRawCommentsToFrontend = (rawComments: RawComment[]): FrontendCom
 // ---------- Fetch comments / replies ----------
 export const getCommentsForPost = async (postId: number): Promise<FrontendComment[]> => {
 	const res = await postService.getComments(postId);
-	console.log("get comments - " , res , mapRawCommentsToFrontend(res.comments))
+    console.log("getCommentsForPost-1", res)
 	return mapRawCommentsToFrontend(res.comments);
 };
 

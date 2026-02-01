@@ -54,9 +54,9 @@ export function ReviewPage() {
 								key={review.id}
 								review={review}
 								onLike={() => {likePost(review.id)}}
-								// onComment={() => {console.log("tried to comment")}}
-								// onClick={() => navigate(`/topic/professors/${review.professorName}`)}
+								onOpenProfessor={() => navigate(`/topic/professor-review/${review.professorName}`)}
 								showDetailedRatings={true}
+                                // onOpenComments={() => navigate()} //todo: move to review/id/comments nav (make prof comments page)
 							/>
 						))
 					)}

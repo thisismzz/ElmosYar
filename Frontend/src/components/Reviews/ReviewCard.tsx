@@ -14,7 +14,7 @@ interface ReviewCardProps {
 }
 
 export function ReviewCard({
-	review,
+    review,
 	onLike,
 	onDislike,
 	onOpenComments,

@@ -85,7 +85,7 @@ const sortedReviews = [...professorReviews].sort((a, b) => {
         {/* Back Button */}
         <Button
           variant="ghost"
-          onClick={() => navigate("/topic/professors/")}
+          onClick={() => navigate("/topic/professor-review/")}
           className="mb-6 -ml-2 hover:bg-[#4FCBE9]/10"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />

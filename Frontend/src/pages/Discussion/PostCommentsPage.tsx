@@ -24,6 +24,7 @@ export default function PostCommentsPage() {
 			setLoading(true);
 			try {
 				const [p, cs] = await Promise.all([getPostCard(numericPostId), getCommentsForPost(numericPostId)]);
+                console.log("comments:", cs)
 				setPost(p);
 				setComments(cs);
 			} finally {
@@ -59,10 +60,11 @@ export default function PostCommentsPage() {
 										id: post.id,
 										content: post.content,
 										timestamp: post.timestamp,
-										user: { name: post.user.name, username: post.user.username, avatar: post.user.avatar },
+										user: { name: post.user.name, username: post.user.username, avatar: post.user.avatar, id: post.user.id },
 										likes: post.likes,
 										dislikes: post.dislikes,
 										comments: post.comments,
+                                        attributes: post.attributes
 								  }
 								: undefined
 						}

@@ -1,7 +1,7 @@
 // src/services/postService.ts
 import api from "./authService";
 import { type Post, BackendPost, PaginationInfo } from "../types/discussion_posts";
-
+import type { Comment } from "../types/discussion_comments";
 export interface GetPostsParams {
 	page?: number;
 	per_page?: number;
@@ -16,27 +16,7 @@ export interface GetPostsResponse {
 	pagination: PaginationInfo;
 }
 
-export interface Comment {
-	id: number;
-	user: {
-		id: number;
-		name: string;
-		avatar?: string;
-		username?: string;
-	};
-	content: string;
-	timestamp: string;
 
-	likes: number;
-	dislikes: number;
-
-	isLiked: boolean;
-	isDisliked: boolean;
-
-	isAnonymous: boolean;
-
-	repliesCount?: number;
-}
 
 class UltimatePostService {
 	async getPosts(params: GetPostsParams = {}): Promise<GetPostsResponse> {
@@ -185,6 +165,8 @@ class UltimatePostService {
 			isAnonymous,
 
 			repliesCount: raw.comments_count ?? raw.replies_count ?? undefined,
+
+            parent: raw.parent,
 		};
 	}
 

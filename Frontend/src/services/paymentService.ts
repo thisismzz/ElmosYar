@@ -46,7 +46,7 @@ export const getUserTransactions = async (): Promise<TransactionCardDetails[]> =
 
 	const backend_transactions: BackendTransaction[] = response.data.data
 	var result: TransactionCardDetails[] = []
-	if (backend_transactions.length) {
+	if (backend_transactions && backend_transactions.length) {
 		for (const t of backend_transactions) {
 			result.push({
 				title: "",

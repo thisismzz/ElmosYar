@@ -237,21 +237,8 @@ const NotesPage: React.FC = () => {
 	return (
 
 		<div className="notes-page notes-page-container">
-			<button
-				onClick={async () => {
-					try {
-						await linkLocalFolder();
-						// After linking, you may want to immediately save current state:
-						await saveNotesToDisk({ notes, folders });
-						setDriveStatus("Local folder linked.");
-					} catch (e: any) {
-						setDriveStatus(e?.message ?? "Failed to link folder.");
-					}
-				}}
-			>
-				Link Local Folder
-			</button>
-z
+			
+
 			<div className="notes-page-layout">
 				<FoldersSidebar
 					folders={folders}
@@ -267,8 +254,8 @@ z
 							<button onClick={onSaveToDrive}>Save</button>
 							<button onClick={onLoadFromDrive}>Load</button>
 						</div> */}
-						<div className='rtl'>{driveStatus}</div>
-						<div />
+						{/* <div className='rtl'>{driveStatus}</div> */}
+						{/* <div /> */}
 
 						<DriveSyncButton
 							onSave={async () => {
