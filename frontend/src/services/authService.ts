@@ -1,6 +1,11 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://10.129.145.10:8081/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://89.106.206.119:8000/api';
+
+// Note: Access token is stored in localStorage for persistence
+// Refresh token is managed by the backend via HttpOnly cookies
+// The browser automatically sends the refresh cookie with requests to the API
+// We cannot and should not access the refresh token from JavaScript for security reasons
 
 // Create axios instance with base configuration
 const api = axios.create({
@@ -8,6 +13,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Include cookies in cross-origin requests
 });
 
 // Request interceptor to add auth token to requests
@@ -55,22 +61,14 @@ export const getToken = (): string | null => {
   return localStorage.getItem('access');
 };
 
-export const getRefreshToken = (): string | null => {
-  return localStorage.getItem('refresh');
-};
-
 export const setToken = (token: string): void => {
   localStorage.setItem('access', token);
 };
 
-export const setRefreshToken = (token: string): void => {
-  localStorage.setItem('refresh', token);
-};
-
 export const removeTokens = (): void => {
   localStorage.removeItem('access');
-  localStorage.removeItem('refresh');
   localStorage.removeItem('userData');
+  // Note: HttpOnly refresh_token cookie will be cleared by the backend on logout
 };
 
 export const signup = async (userData: { username: string; email: string; password: string }) => {
@@ -80,10 +78,8 @@ export const signup = async (userData: { username: string; email: string; passwo
 
 export const login = async (credentials: { username_or_email: string; password: string; rememberMe?: boolean }) => {
   const response = await api.post('/login/', credentials);
-  // On success backend returns { success, message, user, tokens }
-  if (response.data?.success && response.data?.tokens) {
-    setToken(response.data.tokens.access);
-    setRefreshToken(response.data.tokens.refresh);
+  if (response.data?.success && response.data?.access) {
+    setToken(response.data.access);
     if (response.data.user) {
       localStorage.setItem('userData', JSON.stringify(response.data.user));
     }
@@ -92,15 +88,11 @@ export const login = async (credentials: { username_or_email: string; password: 
 };
 
 export const logout = async (): Promise<void> => {
-  const refreshTokenValue = getRefreshToken();
-  if (refreshTokenValue) {
-    try {
-      await api.post('/logout/', {
-        refresh: refreshTokenValue,
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  try {
+    // Backend will read refresh_token from HttpOnly cookie automatically
+    await api.post('/logout/', {});
+  } catch (error) {
+    console.error('Logout error:', error);
   }
   removeTokens();
   window.location.href = '/login';
@@ -113,11 +105,8 @@ export const verifyToken = async (token: string) => {
 
 export const refreshToken = async (): Promise<string | null> => {
   try {
-    const refresh = getRefreshToken();
-    if (!refresh) {
-      throw new Error('No refresh token available');
-    }
-    const response = await api.post('/token/refresh/', { refresh });
+    // Backend will read refresh_token from HttpOnly cookie automatically
+    const response = await api.post('/token/refresh/', {});
     const access = response.data?.access;
     if (access) {
       setToken(access);
@@ -132,9 +121,9 @@ export const refreshToken = async (): Promise<string | null> => {
 
 export const verifyEmail = async (uid: string) => {
   const response = await api.get(`/verify-email/${uid}/`);
+  // Backend also sets refresh_token as HttpOnly cookie
   if (response.data?.tokens) {
     setToken(response.data.tokens.access);
-    setRefreshToken(response.data.tokens.refresh);
     if (response.data.user) {
       localStorage.setItem('userData', JSON.stringify(response.data.user));
     }
@@ -144,6 +133,19 @@ export const verifyEmail = async (uid: string) => {
 
 export const resendVerificationEmail = async (email: string) => {
   const response = await api.post('/resend-verification-email/', { email });
+  return response.data;
+};
+
+export const requestPasswordReset = async (email: string) => {
+  const response = await api.post('/password-reset/request/', { email });
+  return response.data;
+};
+
+export const resetPassword = async (token: string, password: string, passwordConfirm: string) => {
+  const response = await api.post(`/password-reset/${token}/`, { 
+    password, 
+    password_confirm: passwordConfirm 
+  });
   return response.data;
 };
 
