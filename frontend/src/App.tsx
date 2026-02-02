@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navig
 import { AuthProvider } from './components/AuthProvider';
 import { FilterProvider } from './contexts/FilterContext';
 import { useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import useIsMobile from './hooks/useIsMobile';
 import Backdrop from './components/Backdrop/Backdrop';
 import { Main } from './pages/Main/main';
@@ -26,206 +27,209 @@ import ContactUs from './pages/Contact/Contact';
 import { CreatePostPage } from './pages/CreatePost/CreatePostPage';
 import PostCommentsPage from "./pages/Discussion/PostCommentsPage";
 import { WalletGatewayPage } from "./pages/WalletGatewayPage";
+import ReviewCommentsPage from './pages/Professors/ReviewComments';
+import SettingsPage from './pages/SettingsPage';
 
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
+    const { topicId } = useParams<{ topicId: string }>();
 
-	const { topicId } = useParams<{ topicId: string }>();
+    // Use FoodPage for the 'food' topic
+    if (topicId === 'food') return <FoodPage />;
+    if (topicId === 'discussion') return <DiscussionPage category={topicId} />;
+    if (topicId === 'professor-review') return <ReviewPage />;
 
-	// Use FoodPage for the 'food' topic
-	if (topicId === 'food') return <FoodPage />;
-	if (topicId === 'discussion') return <DiscussionPage category={topicId} />;
-	if (topicId === 'professor-review') return <ReviewPage />;
-
-	// For all other topics, show the general discussion feed.
-	return <GeneralDiscussion />;
+    // For all other topics, show the general discussion feed.
+    return <GeneralDiscussion />;
 };
 
 const GeneralDiscussion: React.FC = () => {
-	return <DiscussionPage />;
+    return <DiscussionPage />;
 };
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const isMobile = useIsMobile();
-	const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(!isMobile);
-	const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
-	const location = useLocation();
-	const navigate = useNavigate();
-	const { isAuthenticated } = useAuth();
+    const isMobile = useIsMobile();
+    const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(!isMobile);
+    const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
 
-	// Prevent body scrolling when sidebar is open on mobile
-	useEffect(() => {
-		if (isMobile && isLeftSidebarOpen) {
-			document.body.classList.add('sidebar-open');
-			document.body.style.overflow = 'hidden';
-		} else {
-			document.body.classList.remove('sidebar-open');
-			document.body.style.overflow = 'unset';
-		}
+    // Prevent body scrolling when sidebar is open on mobile
+    useEffect(() => {
+        if (isMobile && isLeftSidebarOpen) {
+            document.body.classList.add('sidebar-open');
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.classList.remove('sidebar-open');
+            document.body.style.overflow = 'unset';
+        }
 
-		return () => {
-			document.body.classList.remove('sidebar-open');
-			document.body.style.overflow = 'unset';
-		};
-	}, [isMobile, isLeftSidebarOpen]);
+        return () => {
+            document.body.classList.remove('sidebar-open');
+            document.body.style.overflow = 'unset';
+        };
+    }, [isMobile, isLeftSidebarOpen]);
 
-	// Auto-close left sidebar on mobile when route changes
-	useEffect(() => {
-		if (isMobile) {
-			setIsLeftSidebarOpen(false);
-		}
-	}, [location.pathname, isMobile]);
+    // Auto-close left sidebar on mobile when route changes
+    useEffect(() => {
+        if (isMobile) {
+            setIsLeftSidebarOpen(false);
+        }
+    }, [location.pathname, isMobile]);
 
-	// Auto-open sidebars on desktop, close on mobile
-	useEffect(() => {
-		if (isMobile) {
-			setIsLeftSidebarOpen(false);
-			setIsRightSidebarOpen(false);
-		}
-		else {
-			setIsLeftSidebarOpen(true);
-			setIsRightSidebarOpen(false);
-		}
-	}, [isMobile]);
+    // Auto-open sidebars on desktop, close on mobile
+    useEffect(() => {
+        if (isMobile) {
+            setIsLeftSidebarOpen(false);
+            setIsRightSidebarOpen(false);
+        }
+        else {
+            setIsLeftSidebarOpen(true);
+            setIsRightSidebarOpen(false);
+        }
+    }, [isMobile]);
 
-	const handleHomeClick = () => {
-		navigate('/');
-	};
+    const handleHomeClick = () => {
+        navigate('/');
+    };
 
-	const handleToggleSidebar = (isOpen: boolean) => {
-		setIsRightSidebarOpen(isOpen);
-	};
+    const handleToggleSidebar = (isOpen: boolean) => {
+        setIsRightSidebarOpen(isOpen);
+    };
 
-	const handleToggleLeftSidebar = () => {
-		setIsLeftSidebarOpen(!isLeftSidebarOpen);
-	};
+    const handleToggleLeftSidebar = () => {
+        setIsLeftSidebarOpen(!isLeftSidebarOpen);
+    };
 
-	const handleCloseLeftSidebar = () => {
-		if (isMobile) {
-			setIsLeftSidebarOpen(false);
-		}
-	};
+    const handleCloseLeftSidebar = () => {
+        if (isMobile) {
+            setIsLeftSidebarOpen(false);
+        }
+    };
 
-	const isLoginPage = location.pathname === '/login' || location.pathname.startsWith('/verify-email');
+    const isLoginPage = location.pathname === '/login' || location.pathname.startsWith('/verify-email');
 
-	useEffect(() => {
-		if (!isAuthenticated && !isLoginPage) {
-			navigate('/login', { replace: true });
-		}
-	}, [isAuthenticated, isLoginPage, navigate]);
+    useEffect(() => {
+        if (!isAuthenticated && !isLoginPage) {
+            navigate('/login', { replace: true });
+        }
+    }, [isAuthenticated, isLoginPage, navigate]);
 
-	return (
-		<div className="App">
-			{!isLoginPage && isAuthenticated && (
-				<>
-					<Header
-						onHomeClick={handleHomeClick}
-						onToggleSidebar={handleToggleSidebar}
-					/>
+    return (
+        <div className="App">
+            {!isLoginPage && isAuthenticated && (
+                <>
+                    <Header
+                        onHomeClick={handleHomeClick}
+                        onToggleSidebar={handleToggleSidebar}
+                    />
 
-					<div className="app-content">
-						{/* Backdrop for mobile sidebar */}
-						{isMobile && (
-							<Backdrop
-								isActive={isLeftSidebarOpen}
-								onClick={handleCloseLeftSidebar}
-							/>
-						)}
-						<LeftSidebar isOpen={isLeftSidebarOpen} />
-						<main
-							className={[
-								'main-content',
-								isLeftSidebarOpen ? 'left-open' : 'left-closed',
-								isRightSidebarOpen ? 'right-open' : 'right-closed'
-							].join(' ')}
-							onClick={isMobile && isLeftSidebarOpen ? handleCloseLeftSidebar : undefined}
-						>
-							{children}
-						</main>
-						{/* Hide RightSideBar on mobile */}
-						{!isMobile && <RightSideBar isOpen={isRightSidebarOpen} />}
-					</div>
-					{/* Show MobileBottomNav only on mobile */}
-					{isMobile && (
-						<MobileBottomNav
-							isLeftSidebarOpen={isLeftSidebarOpen}
-							onLeftSidebarToggle={handleToggleLeftSidebar}
-							isDeactivated={isLeftSidebarOpen}
-						/>
-					)}
-				</>
-			)}
-			{isLoginPage && children}
-		</div>
-	);
+                    <div className="app-content">
+                        {/* Backdrop for mobile sidebar */}
+                        {isMobile && (
+                            <Backdrop
+                                isActive={isLeftSidebarOpen}
+                                onClick={handleCloseLeftSidebar}
+                            />
+                        )}
+                        <LeftSidebar isOpen={isLeftSidebarOpen} />
+                        <main
+                            className={[
+                                'main-content',
+                                isLeftSidebarOpen ? 'left-open' : 'left-closed',
+                                isRightSidebarOpen ? 'right-open' : 'right-closed'
+                            ].join(' ')}
+                            onClick={isMobile && isLeftSidebarOpen ? handleCloseLeftSidebar : undefined}
+                        >
+                            {children}
+                        </main>
+                        {/* Hide RightSideBar on mobile */}
+                        {!isMobile && <RightSideBar isOpen={isRightSidebarOpen} />}
+                    </div>
+                    {/* Show MobileBottomNav only on mobile */}
+                    {isMobile && (
+                        <MobileBottomNav
+                            isLeftSidebarOpen={isLeftSidebarOpen}
+                            onLeftSidebarToggle={handleToggleLeftSidebar}
+                            isDeactivated={isLeftSidebarOpen}
+                        />
+                    )}
+                </>
+            )}
+            {isLoginPage && children}
+        </div>
+    );
 };
 
 // Protected Routes wrapper component
 const ProtectedRoutes: React.FC = () => {
-	const { isAuthenticated } = useAuth();
-	const location = useLocation();
-	const navigate = useNavigate(); //!
+    const { isAuthenticated } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
 
-	if (!isAuthenticated) {
-		return <Navigate to="/login" state={{ from: location }} replace />;
-	}
+    if (!isAuthenticated) {
+        return <Navigate to="/login" state={{ from: location }} replace />;
+    }
 
-	return (
-		<Routes>
-			<Route path='/' element={<Main />} />
-			<Route path='/notes' element={<NotesPage />} />
-			<Route path='/planner' element={<PlannerPage />} />
-			<Route path='/login' element={<RegisterPage />} />
-			<Route path='/profile' element={<ProfilePage />} />
-			<Route path='/profile/wallet' element={<WalletPage />} />
-			<Route path='/profile/edit' element={<EditProfilePage />} />
-			<Route path='/profile/transactions' element={<TransactionHistoryPage />} />
-			<Route path='contactUs' element={<ContactUs />} />
-			<Route path='/topic/:topicId' element={<TopicDiscussion />} />
-			<Route path='/topic/professor-review/:professorName' element={<ProfessorProfilePage />} />
-			<Route path='/create/food' element={<CreatePostPage starting_category='food' />} />
-			<Route path='/create/review' element={<CreatePostPage starting_category='review' />} />
-			<Route path='/create/discussion' element={<CreatePostPage starting_category='discussion' />} />
-			<Route path='/create' element={<CreatePostPage />} />
-			<Route path="/post/:postId/comments" element={<PostCommentsPage />} />
-			<Route path="/wallet/gateway" element={<WalletGatewayPage />} />
-
-		</Routes>
-	);
+    return (
+        <Routes>
+            <Route path='/' element={<Main />} />
+            <Route path='/notes' element={<NotesPage />} />
+            <Route path='/planner' element={<PlannerPage />} />
+            <Route path='/login' element={<RegisterPage />} />
+            <Route path='/profile' element={<ProfilePage />} />
+            <Route path='/profile/wallet' element={<WalletPage />} />
+            <Route path='/profile/edit' element={<EditProfilePage />} />
+            <Route path='/profile/transactions' element={<TransactionHistoryPage />} />
+            <Route path='contactUs' element={<ContactUs />} />
+            <Route path='/topic/:topicId' element={<TopicDiscussion />} />
+            <Route path='/topic/professor-review/:professorName' element={<ProfessorProfilePage />} />
+            <Route path='/create/food' element={<CreatePostPage starting_category='food' />} />
+            <Route path='/create/review' element={<CreatePostPage starting_category='review' />} />
+            <Route path='/create/discussion' element={<CreatePostPage starting_category='discussion' />} />
+            <Route path='/create' element={<CreatePostPage />} />
+            <Route path="/post/:postId/comments" element={<PostCommentsPage />} />
+            <Route path="/reviews/:reviewId/comments" element={<ReviewCommentsPage />} />
+            <Route path="/wallet/gateway" element={<WalletGatewayPage />} />
+            <Route path='/settings' element={<SettingsPage />} />
+        </Routes>
+    );
 };
 
 const PublicRoutes: React.FC = () => {
-	return (
-		<Routes>
-			<Route path='/login' element={<RegisterPage />} />
-			<Route path='/verify-email/:token' element={<VerifyEmail />} />
-			<Route path="*" element={<Navigate to="/login" replace />} />
-		</Routes>
-	);
+    return (
+        <Routes>
+            <Route path='/login' element={<RegisterPage />} />
+            <Route path='/verify-email/:token' element={<VerifyEmail />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+    );
 };
 
 // Main App Content that uses authentication
 const AppContent: React.FC = () => {
-	const { isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();
 
-
-	return (
-		<AppLayout>
-			{isAuthenticated ? <ProtectedRoutes /> : <PublicRoutes />}
-		</AppLayout>
-	);
+    return (
+        <AppLayout>
+            {isAuthenticated ? <ProtectedRoutes /> : <PublicRoutes />}
+        </AppLayout>
+    );
 };
 
 function App() {
-	return (
-		<Router>
-			<AuthProvider>
-				<FilterProvider>
-					<AppContent />
-				</FilterProvider>
-			</AuthProvider>
-		</Router>
-	);
+    return (
+        <Router>
+            <ThemeProvider>
+                <AuthProvider>
+                    <FilterProvider>
+                        <AppContent />
+                    </FilterProvider>
+                </AuthProvider>
+            </ThemeProvider>
+        </Router>
+    );
 }
 
 export default App;

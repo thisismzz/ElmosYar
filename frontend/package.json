@@ -3,7 +3,7 @@
   "homepage": "https://omidagha2.github.io/elmosyar",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:3001",
+
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@testing-library/dom": "^10.4.1",

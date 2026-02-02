@@ -19,166 +19,175 @@ import type { Post } from "../types/discussion_posts";
 const ANONYMOUS_CATEGORIES = new Set<string>(["review-comments"]);
 
 export const fetchPostWithComments = async (postId: number) => {
-	const response = await api.get(`/posts/${postId}/`);
-	return response.data;
+    const response = await api.get(`/posts/${postId}/`);
+    return response.data;
 };
 
 // ---------- Post mapping ----------
 export const mapBackendPostToFrontendPostCard = (backendPost: any): Post => {
-	return {
-		id: backendPost.id,
-		user: {
-			id: backendPost.author_info?.id ?? -1,
-			name:
-				`${backendPost.author_info?.first_name ?? ""} ${backendPost.author_info?.last_name ?? ""}`.trim() ||
-				backendPost.author_info?.username ||
-				"کاربر",
-			avatar: backendPost.author_info?.profile_picture ?? "",
-			username: backendPost.author_info?.username ?? "",
-		},
-		content: backendPost.attributes?.body ?? backendPost.content ?? "",
-		attributes: backendPost.attributes ?? {},
-		timestamp: backendPost.created_at,
-		likes: backendPost.likes_count ?? 0,
-		dislikes: backendPost.dislikes_count ?? 0,
-		comments: backendPost.comments_count ?? 0,
-		isLiked: backendPost.user_reaction === "like",
-		isDisliked: backendPost.user_reaction === "dislike",
-		category: backendPost.category,
-		media: backendPost.media ?? [],
-		tags:
-			typeof backendPost.attributes?.tags === "string"
-				? backendPost.attributes.tags
-						.split(",")
-						.map((t: string) => t.trim())
-						.filter(Boolean)
-				: [],
-	};
+    return {
+        id: backendPost.id,
+        user: {
+            id: backendPost.author_info?.id ?? -1,
+            name:
+                `${backendPost.author_info?.first_name ?? ""} ${backendPost.author_info?.last_name ?? ""}`.trim() ||
+                backendPost.author_info?.username ||
+                "الاغ",
+            avatar: backendPost.author_info?.profile_picture ?? "",
+            username: backendPost.author_info?.username ?? "",
+        },
+        content: backendPost.attributes?.body ?? backendPost.content ?? "",
+        attributes: backendPost.attributes ?? {},
+        timestamp: backendPost.created_at,
+        likes: backendPost.likes_count ?? 0,
+        dislikes: backendPost.dislikes_count ?? 0,
+        comments: backendPost.comments_count ?? 0,
+        isLiked: backendPost.user_reaction === "like",
+        isDisliked: backendPost.user_reaction === "dislike",
+        category: backendPost.category,
+        media: backendPost.media ?? [],
+        tags:
+            typeof backendPost.attributes?.tags === "string"
+                ? backendPost.attributes.tags
+                    .split(",")
+                    .map((t: string) => t.trim())
+                    .filter(Boolean)
+                : [],
+    };
 };
 
 export const getPostCard = async (postId: number): Promise<Post> => {
-	const data = await fetchPostWithComments(postId);
-	const backendPost = data?.post ?? data;
-	return mapBackendPostToFrontendPostCard(backendPost);
+    const data = await fetchPostWithComments(postId);
+    const backendPost = data?.post ?? data;
+    return mapBackendPostToFrontendPostCard(backendPost);
 };
 
 // ---------- Comment anonymity helpers ----------
 type RawComment = any;
 
 const isAnonymousRaw = (raw: RawComment): boolean => {
-	if (raw?.is_anonymous === true) return true;
-	if (raw?.anonymous === true) return true;
+    // console.log("isanonymousraw", raw)
+    // if (raw?.is_anonymous === true) return true;
+    // if (raw?.anonymous === true) return true;
 
-	const category = raw?.category;
-	if (typeof category === "string" && ANONYMOUS_CATEGORIES.has(category)) return true;
+    // const category = raw?.category;
+    // if (typeof category === "string" && ANONYMOUS_CATEGORIES.has(category)) return true;
 
-	// missing author/user fields => anonymous
-	const username = raw?.author?.username || raw?.author_info?.username || raw?.user?.username || raw?.user?.username;
-	if (!username) return true;
+    // // missing author/user fields => anonymous
+    // const username = raw?.author?.username || raw?.author_info?.username || raw?.user?.username || raw?.user?.username;
+    // if (!username) return true;
 
-	return false;
+    return false;
 };
 
 const pickUserFields = (raw: RawComment) => {
-	const author = raw?.author || raw?.author_info || raw?.user || {};
-	return {
-		id: author?.id ?? raw?.user?.id ?? -1,
-		name: author?.first_name || author?.name || author?.username || "کاربر",
-		username: author?.username || raw?.user?.username || "",
-		avatar: author?.profile_picture || author?.avatar || "",
-	};
+    const author = raw?.author || raw?.author_info || raw?.user || {};
+    return {
+        id: author?.id ?? raw?.user?.id ?? -1,
+        name: author?.first_name || author?.name || author?.username || "شتر",
+        username: author?.username || raw?.user?.username || "",
+        avatar: author?.profile_picture || author?.avatar || "",
+    };
 };
 
-const toFrontendReply = (c: FrontendComment): FrontendReply => ({
-	id: c.id,
-	user: c.isAnonymous
-		? undefined
-		: {
-				name: c.name,
-				username: c.username,
-				avatar: c.avatar,
-		  },
-	name: c.name,
-	username: c.username,
-	avatar: c.avatar,
-	isAnonymous: c.isAnonymous,
-	time: c.time,
-	text: c.text,
-	likes: c.likes,
-	dislikes: c.dislikes,
-	is_liked: c.is_liked,
-	is_disliked: c.is_disliked,
-});
+// const toFrontendReply = (c: FrontendComment): FrontendReply => ({
+//     id: c.id,
+//     parent: c.parent ?? undefined,
+//     user: c.isAnonymous
+//         ? undefined
+//         : {
+//             name: c.user.name,
+//             username: c.user.username,
+//             avatar: c.user.avatar,
+//         },
+//     // name: c.user.name,
+//     // username: c.user.username,
+//     // avatar: c.user.avatar,
+//     isAnonymous: c.isAnonymous,
+//     time: c.timestamp,
+//     text: c.content,
+//     likes: c.likes,
+//     dislikes: c.dislikes,
+//     is_liked: c.isLiked,
+//     is_disliked: c.isDisliked,
+// });
 
 export const mapRawCommentsToFrontend = (rawComments: RawComment[]): FrontendComment[] => {
-    console.log("raw_comments: ", rawComments)
-	return rawComments.map((raw) => {
-		const anonymous = isAnonymousRaw(raw);
-		const u = anonymous ? null : pickUserFields(raw);
+    return rawComments.map((raw) => {
+        const anonymous = isAnonymousRaw(raw);
+        const u = anonymous ? null : pickUserFields(raw);
 
-		// allow nested replies if backend sends them (optional)
-		const nestedRaw: RawComment[] = raw?.replies || raw?.comments || [];
+        // allow nested replies if backend sends them (optional)
+        const nestedRaw: RawComment[] = [];
 
-		const base: FrontendComment = {
-			id: raw.id,
-			parentId: raw.parent,
-			user: anonymous
-				? undefined
-				: {
-						id: u!.id,
-						name: u!.name,
-						username: u!.username,
-						avatar: u!.avatar || undefined,
-				  },
-			name: anonymous ? "ناشناس" : u!.name,
-			username: anonymous ? undefined : u!.username || undefined,
-			avatar: anonymous ? undefined : u!.avatar || undefined,
-			isAnonymous: anonymous,
+        const base: FrontendComment = {
+            id: raw.id,
+            parent: raw.parent,
+            user: anonymous
+                ? {
+                    id: 0,
+                    name: "anonymous",
+                    username: "john",
+                    avatar: undefined,
+                }
+                : {
+                    id: u!.id,
+                    name: u!.name,
+                    username: u!.username,
+                    avatar: u!.avatar || undefined,
+                },
+            isAnonymous: anonymous,
 
-			time: raw.created_at || raw.timestamp || new Date().toISOString(),
-			text: raw.content || raw.text || "",
+            timestamp: raw.created_at || raw.timestamp || new Date().toISOString(),
+            content: raw.content || raw.text || "",
 
-			likes: raw.likes_count ?? raw.likes ?? 0,
-			dislikes: raw.dislikes_count ?? raw.dislikes ?? 0,
-			is_liked: raw.is_liked ?? raw.liked ?? false,
-			is_disliked: raw.is_disliked ?? raw.disliked ?? false,
+            likes: raw.likes_count ?? raw.likes ?? 0,
+            dislikes: raw.dislikes_count ?? raw.dislikes ?? 0,
+            isLiked: raw.isLiked,
+            isDisliked: raw.isDisliked ?? raw.disliked ?? false,
 
-			replies: [],
-			replyCount: raw.comments_count ?? raw.replies_count ?? (Array.isArray(nestedRaw) ? nestedRaw.length : 0),
-		};
+            replies: [],
+        };
 
-		if (Array.isArray(nestedRaw) && nestedRaw.length > 0) {
-			base.replies = mapRawCommentsToFrontend(nestedRaw).map(toFrontendReply);
-			base.replyCount = base.replies.length;
-		}
-
-		return base;
-	});
+        return base;
+    });
 };
+
+const findCommentById = (id: number, comments: FrontendComment[]): FrontendComment | null => {
+    for (var i = 0; i < comments.length; i++){
+        if (id == comments[i].id) return comments[i];
+    }
+    return null;
+}
 
 // ---------- Fetch comments / replies ----------
 export const getCommentsForPost = async (postId: number): Promise<FrontendComment[]> => {
-	const res = await postService.getComments(postId);
-    console.log("getCommentsForPost-1", res)
-	return mapRawCommentsToFrontend(res.comments);
+    const res = await postService.getComments(postId);
+    var commentsWithFixedReplies = mapRawCommentsToFrontend(res.comments);
+    
+    console.log("getCommentsForPost-raw", res)
+    commentsWithFixedReplies.forEach((value) => {
+        if (value.parent != null){
+            const foundComment = findCommentById(value.parent, commentsWithFixedReplies)
+            if (foundComment != null){
+                if (!foundComment.replies) foundComment.replies = []
+                foundComment.replies.push(value.id)
+            }
+        }
+    })
+
+    return commentsWithFixedReplies;
 };
 
-export const getRepliesForComment = async (postId:number, commentId: number, params?: GetPostsParams): Promise<FrontendReply[]> => {
-	const res = await postService.getComments(postId, params ?? {});
-	console.log("replis", res);
-	
-	console.log("get replies - ", res, mapRawCommentsToFrontend(res.comments).map(toFrontendReply))
-	return mapRawCommentsToFrontend(res.comments).map(toFrontendReply);
-};
 
 // ---------- Create comment / reply ----------
 export const createCommentOnPost = async (postId: number, content: string) => {
-	return await postService.createComment(postId, content);
+    return await postService.createComment(postId, content);
 };
 
 export const createReplyOnComment = async (parentPostId: number, parentCommentId: number, content: string) => {
-	// replies are comments on comments
-	return await postService.createComment(parentPostId, content, parentCommentId.toString());
+    // replies are comments on comments
+    return await postService.createComment(parentPostId, content, parentCommentId.toString());
 };
 
 // ---------- Like / dislike posts ----------
@@ -186,6 +195,26 @@ export const likePost = async (postId: number) => postService.likePost(postId);
 export const dislikePost = async (postId: number) => postService.dislikePost(postId);
 export const removeReaction = async (postId: number) => postService.removeReaction(postId);
 
-// ---------- Like / dislike comments (comments are posts) ----------
-export const likeComment = async (commentId: number) => postService.likePost(commentId);
-export const dislikeComment = async (commentId: number) => postService.dislikePost(commentId);
+export const likeComment = async (commentId: number): Promise<{
+    dislikes_count: number,
+    is_disliked: boolean,
+    is_liked: boolean,
+    likes_count: number,
+    message: string,
+    success: boolean,
+}> => {
+    const response = await api.post(`comments/${commentId}/like/`)
+    return response.data;
+};
+
+export const dislikeComment = async (commentId: number): Promise<{
+    dislikes_count: number,
+    is_disliked: boolean,
+    is_liked: boolean,
+    likes_count: number,
+    message: string,
+    success: boolean,
+}> => {
+    const response = await api.post(`comments/${commentId}/dislike/`);
+    return response.data;
+};

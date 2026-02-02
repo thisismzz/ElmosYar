@@ -59,8 +59,8 @@ export interface Post {
   likes: number;
   dislikes: number;
   comments: number;
-  isLiked?: boolean;
-  isDisliked?: boolean;
+  isLiked: boolean;
+  isDisliked: boolean;
   category?: string;
   media?: Media[];
   tags?: string[]; 

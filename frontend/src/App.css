@@ -1,10 +1,37 @@
-.App {
-  text-align: center;
+/* Add these to the top of App.css */
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --card-bg: #f8f9fa;
+  --border-color: #e5e7eb;
+  --header-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --logo-primary: #2C333B;
+  --logo-secondary: #FFFFFF;
+  --logo-red: #E7252D;
+  --logo-dark-red: #75120B;
+  --logo-bright-red: #B5120B;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card-bg: #1e293b;
+  --border-color: #334155;
+  --header-bg: #1e293b;
+  --sidebar-bg: #1e293b;
+  --logo-primary: #60a5fa; /* Blue-400 */
+  --logo-secondary: #1e293b;
+  --logo-red: #f87171; /* Red-400 */
+  --logo-dark-red: #ef4444; /* Red-500 */
+  --logo-bright-red: #fca5a5; /* Red-300 */
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 @font-face {
@@ -21,6 +48,23 @@
 
 .App {
   text-align: center;
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+/* For CSS-only components */
+.bg-theme {
+  background-color: var(--background);
+}
+
+.text-theme {
+  color: var(--foreground);
+}
+
+.card-theme {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
 }
 
 /* New layout styles */
@@ -33,7 +77,7 @@
   flex: 1;
   transition: all 0.3s ease;
   height: calc(100vh - 70px);
-  background: #f8f9fa;
+  background: var(--card-bg); 
   padding: 0.5rem;
   overflow-y: auto;
   margin-left: 0;

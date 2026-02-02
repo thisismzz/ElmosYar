@@ -89,9 +89,10 @@ export function WithdrawModal({ open, onClose, currentBalance, onSuccess }: Prop
           </Button>
         </>
       }
+      
       size="md"
     >
-      <div className="space-y-4">
+      <div className="space-y-4 1000">
         <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">موجودی فعلی</span>

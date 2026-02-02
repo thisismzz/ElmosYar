@@ -25,6 +25,8 @@ const mapPostToReview = (post: any): Review => ({
 	likes: post.likes,
 	comments: post.comments,
 	isLiked: post.isLiked,
+    dislikes: post.dislikes,
+    isDisliked: post.isDisliked
 });
 
 export function ReviewPage() {
@@ -38,7 +40,7 @@ export function ReviewPage() {
 
 	return (
 		<div className="min-h-screen bg-gray-50/30">
-			<div className="max-w-5xl mx-auto px-4 py-8">
+			<div className="max-w-5xl mx-auto py-8">
 				<div className="space-y-6">
 					{loading ? (
 						<Card className="p-12 text-center">
@@ -56,6 +58,7 @@ export function ReviewPage() {
 								onLike={() => {likePost(review.id)}}
 								onOpenProfessor={() => navigate(`/topic/professor-review/${review.professorName}`)}
 								showDetailedRatings={true}
+                                onOpenComments={() => navigate(`/reviews/${review.id}/comments`)}
                                 // onOpenComments={() => navigate()} //todo: move to review/id/comments nav (make prof comments page)
 							/>
 						))

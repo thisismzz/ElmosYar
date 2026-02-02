@@ -3,6 +3,9 @@ import { Card, Button, Badge } from "../UILib";
 import { StarRating } from "./StarRating";
 import { ThumbsUp, ThumbsDown, MessageCircle, User } from "lucide-react";
 import { Review } from "../../types/review_posts";
+import { PostActions } from "../Discussion/Posts/DiscussionPostFeed";
+import { dislikePost, likePost } from "../../services/PostService";
+import { useEffect, useState } from "react";
 
 interface ReviewCardProps {
 	review: Review;
@@ -21,6 +24,9 @@ export function ReviewCard({
 	onOpenProfessor,
 	showDetailedRatings = false,
 }: ReviewCardProps) {
+
+    const [reviewState, setReviewState] = useState(review);
+
 	const ratingLabels = [
 		{ key: "teaching", label: "کیفیت تدریس" },
 		{ key: "grading", label: "نمره دهی عادلانه" },
@@ -28,6 +34,33 @@ export function ReviewCard({
 		{ key: "helpfulness", label: "جواب دادن به سوالات" },
 		{ key: "satisfaction", label: "نظم و ثبات" },
 	];
+
+    const handleLike = async (postId: number) => {
+            const r = await likePost(postId);
+            setReviewState(
+                {
+                    ...reviewState,
+                    isLiked: r.isLiked,
+                    isDisliked: r.isDisliked,
+                    likes: r.likes,
+                    dislikes: r.dislikes,
+                }
+            )
+        };
+    
+    
+        const handleDislike = async (postId: number) => {
+            const r = await dislikePost(postId);
+            setReviewState(
+                {
+                    ...reviewState,
+                    isLiked: r.isLiked,
+                    isDisliked: r.isDisliked,
+                    likes: r.likes,
+                    dislikes: r.dislikes,
+                }
+            )
+        };
 
 	return (
 		<Card
@@ -109,14 +142,14 @@ export function ReviewCard({
 				<div className="px-6 pb-6">
 					<div className="border-t border-gray-100 pt-4">
 						<h4 className="text-sm text-gray-600 mb-4 text-right">جزئیات امتیاز دهی</h4>
-						<div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+						<div className="grid grid-cols-1 md:grid-cols-5 gap-1">
 							{ratingLabels.map((rating) => (
 								<Card
 									key={rating.key}
-									className="flex h-16 flex-col justify-center rounded-xl border border-neutral-200 bg-white px-3 py-2 shadow-sm"
+									className="flex relative h-16 flex-col justify-begin rounded-xl border border-neutral-200 bg-white pt-2 gap-0 shadow-sm"
 								>
 									<span className="text-xs font-medium text-neutral-700 text-center">{rating.label}</span>
-									<div className="flex justify-center">
+									<div className="absolute bottom-2 left-1/2 right-1/2 flex justify-center">
 										<StarRating
 											rating={review.ratings?.[rating.key as keyof typeof review.ratings] || 0}
 											readonly
@@ -132,7 +165,7 @@ export function ReviewCard({
 
 			{/* Actions */}
 			<div className="flex gap-2 px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex-row-reverse">
-				<Button
+				{/* <Button
 					variant="ghost"
 					size="sm"
 					onClick={(e) => {
@@ -147,9 +180,9 @@ export function ReviewCard({
 				>
 					<ThumbsUp className={`w-4 h-4 mr-2 ${review.isLiked ? "fill-[#F07E74]" : ""}`} />
 					{review.likes}
-				</Button>
+				</Button> */}
 
-				<Button
+				{/* <Button
 					variant="ghost"
 					size="sm"
 					onClick={(e) => {
@@ -164,9 +197,9 @@ export function ReviewCard({
 				>
 					<ThumbsDown className={`w-4 h-4 mr-2 ${(review as any).isDisliked ? "fill-current" : ""}`} />
 					{(review as any).dislikes ?? 0}
-				</Button>
+				</Button> */}
 
-				{/* no hover; clicking card opens comments */}
+				{/* no hover; clicking card opens comments
 				<Button
 					variant="ghost"
 					size="sm"
@@ -178,7 +211,20 @@ export function ReviewCard({
 				>
 					<MessageCircle className="w-4 h-4 mr-2" />
 					{review.comments}
-				</Button>
+				</Button> */}
+
+                <PostActions
+                                postId={reviewState.id}
+                                likes={reviewState.likes}
+                                dislikes={reviewState.dislikes}
+                                comments={reviewState.comments}
+                                isLiked={reviewState.isLiked ?? false}
+                                isDisliked={reviewState.isDisliked ?? false}
+                                onLike={handleLike}
+                                onDislike={handleDislike}
+                                onComment={() => { }}
+                                onOpenComments={() => { }}
+                            />
 			</div>
 		</Card>
 	);

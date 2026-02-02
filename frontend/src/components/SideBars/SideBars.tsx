@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { User, PenSquare, Phone, LogOut, Utensils, Star, MessageSquare } from 'lucide-react';
+import { User, PenSquare, Phone, LogOut, Utensils, Star, MessageSquare, Settings} from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { logout } from '../../services/authService';
 import './SideBars.css';
@@ -163,7 +163,6 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
     <aside className={`sidebar ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       <div className="sidebar-panel">
         <SidebarHeader title="منوی اصلی" subtitle="دسترسی سریع" />
-        
         <nav className="sidebar-nav">
           {navItems.map((item, index) => (
             <NavItemComponent
@@ -195,11 +194,12 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ isOpen = true }) => {
   const topics: NavItem[] = [
     { id: '1', label: 'تبادل غذا', icon: Utensils, path: '/topic/food' },
     { id: '2', label: 'نظرسنجی اساتید', icon: Star, path: '/topic/professor-review' },
-    { id: '3', label: 'بحث و گفتگو', icon: MessageSquare, path: '/topic/discussion' }
-  ];
+    { id: '3', label: 'بحث و گفتگو', icon: MessageSquare, path: '/topic/discussion' },
+];
 
-  // Additional items for contact and logout
-  const additionalItems: NavItem[] = [
+// Additional items for contact and logout
+const additionalItems: NavItem[] = [
+      {id: 'settings', label: "تنظیمات", icon: Settings, path: '/settings'},
     { id: 'contact', label: 'تماس و راهنما', icon: Phone, path: '/contactUs' },
     { id: 'logout', label: 'خروج', icon: LogOut }
   ];

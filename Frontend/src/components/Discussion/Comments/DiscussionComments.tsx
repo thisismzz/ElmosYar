@@ -1,22 +1,29 @@
 // src/components/Discussion/Comments/DiscussionComments.tsx
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import type {
     Comment,
     CommentsProps,
-    PostHeaderProps,
+    // PostHeaderProps,
     Reply,
 } from "../../../types/discussion_comments";
 import {
     createCommentOnPost,
     createReplyOnComment,
     dislikeComment,
-    getRepliesForComment,
+    getCommentsForPost,
     likeComment,
 } from "../../../services/commentService";
 import { ThumbsUp, ThumbsDown, MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
 import "./DiscussionComments.css";
 import { formatTimeAgo, PostActions } from "../Posts/DiscussionPostFeed";
 import { update } from "idb-keyval";
+import SortButton, { SortConfig } from "./CommentSortButton";
+import { Console } from "console";
+import { dislikePost, getPostById, likePost } from "../../../services/PostService";
+import { Post } from "../../../types/discussion_posts";
+
+import { countReplyComments } from "../../../utils/helpers";
+
 
 // ---------- Time ago (Persian) ----------
 const timeAgoFa = (isoOrTs: string) => {
@@ -57,58 +64,62 @@ const getAvatarColor = (name: string): string => {
     return colors[name.length % colors.length];
 };
 
+
+const findCommentById = (id: number, comments: Comment[]): Comment | null => {
+    for (var i = 0; i < comments.length; i++) {
+        if (id == comments[i].id) return comments[i];
+    }
+    return null;
+}
+
+
+
 // ---------- Post header (compact) ----------
-const PostHeader: React.FC<PostHeaderProps> = ({ post }) => {
+const PostHeader: React.FC<{ post: Post, comments: Comment[] }> = ({ post, comments }) => {
+    const [postState, setPostState] = useState(post);
     const initials = getInitials(post.user.name);
     const avatarColor = getAvatarColor(post.user.name);
 
+
+    const handleLike = async (postId: number) => {
+        const r = await likePost(postId);
+        setPostState(
+            {
+                ...postState,
+                isLiked: r.isLiked,
+                isDisliked: r.isDisliked,
+                likes: r.likes,
+                dislikes: r.dislikes,
+            }
+        )
+    };
+
+
+    const handleDislike = async (postId: number) => {
+        const r = await dislikePost(postId);
+        setPostState(
+            {
+                ...postState,
+                isLiked: r.isLiked,
+                isDisliked: r.isDisliked,
+                likes: r.likes,
+                dislikes: r.dislikes,
+            }
+        )
+    };
+
+    useEffect(() => {
+        console.log(post.comments)
+        setPostState({...post, comments: comments.length - countReplyComments(comments)})
+    }, [comments])
+    
     return (
-        // <div className="discussion-post-header compact">
-        // 	<div className="discussion-post-user-info compact">
-        // 		<div className="discussion-user-avatar" style={{ backgroundColor: avatarColor }}>
-        // 			{initials}
-        // 		</div>
-
-        // 		<div className="discussion-user-details">
-        // 			<div className="discussion-author-row">
-        // 				<span className="discussion-author-name">{post.user.name}</span>
-        // 				{post.user.username ? <span className="discussion-author-username">@{post.user.username}</span> : null}
-        // 				<span className="discussion-post-time">{timeAgoFa(post.timestamp)}</span>
-        // 			</div>
-        // 		</div>
-        // 	</div>
-
-        // 	<div className="discussion-post-content-wrapper compact">
-        // 		<p className="discussion-post-content-text">{post.content}</p>
-        // 	</div>
-
-        // 	<div className="discussion-post-stats compact">
-        // 		<div className="discussion-stat-item">
-        // 			<span className="discussion-stat-icon">
-        // 				<ThumbsUp size={18} />
-        // 			</span>
-        // 			<span className="discussion-stat-count">{post.likes}</span>
-        // 		</div>
-        // 		<div className="discussion-stat-item">
-        // 			<span className="discussion-stat-icon">
-        // 				<ThumbsDown size={18} />
-        // 			</span>
-        // 			<span className="discussion-stat-count">{post.dislikes}</span>
-        // 		</div>
-        // 		<div className="discussion-stat-item">
-        // 			<span className="discussion-stat-icon">
-        // 				<MessageCircle size={18} />
-        // 			</span>
-        // 			<span className="discussion-stat-count">{post.comments}</span>
-        // 		</div>
-        // 	</div>
-        // </div>
         <div className="">
             <div className="post-header">
                 <div className="user-avatar">
                     <img
-                        src={post.user.avatar}
-                        alt={post.user.name}
+                        src={postState.user.avatar}
+                        alt={postState.user.name}
                         onError={(e) => {
                             (e.target as HTMLImageElement).src =
                                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9kayreViIUlp8-GZFDlXdNHQc7Ckc8PpM0w&s";
@@ -117,44 +128,29 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post }) => {
                 </div>
 
                 <div className="post-header-meta">
-                    <div className="user-name">{post.user.name}</div>
-                    <div className="user-username">@{post.user.username}</div>
+                    <div className="user-name">{postState.user.name}</div>
+                    <div className="user-username">@{postState.user.username}</div>
                 </div>
 
-                <div className="post-time">{formatTimeAgo(post.timestamp)}</div>
+                <div className="post-time">{formatTimeAgo(postState.timestamp)}</div>
             </div>
 
             {post.content ? <div className="post-content post-content-clamp">{post.content}</div> : null}
 
-            {/* {post.tags && post.tags.length > 0 ? (
-				<div className="post-tags">
-					{post.tags.map((tag, index) => (
-						<span key={index} className="post-tag">
-							#{tag}
-						</span>
-					))}
-				</div>
-			) : null} */}
 
 
 
             <PostActions
-                postId={post.id}
-                likes={post.likes}
-                dislikes={post.dislikes}
-                comments={post.comments}
-                isLiked={false}
-                isDisliked={false}
-                onLike={() => { }}
-                onDislike={() => { }}
+                postId={postState.id}
+                likes={postState.likes}
+                dislikes={postState.dislikes}
+                comments={postState.comments}
+                isLiked={postState.isLiked}
+                isDisliked={postState.isDisliked}
+                onLike={handleLike}
+                onDislike={handleDislike}
                 onComment={() => { }}
                 onOpenComments={() => { }}
-            // isLiked={post.isLiked || false}
-            // isDisliked={post.isDisliked || false}
-            // onLike={onLike}
-            // onDislike={onDislike}
-            // onComment={onComment}
-            // onOpenComments={onOpenComments}
             />
         </div>
     );
@@ -199,43 +195,101 @@ const CommentComposer: React.FC<{ onSubmit: (text: string) => Promise<void> }> =
 
 // ---------- Reply Item ----------
 const ReplyItem: React.FC<{
-    reply: Reply;
-    onLike: (id: number) => void;
-    onDislike: (id: number) => void;
-}> = ({ reply, onLike, onDislike }) => {
-    const displayName = reply.isAnonymous ? "ناشناس" : reply.name;
-    const initials = getInitials(displayName);
-    const avatarColor = getAvatarColor(displayName);
+    replyId: number;
+    comments: Comment[];
+    setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
+}> = ({ replyId, comments, setComments }) => {
+
+    const [reply, setReply] = useState<Reply>();
+
+    const displayName = reply?.isAnonymous ? "ناشناس" : reply?.user?.name;
+    const initials = getInitials(displayName ?? "نامعلوم");
+    const avatarColor = getAvatarColor(displayName ?? "bruh");
+
+    useEffect(() => {
+        const replyComment = findCommentById(replyId, comments);
+        console.log(replyComment)
+        if (replyComment) setReply({
+            id: replyComment.id,
+            parent: replyComment.parent ?? undefined,
+
+            user: {
+                name: replyComment.user.name,
+                username: replyComment.user.username,
+                avatar: replyComment.user.avatar,
+            },
+
+            isAnonymous: replyComment.isAnonymous,
+
+            time: replyComment.timestamp,
+            text: replyComment.content,
+
+            likes: replyComment.likes,
+            dislikes: replyComment.dislikes,
+            is_liked: replyComment.isLiked,
+            is_disliked: replyComment.isDisliked,
+        })
+
+
+    }, [comments])
+
+    const onLikeReply = async (commentId: number) => {
+        const r = await likeComment(commentId);
+
+        setComments(comments.map((c) => (c.id == reply?.id ? {
+            ...c,
+            isLiked: r.is_liked,
+            isDisliked: r.is_disliked,
+            likes: r.likes_count,
+            dislikes: r.dislikes_count
+        } : c)))
+    };
+
+    const onDislikeReply = async (commentId: number) => {
+        const r = await dislikeComment(commentId);
+
+        setComments(comments.map((c) => (c.id == reply?.id ? {
+            ...c,
+            isLiked: r.is_liked,
+            isDisliked: r.is_disliked,
+            likes: r.likes_count,
+            dislikes: r.dislikes_count
+        } : c)))
+    };
 
     return (
+
         <div className="reply-item">
+
             <div className="reply-content">
                 <div className="reply-header">
                     <div className="user-avatar small" style={{ backgroundColor: avatarColor }}>
                         {initials}
                     </div>
-                    <div className="user-info">
-                        <span className="author-name">{displayName}</span>
-                        {reply.isAnonymous ? null : reply.username ? <span className="reply-username">@{reply.username}</span> : null}
-                        <span className="comment-time">{timeAgoFa(reply.time)}</span>
-                    </div>
+                    {reply &&
+                        <div className="user-info">
+                            <span className="author-name">{displayName}</span>
+                            {reply.isAnonymous ? null : reply.user?.username ? <span className="reply-username">@{reply.user?.username}</span> : null}
+                            <span className="comment-time">{timeAgoFa(reply.time)}</span>
+                        </div>
+                    }
                 </div>
-                <p className="reply-text">{reply.text}</p>
+                {reply && <p className="reply-text">{reply.text}</p>}
             </div>
 
             <div className="reply-actions">
-                <button className={`action-btn like-btn small ${reply.is_liked ? "liked" : ""}`} onClick={() => onLike(reply.id)}>
+                <button className={`action-btn like-btn small ${reply?.is_liked ? "liked" : ""}`} onClick={() => reply?.id ? onLikeReply(reply?.id) : {}}>
                     <span className="action-icon">
-                        <ThumbsUp size={14} fill={reply.is_liked ? "currentColor" : "none"} />
+                        <ThumbsUp size={14} fill={reply?.is_liked ? "currentColor" : "none"} />
                     </span>
-                    <span className="action-count">{reply.likes}</span>
+                    <span className="action-count">{reply?.likes}</span>
                 </button>
 
-                <button className={`action-btn dislike-btn small ${reply.is_disliked ? "disliked" : ""}`} onClick={() => onDislike(reply.id)}>
+                <button className={`action-btn dislike-btn small ${reply?.is_disliked ? "disliked" : ""}`} onClick={() => reply?.id ? onDislikeReply(reply?.id) : {}}>
                     <span className="action-icon">
-                        <ThumbsDown size={14} fill={reply.is_disliked ? "currentColor" : "none"} />
+                        <ThumbsDown size={14} fill={reply?.is_disliked ? "currentColor" : "none"} />
                     </span>
-                    <span className="action-count">{reply.dislikes}</span>
+                    <span className="action-count">{reply?.dislikes}</span>
                 </button>
             </div>
         </div>
@@ -245,11 +299,42 @@ const ReplyItem: React.FC<{
 // ---------- Comment Item ----------
 const CommentItem: React.FC<{
     comment: Comment;
-    onLike: (commentId: number) => void;
-    onDislike: (commentId: number) => void;
+    comments: Comment[];
+    setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
     onReplySubmit: (parentCommentId: number, text: string) => Promise<void>;
     onLoadReplies: (commentId: number) => Promise<void>;
-}> = ({ comment, onLike, onDislike, onReplySubmit, onLoadReplies }) => {
+    postId: number | undefined
+}> = ({ comment, comments, setComments, onReplySubmit, onLoadReplies, postId }) => {
+    // console.log('CommentItem rendering:', comment.id, 'replies:', comment.replies.length);
+
+
+    const onLike = async (commentId: number) => {
+        const r = await likeComment(commentId);
+        console.log(r)
+
+        setComments(comments.map((c) => (c == comment ? {
+            ...c,
+            isLiked: r.is_liked,
+            isDisliked: r.is_disliked,
+            likes: r.likes_count,
+            dislikes: r.dislikes_count
+        } : c)))
+
+
+    };
+
+    const onDislike = async (commentId: number) => {
+        const r = await dislikeComment(commentId);
+        console.log(r)
+        setComments(comments.map((c) => (c == comment ? {
+            ...c,
+            isLiked: r.is_liked,
+            isDisliked: r.is_disliked,
+            likes: r.likes_count,
+            dislikes: r.dislikes_count
+        } : c)))
+    };
+
     const [showReplies, setShowReplies] = useState(false);
     const [replyOpen, setReplyOpen] = useState(false);
     const [replyText, setReplyText] = useState("");
@@ -261,22 +346,16 @@ const CommentItem: React.FC<{
     const avatarColor = getAvatarColor(displayName);
 
     const toggleReplies = async () => {
+        console.log("toggling replies")
         const next = !showReplies;
         setShowReplies(next);
 
-        if (next && (comment.replies?.length ?? 0) === 0 && (comment.replyCount ?? 0) > 0) {
-            setLoadingReplies(true);
-            try {
-                await onLoadReplies(comment.id);
-            } finally {
-                setLoadingReplies(false);
-            }
-        }
     };
 
     const submitReply = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!replyText.trim() || submittingReply) return;
+
 
         setSubmittingReply(true);
         try {
@@ -289,8 +368,10 @@ const CommentItem: React.FC<{
         }
     };
 
+
+
     return (
-        <div className={`comment ${(comment.replyCount ?? 0) > 0 ? "has-replies" : ""}`}>
+        <div className={`comment ${(comment.replies.length) > 0 ? "has-replies" : ""}`}>
             <div className="comment-header">
                 <div className="comment-user-avatar" style={{ backgroundColor: avatarColor }}>
                     {initials}
@@ -299,26 +380,26 @@ const CommentItem: React.FC<{
                 <div className="user-info">
                     <div className="comment-author-row">
                         <span className="author-name">{displayName}</span>
-                        {comment.isAnonymous ? null : comment.username ? <span className="comment-username">@{comment.username}</span> : null}
-                        <span className="comment-time">{timeAgoFa(comment.time)}</span>
+                        {comment.isAnonymous ? null : comment.user.username ? <span className="comment-username">@{comment.user.username}</span> : null}
+                        <span className="comment-time">{timeAgoFa(comment.timestamp)}</span>
                     </div>
                 </div>
             </div>
 
-            <p className="comment-content">{comment.text}</p>
+            <p className="comment-content">{comment.content}</p>
 
             <div className="comment-actions">
                 <div className="action-group">
-                    <button className={`action-btn like-btn ${comment.is_liked ? "liked" : ""}`} onClick={() => onLike(comment.id)}>
+                    <button className={`action-btn like-btn ${comment.isLiked ? "liked" : ""}`} onClick={() => onLike(comment.id)}>
                         <span className="action-icon">
-                            <ThumbsUp size={18} fill={comment.is_liked ? "currentColor" : "none"} />
+                            <ThumbsUp size={18} fill={comment.isLiked ? "currentColor" : "none"} />
                         </span>
                         <span className="action-count">{comment.likes}</span>
                     </button>
 
-                    <button className={`action-btn dislike-btn ${comment.is_disliked ? "disliked" : ""}`} onClick={() => onDislike(comment.id)}>
+                    <button className={`action-btn dislike-btn ${comment.isDisliked ? "disliked" : ""}`} onClick={() => onDislike(comment.id)}>
                         <span className="action-icon">
-                            <ThumbsDown size={18} fill={comment.is_disliked ? "currentColor" : "none"} />
+                            <ThumbsDown size={18} fill={comment.isDisliked ? "currentColor" : "none"} />
                         </span>
                         <span className="action-count">{comment.dislikes}</span>
                     </button>
@@ -331,10 +412,10 @@ const CommentItem: React.FC<{
                     </button>
                 </div>
 
-                {(comment.replyCount ?? 0) > 0 && (
+                {(comment.replies.length) > 0 && (
                     <button className="action-btn view-replies-btn" onClick={toggleReplies}>
                         <span className="action-icon">{showReplies ? <ChevronUp size={18} /> : <ChevronDown size={18} />}</span>
-                        <span className="action-text">{comment.replyCount} پاسخ</span>
+                        <span className="action-text">{comment.replies.length} پاسخ</span>
                     </button>
                 )}
             </div>
@@ -366,11 +447,11 @@ const CommentItem: React.FC<{
                 <div className="replies-list">
                     {loadingReplies ? <div className="replies-loading">در حال بارگذاری پاسخ‌ها...</div> : null}
 
-                    {(comment.replies ?? []).map((r) => ( //!!!!!
-                        <div key={r.id} className="reply-wrapper">
-                            <ReplyItem reply={r} onLike={onLike} onDislike={onDislike} />
+                    {(comment.replies ?? []).map((r) => (
+                        <div key={r} className="reply-wrapper">
+                            <ReplyItem replyId={r} comments={comments} setComments={setComments} />
                         </div>
-                    ))}
+                    )).reverse()}
                 </div>
             )}
         </div>
@@ -383,7 +464,7 @@ const Comments: React.FC<CommentsProps> = ({
     comments: externalComments,
     setComments: externalSetComments,
     title = "نظرات",
-    currentUserName = "کاربر",
+    currentUserName = "اسب",
     post,
     postId,
     showComposer = true,
@@ -394,193 +475,118 @@ const Comments: React.FC<CommentsProps> = ({
 
     const targetPostId = useMemo(() => postId ?? post?.id ?? -1, [postId, post]);
 
-    const addTopLevelComment = async (text: string) => {
+    const [sortConfig, setSortConfig] = useState<SortConfig>({
+        option: 'date',
+        order: 'desc'
+    });
+    const addComment = async (text: string) => {
         if (targetPostId < 0) return;
 
-        const optimistic: Comment = {
-            id: Date.now(),
-            parentId: 0,
-            user: { id: -1, name: currentUserName, username: "none", avatar: undefined },
-            name: currentUserName,
-            username: undefined,
-            avatar: undefined,
-            isAnonymous: false,
-            time: new Date().toISOString(),
-            text,
-            likes: 0,
-            dislikes: 0,
-            is_liked: false,
-            is_disliked: false,
-            replies: [], ////!!!!!!!!!!!fuhsdfjlasdjfklasdj;flkwtfwtfwtwfwtwfwtwfwt
-            replyCount: 0,
-        };
-        const newComment = await createCommentOnPost(targetPostId, text);
-        setComments((prev) => [newComment, ...prev]);
-
-        // try {
-            await createCommentOnPost(targetPostId, text);
-        // } catch (e) {
-        //     setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
-        //     throw e;
-        // }
+        var newComment = await createCommentOnPost(targetPostId, text);
+        if (newComment.user.name == "") newComment.user.name = newComment.user.username || ""
+        setComments((prev) => [...prev, newComment]);
     };
 
     const handleReplySubmit = async (parentCommentId: number, text: string) => {
-        // const optimisticReply: Reply = {
-        // 	id: Date.now(),
-        // 	user: { name: currentUserName },
-        // 	name: currentUserName,
-        // 	username: undefined,
-        // 	avatar: undefined,
-        // 	isAnonymous: false,
-        // 	time: new Date().toISOString(),
-        // 	text,
-        // 	likes: 0,
-        // 	dislikes: 0,
-        // 	is_liked: false,
-        // 	is_disliked: false,
-        // };
-
-        // setComments((prev) =>
-        // 	prev.map((c) =>
-        // 		c.id === parentCommentId
-        // 			? {
-        // 					...c,
-        // 					replies: [...(c.replies ?? []), optimisticReply],
-        // 					replyCount: (c.replyCount ?? 0) + 1,
-        // 			  }
-        // 			: c
-        // 	)
-        // );
-
-        // try {
+        if (postId == undefined) return
         await createReplyOnComment(postId ?? 0, parentCommentId, text);
-        // } catch (e) {
-        // 	setComments((prev) =>
-        // 		prev.map((c) =>
-        // 			c.id === parentCommentId
-        // 				? {
-        // 						...c,
-        // 						replies: (c.replies ?? []).filter((r) => r.id !== optimisticReply.id),
-        // 						replyCount: Math.max(0, (c.replyCount ?? 1) - 1),
-        // 				  }
-        // 				: c
-        // 		)
-        // 	);
-        // 	throw e;
-        // }
+        setComments(await getCommentsForPost(postId))
     };
 
-    function findCommentWithID(commentID: number) {
+    function findCommentWithID(commentID: number | null) {
+        if (commentID == null) return null;
         for (var i = 0; i < comments.length; i++) {
             if (comments[i].id == commentID) return comments[i]
         }
         return null;
     }
 
-    const updateReplies = () => {
-        console.log("updating resplies")
-
-        var newComments = []
-        for (var i = 0; i < comments.length; i++) {
-            if (comments[i].parentId != null) {
-                findCommentWithID(comments[i].parentId)?.replies?.push(
-                    {
-                        id: comments[i].id,
-
-                        user: {
-                            name: comments[i].user?.name ?? "idk",
-                            username: comments[i].user?.username,
-                            avatar: comments[i].user?.avatar
-                        },
-
-                        // convenience fields (existing usage)
-                        name: comments[i].name,
-                        username: comments[i].username,
-                        avatar: comments[i].avatar,
-                        isAnonymous: comments[i].isAnonymous,
-
-                        time: comments[i].time, // ISO or backend timestamp
-                        text: comments[i].text,
-
-                        likes: comments[i].likes,
-                        dislikes: comments[i].dislikes,
-                        is_liked: comments[i].is_liked,
-                        is_disliked: comments[i].is_disliked,
-                    }
-                )
-            }
-        }
-
-    }
-
-    updateReplies();
 
 
-    const handleLoadReplies = async (commentId: number) => {
-        const replies = await getRepliesForComment(postId ?? 0, commentId);
-        setComments((prev) =>
-            prev.map((c) => (c.id === commentId ? { ...c, replies, replyCount: replies.length } : c))
-        );
-    };
 
     // IMPORTANT: likeComment/dislikeComment return Post (frontend), not likes_count fields.
     const handleLike = async (commentId: number) => {
         const r = await likeComment(commentId);
-        setComments((prev) =>
-            prev.map((c) =>
-                c.id === commentId
-                    ? {
-                        ...c,
-                        likes: r.likes,
-                        dislikes: r.dislikes,
-                        is_liked: r.isLiked ?? true,
-                        is_disliked: r.isDisliked ?? false,
-                    }
-                    : c
-            )
-        );
+        // if (postId) {
+        //     setComments(
+        //     );
+        // }
     };
 
     const handleDislike = async (commentId: number) => {
         const r = await dislikeComment(commentId);
-        setComments((prev) =>
-            prev.map((c) =>
-                c.id === commentId
-                    ? {
-                        ...c,
-                        likes: r.likes,
-                        dislikes: r.dislikes,
-                        is_liked: r.isLiked ?? false,
-                        is_disliked: r.isDisliked ?? true,
-                    }
-                    : c
-            )
-        );
+        // if (postId) setComments(
+        //     await 
+        // );
     };
+
+    const handleSortChange = (config: SortConfig) => {
+        setSortConfig(config);
+        // Optional: Save to localStorage
+        // localStorage.setItem('commentSortConfig', JSON.stringify(config));
+    };
+
+    const updatedCommentSort = () => {
+        const newComments: Comment[] = [...comments]
+        if (sortConfig.option == "likes" && sortConfig.order == "asc") (newComments.sort((a, b) => a.likes - b.likes))
+        if (sortConfig.option == "date" && sortConfig.order == "asc") (newComments.sort((a, b) => b.likes - a.likes))
+        if (sortConfig.option == "likes" && sortConfig.order == "desc") (newComments.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()))
+        if (sortConfig.option == "date" && sortConfig.order == "desc") (newComments.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()))
+
+        return newComments
+    }
+
+
+
 
     return (
         <div className="comments-container">
             <div className="comments-card">
-                {post ? <PostHeader post={post} /> : null}
+                {post ? <PostHeader
+                    post={{
+                        id: post.id ,
+                    user: post.user ,
+                    content: post.content ,
+                    timestamp: post.timestamp ,
+                    likes: post.likes ,
+                    dislikes: post.dislikes ,
+                    comments: post.comments,
+                    isLiked: post.isLiked ,
+                    isDisliked: post.isDisliked ,
+                    category: post.category ,
+                    media: post.media ,
+                    tags: post.tags ,
+                    attributes: post.attributes ,
+                    }}
+                    comments={comments}
+                /> : null}
 
                 <div className="comments-header simple">
                     <h2 className="comments-title">{title}</h2>
                 </div>
 
-                {showComposer ? <CommentComposer onSubmit={addTopLevelComment} /> : null}
+                {showComposer ? <CommentComposer onSubmit={addComment} /> : null}
+
+                {/* <SortButton
+                    onSortChange={handleSortChange}
+                    defaultOption={sortConfig.option}
+                    defaultOrder={sortConfig.order}
+                /> */}
 
                 <div className="comments-list">
                     {comments.map((c) => (
+                        c.parent == null &&
                         <CommentItem
                             key={c.id}
                             comment={c}
-                            onLike={handleLike}
-                            onDislike={handleDislike}
                             onReplySubmit={handleReplySubmit}
-                            onLoadReplies={async (cid) => { updateReplies() }}
+                            onLoadReplies={async (cid) => {
+                            }}
+                            comments={comments}
+                            setComments={(val) => { setComments(val) }}
+                            postId={postId}
                         />
-                    ))}
+                    )).reverse()}
 
                     {comments.length === 0 ? (
                         <div className="empty-state">

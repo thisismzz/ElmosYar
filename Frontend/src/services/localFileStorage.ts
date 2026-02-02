@@ -3,6 +3,15 @@ import { get, set } from "idb-keyval";
 
 const DIR_HANDLE_KEY = "elmosyar_dir_handle_v1";
 
+export async function clearFolderLink(): Promise<void> {
+  await set(DIR_HANDLE_KEY, null);
+}
+
+export async function getCurrentFolderName(): Promise<string | null> {
+  const dir = await getSavedDirHandle();
+  return dir?.name || null;
+}
+
 export type NotesPayload = { notes: any[]; folders: any[] };
 export type PlannerPayload = { tasks: any[] };
 

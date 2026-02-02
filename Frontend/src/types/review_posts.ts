@@ -15,8 +15,10 @@ export interface Review {
   };
   comment?: string;
   likes: number;
+  dislikes: number;
   comments: number;
-  isLiked?: boolean;
+  isLiked: boolean;
+  isDisliked: boolean;
 }
 
 export type ReviewPostSearchProps = {

@@ -123,26 +123,25 @@ class UltimatePostService {
 
 	private isAnonymousComment(raw: any): boolean {
 		// explicit flags
-		if (raw?.is_anonymous === true) return true;
-		if (raw?.anonymous === true) return true;
+		// if (raw?.is_anonymous === true) return true;
+		// if (raw?.anonymous === true) return true;
 
-		// missing author/user -> treat as anonymous
-		const hasAuthor = Boolean(raw?.author || raw?.author_info || raw?.user);
-		if (!hasAuthor) return true;
+		// // missing author/user -> treat as anonymous
+		// const hasAuthor = Boolean(raw?.author || raw?.author_info || raw?.user);
+		// if (!hasAuthor) return true;
 
-		// sometimes author exists but username is removed
-		const username = raw?.author?.username || raw?.author_info?.username || raw?.user?.username;
-		if (!username) return true;
+		// // sometimes author exists but username is removed
+		// const username = raw?.author?.username || raw?.author_info?.username || raw?.user?.username;
+		// if (!username) return true;
 
 		return false;
 	}
 
-	private mapBackendCommentToFrontend(raw: any): Comment {
+	private mapBackendCommentToFrontend(raw: any): Comment { //!comments will have no replies
 		const isAnonymous = this.isAnonymousComment(raw);
-
-		const author = raw?.author || raw?.author_info || raw?.user || {};
+		const author = raw?.user_info;
 		const username = isAnonymous ? undefined : (author?.username || raw?.user?.username || "user");
-		const name = isAnonymous ? "ناشناس" : (author?.first_name || author?.name || "کاربر");
+		const name = isAnonymous ? "ناشناس" : (author?.first_name + author?.last_name);
 		const avatar = isAnonymous ? undefined : (author?.profile_picture || author?.avatar || "");
 
 		return {
@@ -162,11 +161,11 @@ class UltimatePostService {
 			isLiked: raw.is_liked ?? raw.liked ?? false,
 			isDisliked: raw.is_disliked ?? raw.disliked ?? false,
 
-			isAnonymous,
+			isAnonymous: isAnonymous,
 
-			repliesCount: raw.comments_count ?? raw.replies_count ?? undefined,
 
             parent: raw.parent,
+            replies: [], //!
 		};
 	}
 

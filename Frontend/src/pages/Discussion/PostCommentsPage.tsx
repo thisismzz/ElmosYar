@@ -6,6 +6,7 @@ import { getCommentsForPost, getPostCard } from "../../services/commentService";
 import type { Comment } from "../../types/discussion_comments";
 import type { Post } from "../../types/discussion_posts";
 import { ArrowLeft } from "lucide-react";
+import { countReplyComments } from "../../utils/helpers";
 
 export default function PostCommentsPage() {
 	const { postId } = useParams();
@@ -23,8 +24,10 @@ export default function PostCommentsPage() {
 
 			setLoading(true);
 			try {
-				const [p, cs] = await Promise.all([getPostCard(numericPostId), getCommentsForPost(numericPostId)]);
-                console.log("comments:", cs)
+				// const [p, cs] = await Promise.all([getPostCard(numericPostId), getCommentsForPost(numericPostId)]);
+                const p = await getPostCard(numericPostId)
+                const cs = await getCommentsForPost(numericPostId);
+                console.log("comments: (PostCommentsPage)", cs)
 				setPost(p);
 				setComments(cs);
 			} finally {
@@ -41,7 +44,7 @@ export default function PostCommentsPage() {
 
 	return (
 		<div className="min-h-screen bg-gray-50/30">
-			<div className="max-w-5xl mx-auto px-4 py-6">
+			<div className="max-w-5xl mx-auto py-6">
 				<button
 					onClick={() => navigate(-1)}
 					className="mb-4 inline-flex items-center gap-2 text-[#16519F] hover:bg-[#4FCBE9]/10 px-3 py-2 rounded-xl"
@@ -63,8 +66,10 @@ export default function PostCommentsPage() {
 										user: { name: post.user.name, username: post.user.username, avatar: post.user.avatar, id: post.user.id },
 										likes: post.likes,
 										dislikes: post.dislikes,
-										comments: post.comments,
-                                        attributes: post.attributes
+										comments: post.comments - countReplyComments(comments),
+                                        attributes: post.attributes,
+                                        isLiked: post.isLiked,
+                                        isDisliked: post.isDisliked
 								  }
 								: undefined
 						}

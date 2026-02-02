@@ -1,8 +1,10 @@
 // src/types/discussion_comments.ts
 import React from "react";
+import type { Post } from "./discussion_posts";
 
 export interface Reply {
 	id: number;
+    parent?: number;
 
 	// optional identity for anonymous
 	user?: {
@@ -11,10 +13,6 @@ export interface Reply {
 		avatar?: string;
 	};
 
-	// convenience fields (existing usage)
-	name: string;
-	username?: string;
-	avatar?: string;
 	isAnonymous: boolean;
 
 	time: string; // ISO or backend timestamp
@@ -24,6 +22,7 @@ export interface Reply {
 	dislikes: number;
 	is_liked: boolean;
 	is_disliked: boolean;
+    
 }
 
 export interface Comment { //this type of comment in: postservice.craetecomment, commentservice.createcommentonpost
@@ -47,7 +46,7 @@ export interface Comment { //this type of comment in: postservice.craetecomment,
 
     parent: number | null;
 
-	repliesCount?: number;
+    replies: number[];
 }
 
 export interface CommentsProps {
@@ -58,25 +57,7 @@ export interface CommentsProps {
 
 	currentUserName?: string;
 
-	post?: {
-		id: number;
-		content: string;
-		timestamp: string;
-		user: {
-            id: number;
-			name: string;
-			username?: string;
-			avatar?: string;
-		};
-		likes: number;
-		dislikes: number;
-		comments: number;
-        isLiked?: boolean;
-        isDisliked?: boolean;
-        category?: string;
-        tags?: string[]; 
-        attributes: any;
-	};
+	post?: Post;
 
 	postId?: number;
 
@@ -84,21 +65,6 @@ export interface CommentsProps {
 	showComposer?: boolean;
 }
 
-export interface PostHeaderProps {
-	post: {
-		id: number;
-		content: string;
-		timestamp: string;
-		user: {
-			name: string;
-			username?: string;
-			avatar?: string;
-		};
-		likes: number;
-		dislikes: number;
-		comments: number;
-	};
-}
 
 export interface CommentItemProps {
 	comment: Comment;

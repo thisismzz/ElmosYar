@@ -184,14 +184,14 @@ const PlannerPage: React.FC = () => {
 						<div className="planner-header">
 							<h2>برنامه‌ریز</h2>
 						</div>
-						<DriveSyncButton
+						{/* <DriveSyncButton
 							onSave={async () => {
 								onSaveToDrive();
 							}}
 							onLoad={async () => {
 								onLoadFromDrive();
 							}}
-						/>
+						/> */}
 
 						<div className="planner-calendar-section">
 							<Calendar

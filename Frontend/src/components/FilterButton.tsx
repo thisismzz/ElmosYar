@@ -113,7 +113,7 @@ export function FilterButton<K extends string, V extends string>({
 	};
 
 	return (
-		<div dir="rtl" className={`relative inline-block ${className ?? ""}`}>
+		<div dir="rtl" className={`relative inline-block z-50 ${className ?? ""}`}>
 			<button
 				ref={btnRef}
 				type="button"

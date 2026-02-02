@@ -4,7 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import logo from "../../assets/logo.svg";
+// import logo from "../../assets/logo.svg";
 import './login.css';
 
 interface LoginFormData {
@@ -314,9 +314,9 @@ const RegisterPage: React.FC = () => {
   if (isCheckingAuth) {
     return (
       <div className="login-container">
-        <div className="login-logo-container">
+        {/* <div className="login-logo-container">
           <img src={logo} alt="Logo" className="logo" />
-        </div>
+        </div> */}
         <div className="login-card">
           <div className="loading-container">
             <p>در حال بررسی وضعیت ورود...</p>
@@ -485,9 +485,9 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="login-container">
-      <div className="login-logo-container">
+      {/* <div className="login-logo-container">
         <img src={logo} alt="Logo" className="logo" />
-      </div>
+      </div> */}
       <div className="login-card">
         <h1 className="welcome-title">به علموص‌یار خوش آمدید!</h1>
         <div className="tabs-container">

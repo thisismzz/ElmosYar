@@ -93,7 +93,7 @@ export function Modal({ open, title, subtitle, onClose, children, footer, size =
       />
 
       {/* Mobile-safe padding & bottom gutter */}
-      <div className="relative h-[100dvh] w-full px-4 pt-4 pb-8 flex items-end sm:items-center justify-center">
+      <div className="relative w-full px-4 pt-4 pb-8 flex items-end sm:items-center justify-center">
         <div
           className={[
             "relative w-full",

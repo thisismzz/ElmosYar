@@ -37,6 +37,8 @@ const mapPostToReview = (post: Post): Review => ({
 	likes: post.likes,
 	comments: post.comments,
 	isLiked: post.isLiked,
+    dislikes: post.dislikes,
+    isDisliked: post.isDisliked
 });
 
 export function ProfessorProfilePage(
@@ -81,7 +83,7 @@ const sortedReviews = [...professorReviews].sort((a, b) => {
 
   return (
     <div className="min-h-screen bg-gray-50/30">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto py-8">
         {/* Back Button */}
         <Button
           variant="ghost"

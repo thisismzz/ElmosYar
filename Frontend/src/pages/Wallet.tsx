@@ -74,12 +74,12 @@ export function WalletPage() {
                     style={{ background: 'linear-gradient(135deg, #16519F 0%, #4FCBE9 100%)' }}
                 >
                     <CardContent className="p-8 md:p-10 text-white">
-                        <div className="flex items-center gap-2 mb-2 justify-end">
+                        <div className="flex items-center gap-2 mb-2 justify-center md:justify-end">
                             <p className="text-blue-50">موجودی فعلی</p>
                             <Wallet className="w-5 h-5" />
                         </div>
 
-                        <div className="flex items-baseline gap-2 justify-end"
+                        <div className="flex items-baseline gap-2 justify-center md:justify-end"
                          dir="ltr">
                             <span className="text-1xl md:text-3xl">تومان</span>
                             <span className="text-5xl md:text-6xl"
