@@ -4,7 +4,7 @@ import { Review } from "../../types/review_posts";
 import { Card } from "../../components/UILib";
 import { usePosts } from "../../hooks/usePosts";
 import { useNavigate } from "react-router-dom";
-import { likePost, postService } from '../../services/PostService';
+import { postService } from '../../services/PostService';
 
 
 const mapPostToReview = (post: any): Review => ({
@@ -31,12 +31,21 @@ const mapPostToReview = (post: any): Review => ({
 
 export function ReviewPage() {
 	const navigate = useNavigate();
-	const { posts, loading } = usePosts();
+	const { posts, loading, refetch } = usePosts();
 	
 	const reviews = useMemo(() => 
 		posts.map(mapPostToReview),
 		[posts]
 	);
+
+	const handleLike = async (reviewId: number) => {
+		try {
+			await postService.likePost(reviewId);
+			refetch();
+		} catch (err) {
+			console.error('Error liking review:', err);
+		}
+	};
 
 	return (
 		<div className="min-h-screen bg-gray-50/30">
@@ -55,11 +64,10 @@ export function ReviewPage() {
 							<ReviewCard
 								key={review.id}
 								review={review}
-								onLike={() => {likePost(review.id)}}
+								onLike={() => handleLike(review.id)}
 								onOpenProfessor={() => navigate(`/topic/professor-review/${review.professorName}`)}
 								showDetailedRatings={true}
                                 onOpenComments={() => navigate(`/reviews/${review.id}/comments`)}
-                                // onOpenComments={() => navigate()} //todo: move to review/id/comments nav (make prof comments page)
 							/>
 						))
 					)}

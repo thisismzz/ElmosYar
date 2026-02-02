@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Menu, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Menu, X, ChevronDown } from 'lucide-react';
 // import logoSvg from "../../assets/logo.svg";
 import Logo from '../LogoComponent';
 import './Header.css';
@@ -67,36 +67,98 @@ export function SidebarToggleButton({
     );
 }
 
+type SearchFilterType = 'general' | 'username' | 'tags';
+
 const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const { getFilter, updateFilter } = useFilters();
+    const [searchFilter, setSearchFilter] = useState<SearchFilterType>('general');
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const desktopDropdownRef = useRef<HTMLDivElement>(null);
+    const mobileDropdownRef = useRef<HTMLDivElement>(null);
+    const { getFilter, updateFilter, setFilters, filters } = useFilters();
     const location = useLocation();
 
-    // Get current search value from URL
-    const urlSearchValue = getFilter('q', '');
+    // Get current search value from URL based on selected filter
+    const getSearchValueForFilter = (filterType: SearchFilterType) => {
+        switch (filterType) {
+            case 'username':
+                return getFilter('username', '');
+            case 'tags':
+                return getFilter('tags', '');
+            default:
+                return getFilter('q', '');
+        }
+    };
 
     // Local state only for the input field
-    const [inputValue, setInputValue] = useState(urlSearchValue);
+    const [inputValue, setInputValue] = useState(getSearchValueForFilter(searchFilter));
 
-    // Sync input value when URL changes
+    // Sync input value when URL or filter type changes
     useEffect(() => {
-        setInputValue(urlSearchValue);
-    }, [urlSearchValue]);
+        setInputValue(getSearchValueForFilter(searchFilter));
+    }, [searchFilter, filters]);
 
     // Check if we're in a topic route
     const isInTopicRoute = location.pathname.startsWith('/topic');
+    
+    // Check if we're in the discussion topic specifically
+    const isInDiscussionTopic = location.pathname.startsWith('/topic/discussion');
 
-    const placeholderText = 'جستجو...';
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const clickedOutsideDesktop = desktopDropdownRef.current && !desktopDropdownRef.current.contains(event.target as Node);
+            const clickedOutsideMobile = mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target as Node);
+            
+            if (clickedOutsideDesktop && clickedOutsideMobile) {
+                setIsDropdownOpen(false);
+            }
+        };
 
-    // Handle form submission - only updates URL
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const filterLabels: Record<SearchFilterType, string> = {
+        general: 'همه',
+        username: 'نام کاربری',
+        tags: 'برچسب‌ها'
+    };
+
+    const placeholderText = `جستجو در ${filterLabels[searchFilter]}...`;
+
+    // Handle form submission - updates appropriate filter based on type
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Update the URL with the current input value
-            updateFilter('q', inputValue);
+            // Build complete filter object with all changes at once
+            let newFilters = { ...filters };
+            
+            if (searchFilter === 'general') {
+                newFilters.username = '';
+                newFilters.tags = '';
+                newFilters.q = inputValue;
+            } else if (searchFilter === 'username') {
+                newFilters.q = '';
+                newFilters.tags = '';
+                newFilters.username = inputValue;
+            } else if (searchFilter === 'tags') {
+                newFilters.q = '';
+                newFilters.username = '';
+                newFilters.tags = inputValue;
+            }
+            
+            // Update all filters at once
+            setFilters(newFilters);
         } catch (err) {
             console.error('Failed to update filters from header search', err);
         }
+    };
+
+    const handleFilterChange = (newFilter: SearchFilterType) => {
+        setSearchFilter(newFilter);
+        setIsDropdownOpen(false);
+        setInputValue(getSearchValueForFilter(newFilter));
     };
 
     const handleToggleSidebar = () => {
@@ -132,6 +194,32 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
                                 dir="rtl"
                                 disabled={!isInTopicRoute}
                             />
+                            {isInDiscussionTopic && (
+                                <div className="search-filter-dropdown" ref={desktopDropdownRef}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                        className="search-filter-button"
+                                    >
+                                        <span>{filterLabels[searchFilter]}</span>
+                                        <ChevronDown size={16} />
+                                    </button>
+                                    {isDropdownOpen && (
+                                        <div className="search-filter-menu">
+                                            {(['general', 'username', 'tags'] as SearchFilterType[]).map((filter) => (
+                                                <button
+                                                    key={filter}
+                                                    type="button"
+                                                    onClick={() => handleFilterChange(filter)}
+                                                    className={`search-filter-option ${searchFilter === filter ? 'active' : ''}`}
+                                                >
+                                                    {filterLabels[filter]}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </form>
                     </div>
 
@@ -180,6 +268,31 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
                             disabled={!isInTopicRoute}
                             dir='rtl'
                         />
+                        {isInDiscussionTopic && (
+                            <div className="mobile-search-filter-dropdown" ref={mobileDropdownRef}>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                    className="mobile-search-filter-button"
+                                >
+                                    <ChevronDown size={16} />
+                                </button>
+                                {isDropdownOpen && (
+                                    <div className="mobile-search-filter-menu">
+                                        {(['general', 'username', 'tags'] as SearchFilterType[]).map((filter) => (
+                                            <button
+                                                key={filter}
+                                                type="button"
+                                                onClick={() => handleFilterChange(filter)}
+                                                className={`mobile-search-filter-option ${searchFilter === filter ? 'active' : ''}`}
+                                            >
+                                                {filterLabels[filter]}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </form>
                     <button onClick={onHomeClick} className="mobile-logo-button">
                         {/* <div className="logo-container">

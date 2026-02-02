@@ -165,11 +165,12 @@ export const FilterProvider: React.FC<{
 
   const updateUrl = useCallback((newFilters: FilterState) => {
     const params = new URLSearchParams();
-    
+    console.log('Updating URL with filters:', newFilters)
     // Add all non-empty filters to URL
     Object.entries(newFilters).forEach(([key, value]) => {
       if (value && value !== '') {
         params.set(key, value);
+        console.log(`Set URL param: ${key}=${value}`);
       }
     });
     
@@ -192,6 +193,7 @@ export const FilterProvider: React.FC<{
 
   const updateFilter = useCallback((key: string, value: string) => {
     const newFilters = { ...filters, [key]: value };
+    console.log(newFilters)
     updateUrl(newFilters);
   }, [filters, updateUrl]);
 

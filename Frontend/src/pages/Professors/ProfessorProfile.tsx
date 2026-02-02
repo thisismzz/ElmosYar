@@ -17,6 +17,7 @@ import {
 
 import { useNavigate, useParams } from "react-router-dom";
 import { usePosts } from "../../hooks/usePosts";
+import { postService } from "../../services/PostService";
 import type { Post } from '../../types/discussion_posts';
 
 const mapPostToReview = (post: Post): Review => ({
@@ -41,11 +42,10 @@ const mapPostToReview = (post: Post): Review => ({
     isDisliked: post.isDisliked
 });
 
-export function ProfessorProfilePage(
-) {
+export function ProfessorProfilePage() {
 	const navigate = useNavigate();
-	const {professorName} = useParams();
-	const { posts } = usePosts();
+	const { professorName } = useParams();
+	const { posts, refetch } = usePosts();
 	
 	const reviews = useMemo(() => 
 		posts.map(mapPostToReview),
@@ -73,13 +73,20 @@ export function ProfessorProfilePage(
     .slice(0, 2);
 
   // Sort reviews
-  // inside ProfessorProfilePage: sorting
-const sortedReviews = [...professorReviews].sort((a, b) => {
-  if (sortBy === "جدید") return 0;
-  if (sortBy === "بالاترین") return b.overallRating - a.overallRating;
-  return a.overallRating - b.overallRating; // "پایین ترین"
-});
+  const sortedReviews = [...professorReviews].sort((a, b) => {
+    if (sortBy === "جدید") return 0;
+    if (sortBy === "بالاترین") return b.overallRating - a.overallRating;
+    return a.overallRating - b.overallRating; // "پایین ترین"
+  });
 
+  const handleLike = async (reviewId: number) => {
+    try {
+      await postService.likePost(reviewId);
+      refetch();
+    } catch (err) {
+      console.error('Error liking review:', err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50/30">
@@ -170,8 +177,7 @@ const sortedReviews = [...professorReviews].sort((a, b) => {
               <ReviewCard
                 key={review.id}
                 review={review}
-                onLike={() => {}}
-                // onComment={() => {}}
+                onLike={() => handleLike(review.id)}
                 showDetailedRatings={true}
               />
             ))
