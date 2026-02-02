@@ -141,7 +141,6 @@ export function ReviewCard({
 			{showDetailedRatings && review.ratings ? (
 				<div className="px-6 pb-6">
 					<div className="border-t border-gray-100 pt-4">
-						<h4 className="text-sm text-gray-600 mb-4 text-right">جزئیات امتیاز دهی</h4>
 						<div className="grid grid-cols-1 md:grid-cols-5 gap-1">
 							{ratingLabels.map((rating) => (
 								<Card
@@ -165,54 +164,6 @@ export function ReviewCard({
 
 			{/* Actions */}
 			<div className="flex gap-2 px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex-row-reverse">
-				{/* <Button
-					variant="ghost"
-					size="sm"
-					onClick={(e) => {
-						e.stopPropagation();
-						onLike?.(review.id);
-					}}
-					className={`rounded-full ${
-						review.isLiked
-							? "text-[#F07E74] bg-[#F07E74]/10"
-							: "text-gray-600 hover:text-[#F07E74] hover:bg-[#F07E74]/10"
-					}`}
-				>
-					<ThumbsUp className={`w-4 h-4 mr-2 ${review.isLiked ? "fill-[#F07E74]" : ""}`} />
-					{review.likes}
-				</Button> */}
-
-				{/* <Button
-					variant="ghost"
-					size="sm"
-					onClick={(e) => {
-						e.stopPropagation();
-						onDislike?.(review.id);
-					}}
-					className={`rounded-full ${
-						(review as any).isDisliked
-							? "text-gray-800 bg-gray-200"
-							: "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
-					}`}
-				>
-					<ThumbsDown className={`w-4 h-4 mr-2 ${(review as any).isDisliked ? "fill-current" : ""}`} />
-					{(review as any).dislikes ?? 0}
-				</Button> */}
-
-				{/* no hover; clicking card opens comments
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={(e) => {
-						e.stopPropagation();
-						onOpenComments?.(review.id);
-					}}
-					className="rounded-full text-gray-600 hover:bg-transparent hover:text-gray-600"
-				>
-					<MessageCircle className="w-4 h-4 mr-2" />
-					{review.comments}
-				</Button> */}
-
                 <PostActions
                                 postId={reviewState.id}
                                 likes={reviewState.likes}

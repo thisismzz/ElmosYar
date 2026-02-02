@@ -1,4 +1,4 @@
-// services/localFileStore.ts
+// services/localFileStorage.ts
 import { get, set } from "idb-keyval";
 
 const DIR_HANDLE_KEY = "elmosyar_dir_handle_v1";
