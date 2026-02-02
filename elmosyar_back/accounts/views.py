@@ -37,8 +37,7 @@ def set_refresh_token_cookie(response, refresh_token, remember_me=False):
         'httponly': True,
         'secure': not settings.DEBUG,  # در production باید True باشد
         'samesite': 'Strict',
-        'path': '/api/token/refresh/',
-        'remember_me': remember_me
+        'path': '/api/token/refresh/'
     }
     
     if remember_me:
