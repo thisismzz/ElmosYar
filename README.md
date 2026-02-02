@@ -52,7 +52,12 @@ curl -X POST http://89.106.206.119:8000/api/login/ \
   }'
 ```
 
-**Response:**
+**Response Headers:**
+```
+Set-Cookie: refresh_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...; HttpOnly; Secure; SameSite=Strict; Path=/api/token/refresh/; Max-Age=604800
+```
+
+**Response Body:**
 ```json
 {
   "success": true,
@@ -72,32 +77,29 @@ curl -X POST http://89.106.206.119:8000/api/login/ \
     "posts_count": 12,
     "created_at": "2024-01-15T10:30:00Z"
   },
-  "tokens": {
-    "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-  }
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
 }
 ```
-
 
 ### Logout
 ```bash
 curl -X POST http://89.106.206.119:8000/api/logout/ \
   -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-  }'
+  -H "Content-Type: application/json"
 ```
 
-**Response:**
+**Response Headers:**
+```
+Set-Cookie: refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; HttpOnly; Secure; SameSite=Strict; Path=/api/token/refresh/
+```
+
+**Response Body:**
 ```json
 {
   "success": true,
   "message": "Logout successful"
 }
 ```
-
 
 ### Verify Token
 ```bash
@@ -119,13 +121,15 @@ curl -X POST http://89.106.206.119:8000/api/token/verify/ \
 ### Refresh Token
 ```bash
 curl -X POST http://89.106.206.119:8000/api/token/refresh/ \
-  -H "Content-Type: application/json" \
-  -d '{
-    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-  }'
+  -H "Content-Type: application/json"
 ```
 
-**Response:**
+**Response Headers:**
+```
+Set-Cookie: refresh_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...; HttpOnly; Secure; SameSite=Strict; Path=/api/token/refresh/; Max-Age=604800
+```
+
+**Response Body:**
 ```json
 {
   "success": true,
@@ -138,7 +142,12 @@ curl -X POST http://89.106.206.119:8000/api/token/refresh/ \
 curl http://89.106.206.119:8000/api/verify-email/0c0ce97e-48b4-4ef9-822a-71361f8ea018/
 ```
 
-**Response:**
+**Response Headers:**
+```
+Set-Cookie: refresh_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...; HttpOnly; Secure; SameSite=Strict; Path=/api/token/refresh/; Max-Age=86400
+```
+
+**Response Body:**
 ```json
 {
   "success": true,
@@ -158,10 +167,7 @@ curl http://89.106.206.119:8000/api/verify-email/0c0ce97e-48b4-4ef9-822a-71361f8
     "posts_count": 0,
     "created_at": "2024-01-15T10:30:00Z"
   },
-  "tokens": {
-    "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-    "refresh": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-  }
+  "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
 }
 ```
 

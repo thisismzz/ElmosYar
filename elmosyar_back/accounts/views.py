@@ -22,6 +22,43 @@ from log_manager.log_config import log_info, log_error, log_warning, log_securit
 
 MAX_PROFILE_PICTURE_SIZE = 1024 * 1024
 
+from datetime import datetime
+from django.utils import timezone
+
+# ════════════════════════════════════════════════════════════
+# 🔐 Helper Functions
+# ════════════════════════════════════════════════════════════
+
+def set_refresh_token_cookie(response, refresh_token, remember_me=False):
+    """Set refresh token as HttpOnly cookie"""
+    cookie_kwargs = {
+        'key': 'refresh_token',
+        'value': refresh_token,
+        'httponly': True,
+        'secure': not settings.DEBUG,  # در production باید True باشد
+        'samesite': 'Strict',
+        'path': '/api/token/refresh/',
+        'remember_me': remember_me
+    }
+    
+    if remember_me:
+        cookie_kwargs['max_age'] = 7 * 24 * 60 * 60  # 7 روز به ثانیه
+        cookie_kwargs['expires'] = timezone.now() + timedelta(days=7)
+    
+    response.set_cookie(**cookie_kwargs)
+    return response
+
+
+def delete_refresh_token_cookie(response):
+    """Delete refresh token cookie"""
+    response.delete_cookie(
+        key='refresh_token',
+        path='/api/token/refresh/',
+        samesite='Strict',
+    )
+    return response
+
+
 # ════════════════════════════════════════════════════════════
 # Tokens
 # ════════════════════════════════════════════════════════════
@@ -53,11 +90,14 @@ class VerifyTokenView(APIView):
                 'message': 'Token is invalid or expired'
             }, status=status.HTTP_400_BAD_REQUEST)
 
+
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
-        refresh_token = request.data.get('refresh')
+        # دریافت توکن از کوکی یا body
+        refresh_token = request.data.get('refresh') or request.COOKIES.get('refresh_token')
+        
         if not refresh_token:
             log_warning("Refresh attempt without token", request)
             return Response({
@@ -67,11 +107,38 @@ class RefreshTokenView(APIView):
         
         try:
             refresh = RefreshToken(refresh_token)
-            log_info("Token refreshed successfully", request)
-            return Response({
-                'success': True,
-                'access': str(refresh.access_token)
-            }, status=status.HTTP_200_OK)
+            
+            # گرفتن اطلاعات کاربر از توکن
+            user_id = refresh.get('user_id')
+            if user_id:
+                user = User.objects.get(id=user_id)
+                # ساخت refresh token جدید
+                new_refresh = RefreshToken.for_user(user)
+                
+                # بررسی remember_me از توکن قبلی
+                remember_me = refresh.get('remember_me', False)
+                
+                log_info("Token refreshed successfully", request, {'user_id': user_id})
+                
+                # ایجاد response
+                response_data = {
+                    'success': True,
+                    'access': str(new_refresh.access_token)
+                }
+                
+                response = Response(response_data, status=status.HTTP_200_OK)
+                
+                # قرار دادن refresh token جدید در کوکی
+                response = set_refresh_token_cookie(response, str(new_refresh), remember_me)
+                
+                return response
+            else:
+                log_error("Refresh token does not contain user_id", request, {'token_preview': refresh_token[:20]})
+                return Response({
+                    'success': False,
+                    'message': 'Invalid refresh token'
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
         except Exception as e:
             log_error(f"Token refresh failed: {str(e)}", request, {'token_preview': refresh_token[:20]})
             return Response({
@@ -188,15 +255,21 @@ def verify_email(request, token):
             # Generate tokens for auto-login
             refresh = RefreshToken.for_user(user)
             
-            return Response({
+            # ایجاد response
+            response_data = {
                 'success': True,
                 'message': 'Email verified successfully',
                 'user': UserSerializer(user, context={'request': request}).data,
-                'tokens': {
-                    'access': str(refresh.access_token),
-                    'refresh': str(refresh)
-                }
-            }, status=status.HTTP_200_OK)
+                'access': str(refresh.access_token)
+            }
+            
+            response = Response(response_data, status=status.HTTP_200_OK)
+            
+            # قرار دادن refresh token در کوکی
+            response = set_refresh_token_cookie(response, str(refresh))
+            
+            return response
+            
     except Exception as e:
         log_error(f"Email verification failed: {str(e)}", request, {'token': token[:20]})
         return Response({
@@ -301,15 +374,20 @@ class LoginView(APIView):
                 'remember_me': remember_me
             })
             
-            return Response({
+            # ایجاد response
+            response_data = {
                 'success': True,
                 'message': 'Login successful',
                 'user': UserSerializer(user, context={'request': request}).data,
-                'tokens': {
-                    'access': str(refresh.access_token),
-                    'refresh': str(refresh)
-                }
-            }, status=status.HTTP_200_OK)
+                'access': str(refresh.access_token)
+            }
+            
+            response = Response(response_data, status=status.HTTP_200_OK)
+            
+            # قرار دادن refresh token در کوکی با تنظیم remember_me
+            response = set_refresh_token_cookie(response, str(refresh), remember_me)
+            
+            return response
         else:
             log_security(f"Failed login attempt", request, {
                 'username_or_email': username_or_email,
@@ -325,7 +403,9 @@ class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        refresh_token = request.data.get("refresh")
+        # دریافت توکن از کوکی یا body
+        refresh_token = request.data.get("refresh") or request.COOKIES.get('refresh_token')
+        
         if not refresh_token:
             log_warning("Logout attempt without refresh token", request)
             return Response({
@@ -337,10 +417,16 @@ class LogoutView(APIView):
             token = RefreshToken(refresh_token)
             token.blacklist()
             log_info("User logged out successfully", request)
-            return Response({
+            
+            response = Response({
                 'success': True,
                 'message': 'Logout successful'
             }, status=status.HTTP_200_OK)
+            
+            # حذف کوکی
+            response = delete_refresh_token_cookie(response)
+            
+            return response
         except Exception as e:
             log_error(f"Logout failed: {str(e)}", request, {'token_preview': refresh_token[:20]})
             return Response({
