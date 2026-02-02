@@ -308,6 +308,7 @@ def fake_payment_status_generator():
         import random
         return random.choice([True, True, False])
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def verify_payment(request):
