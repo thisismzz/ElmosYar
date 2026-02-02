@@ -24,7 +24,7 @@ interface NavItem {
 // Common hook for active navigation
 const useActiveNav = (items: NavItem[], currentPath: string) => {
   return useMemo(() => {
-    const exactMatch = items.find(item => item.path === currentPath);
+    const exactMatch = items.find(item => item.path && currentPath.startsWith(item.path));
     if (exactMatch) return exactMatch.id;
 
     const partialMatch = items.find(item => 
@@ -125,9 +125,10 @@ export const RightSideBar: React.FC<SideBarProps> = ({ isOpen = false }) => {
 
    const navItems: NavItem[] = [
     { 
-      id: 'new-post', 
+      id: 'create', 
       label:'ایجاد پست', 
       icon: PenSquare, 
+      path:'/create',
       onClick: handleCreatePostClick
     },
     { 

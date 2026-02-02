@@ -39,7 +39,7 @@ const loginSchema = yup.object({
   password: yup
     .string()
     .required("رمز عبور الزامی است")
-    .min(6, "رمز عبور باید حداقل 6 کاراکتر باشد"),
+    .min(8, "رمز عبور باید حداقل 8 کاراکتر باشد"),
   rememberMe: yup.boolean().required()
 });
 
@@ -325,7 +325,15 @@ const RegisterPage: React.FC = () => {
       navigate(from, { replace: true });
     } catch (error: any) {
       const resp = error.response?.data;
-      const errorMessage = resp?.message || error.message || 'خطا در ورود. لطفاً مجدداً تلاش کنید.';
+      let errorMessage = resp?.message || error.message || 'خطا در ورود. لطفاً مجدداً تلاش کنید.';
+
+      // Translate "invalid credentials" to Persian
+      if (errorMessage.toLowerCase().includes('invalid credentials') || 
+          errorMessage.toLowerCase().includes('incorrect password') ||
+          errorMessage.toLowerCase().includes('wrong password') ||
+          resp?.detail?.toLowerCase().includes('invalid credentials')) {
+        errorMessage = 'نام کاربری یا رمز عبور اشتباه است';
+      }
 
       // If account not verified, show the unverified UI and extract email if provided (to be changed)
       if (errorMessage.startsWith('Please verify') || resp?.detail === 'Account is not active') {
@@ -342,6 +350,26 @@ const RegisterPage: React.FC = () => {
     }
   };
   
+  // Translate API error messages to Persian
+  const translateSignUpError = (field: string, message: string): string => {
+    const lowerMessage = message.toLowerCase();
+    
+    if (field === 'username') {
+      return 'این نام‌کاربری در سیستم موجود است';
+    }
+    
+    if (field === 'email') {
+      return 'این ایمیل در سیستم موجود است';
+    }
+    
+    if (field === 'password') {
+      return lowerMessage;
+    }
+    
+    // Default: return original message
+    return message;
+  };
+
   const handleSignUpSubmit = async (data: SignUpFormData) => {
     try {
       setApiError(null);
@@ -361,17 +389,14 @@ const RegisterPage: React.FC = () => {
         if (Array.isArray(details)) {
           details.forEach((detail: any) => {
             if (detail.field) {
-              fieldErrors[detail.field] = detail.message;
+              fieldErrors[detail.field] = translateSignUpError(detail.field, detail.message);
             }
           });
         } else if (typeof details === 'object') {
           // If details is an object with field names as keys
           Object.keys(details).forEach(field => {
-            if (Array.isArray(details[field])) {
-              fieldErrors[field] = details[field].join(', ');
-            } else {
-              fieldErrors[field] = details[field];
-            }
+            const message = Array.isArray(details[field]) ? details[field].join(', ') : details[field];
+            fieldErrors[field] = translateSignUpError(field, message);
           });
         }
       }
