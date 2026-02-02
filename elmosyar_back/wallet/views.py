@@ -9,6 +9,7 @@ from posts.serializers import PostSerializer
 from django.conf import settings
 from .models import UserWallet, Transaction, WalletService, WalletError, InsufficientBalance
 from .serializer import UserWalletSerializer, TransactionSerializer
+from django.db import transaction
 
 # جایگزین کردن لاگر قدیمی
 from log_manager.log_config import log_info, log_error, log_warning, log_audit
@@ -306,9 +307,6 @@ def create_payment(request, post_id):
 def fake_payment_status_generator():
         import random
         return random.choice([True, True, False])
-    
-    
-from django.db import transaction
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
