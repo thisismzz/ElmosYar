@@ -46,6 +46,16 @@
   font-family: "MyFont", sans-serif;
 }
 
+/* Remove default link styling for navigation links */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
 .App {
   text-align: center;
   background-color: var(--background);

@@ -4,7 +4,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-// import logo from "../../assets/logo.svg";
+import ResendTimer from "../../components/ResendTimer";
+import Logo from '../../components/LogoComponent';
 import './login.css';
 
 interface LoginFormData {
@@ -55,7 +56,7 @@ const signupSchema = yup.object({
   password: yup
     .string()
     .required("رمز عبور الزامی است")
-    .min(6, "رمز عبور باید حداقل 6 کاراکتر باشد"),
+    .min(8, "رمز عبور باید حداقل 8 کاراکتر باشد"),
   repeatPassword: yup
     .string()
     .required("تکرار رمز عبور الزامی است")
@@ -119,7 +120,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => {
           />
           مرا به خاطر بسپار
         </label>
-        <a href="#" className="forgot-password">فراموشی رمز عبور؟</a>
+        <a href="/password-reset" className="link-button">بازیابی رمزعبور</a>
       </div>
 
       <button 
@@ -257,7 +258,7 @@ const RegisterPage: React.FC = () => {
   const [signUpApiErrors, setSignUpApiErrors] = useState<{ [key: string]: string }>({});
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [signupEmail, setSignupEmail] = useState<string | null>(null);
-  const [resendCooldown, setResendCooldown] = useState<number>(0); // seconds
+  const [resendCooldownKey, setResendCooldownKey] = useState<number>(0); // Used to reset timer
   const [isResending, setIsResending] = useState<boolean>(false);
   const [unverifiedAccount, setUnverifiedAccount] = useState(false);
   const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
@@ -284,20 +285,6 @@ const RegisterPage: React.FC = () => {
     checkAuthentication();
   }, [isAuthenticated, navigate]);
   
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const timer = setInterval(() => {
-      setResendCooldown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [resendCooldown]);
-  
   // Show any API error passed via navigation state (e.g., from verify-email redirect)
   useEffect(() => {
     const navError = (location.state as any)?.apiError;
@@ -314,9 +301,9 @@ const RegisterPage: React.FC = () => {
   if (isCheckingAuth) {
     return (
       <div className="login-container">
-        {/* <div className="login-logo-container">
-          <img src={logo} alt="Logo" className="logo" />
-        </div> */}
+        <div className="login-logo-container">
+          <Logo></Logo>
+        </div>
         <div className="login-card">
           <div className="loading-container">
             <p>در حال بررسی وضعیت ورود...</p>
@@ -363,7 +350,7 @@ const RegisterPage: React.FC = () => {
       const response = await authRegister({ password: signUpData.password, email: signUpData.email, username: signUpData.username });
       setSignupSuccess(true);
       setSignupEmail(signUpData.email);
-      setResendCooldown(120);
+      setResendCooldownKey(prev => prev + 1); // Trigger timer reset
     } 
     catch (error: any) {
       
@@ -410,12 +397,12 @@ const RegisterPage: React.FC = () => {
   
   const handleResendEmail = async () => {
     const activeEmail = signupEmail || unverifiedEmail;
-    if (!activeEmail || resendCooldown > 0) return;
+    if (!activeEmail || isResending) return;
     try {
       setIsResending(true);
       await resendVerificationEmail(activeEmail);
       // restart cooldown
-      setResendCooldown(120);
+      setResendCooldownKey(prev => prev + 1); // Trigger timer reset
     } catch (err) {
       // show api error briefly
       const message = (err as any)?.response?.data?.message || 'خطا در ارسال ایمیل. لطفاً مجدداً تلاش کنید.';
@@ -441,14 +428,7 @@ const RegisterPage: React.FC = () => {
     setSignupEmail(null);
     setUnverifiedAccount(false);
     setUnverifiedEmail(null);
-    setResendCooldown(0);
     setIsResending(false);
-  };
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
   };
 
   // Reusable verification panel for signup-success and unverified-account flows
@@ -458,8 +438,10 @@ const RegisterPage: React.FC = () => {
     onResend: () => void;
     onReturn: () => void;
     isResending: boolean;
-    resendCooldown: number;
-  }> = ({ message, email, onResend, onReturn, isResending, resendCooldown }) => {
+    timerKey: number;
+  }> = ({ message, email, onResend, onReturn, isResending, timerKey }) => {
+    const [canResend, setCanResend] = useState(false);
+
     return (
       <div className="signup-success">
         <p className="success-message">{message}</p>
@@ -469,10 +451,10 @@ const RegisterPage: React.FC = () => {
             <button
               className="resend-inline"
               onClick={onResend}
-              disabled={resendCooldown > 0 || isResending}
+              disabled={!canResend || isResending}
               aria-label="resend verification email"
             >
-              {isResending ? 'در حال ارسال...' : (resendCooldown > 0 ? `ارسال مجدد (${formatTime(resendCooldown)})` : 'ارسال مجدد')}
+              {isResending ? 'در حال ارسال...' : 'ارسال مجدد'} <ResendTimer key={timerKey} initialSeconds={120} onComplete={() => setCanResend(true)} />
             </button>
           </p>
         )}
@@ -524,7 +506,7 @@ const RegisterPage: React.FC = () => {
             onResend={handleResendEmail}
             onReturn={() => { setUnverifiedAccount(false); setUnverifiedEmail(null); }}
             isResending={isResending}
-            resendCooldown={resendCooldown}
+            timerKey={resendCooldownKey}
           />
         )}
         {currentMode === "signup" && !signupSuccess && (
@@ -543,7 +525,7 @@ const RegisterPage: React.FC = () => {
             onResend={handleResendEmail}
             onReturn={handleReturnToLogin}
             isResending={isResending}
-            resendCooldown={resendCooldown}
+            timerKey={resendCooldownKey}
           />
         )}
       </div>

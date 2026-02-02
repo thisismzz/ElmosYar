@@ -16,6 +16,8 @@ import Header from './components/Header/Header';
 import DiscussionPage from './pages/Discussion/DiscussionPage';
 import FoodPage from './pages/FoodExchange/FoodPage';
 import VerifyEmail from './pages/VerifyEmail/VerifyEmail';
+import RequestPasswordResetPage from './pages/PasswordReset/RequestPasswordReset';
+import ResetPasswordPage from './pages/PasswordReset/ResetPassword';
 import NotesPage from './pages/Notes/NotesPage';
 import PlannerPage from './pages/Planner/PlannerPage';
 import { LeftSidebar, RightSideBar } from './components/SideBars/SideBars';
@@ -108,7 +110,10 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         }
     };
 
-    const isLoginPage = location.pathname === '/login' || location.pathname.startsWith('/verify-email');
+	const isLoginPage = location.pathname === '/login' || 
+		location.pathname.startsWith('/verify-email') ||
+		location.pathname === '/forgot-password' ||
+		location.pathname.startsWith('/password-reset');
 
     useEffect(() => {
         if (!isAuthenticated && !isLoginPage) {
@@ -198,13 +203,15 @@ const ProtectedRoutes: React.FC = () => {
 };
 
 const PublicRoutes: React.FC = () => {
-    return (
-        <Routes>
-            <Route path='/login' element={<RegisterPage />} />
-            <Route path='/verify-email/:token' element={<VerifyEmail />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-    );
+	return (
+		<Routes>
+			<Route path='/login' element={<RegisterPage />} />
+			<Route path='/verify-email/:token' element={<VerifyEmail />} />
+			<Route path='/password-reset' element={<RequestPasswordResetPage />} />
+			<Route path='/password-reset/:token' element={<ResetPasswordPage />} />
+			<Route path="*" element={<Navigate to="/login" replace />} />
+		</Routes>
+	);
 };
 
 // Main App Content that uses authentication
