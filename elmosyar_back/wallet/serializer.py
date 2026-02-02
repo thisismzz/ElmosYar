@@ -1,14 +1,12 @@
 from rest_framework import serializers
 from .models import UserWallet, Transaction
 
-
 class UserWalletSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
     
     class Meta:
         model = UserWallet
-        fields = ['id', 'user', 'username', 'balance', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'user', 'username', 'created_at', 'updated_at']
+        fields = ['user', 'username', 'balance']
         
 
 class TransactionSerializer(serializers.ModelSerializer):
@@ -23,4 +21,3 @@ class TransactionSerializer(serializers.ModelSerializer):
             'from_user', 'from_username', 'to_user', 'to_username',
             'registered_in', 'authority', 'post', 'post_title'
         ]
-        read_only_fields = ['id', 'registered_in']
