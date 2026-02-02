@@ -312,7 +312,6 @@ from django.db import transaction
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-@transaction.atomic
 def verify_payment(request):
     authority = request.data.get("authority")
     if not authority:
@@ -323,53 +322,55 @@ def verify_payment(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        transac = Transaction.objects.select_for_update().get(authority=authority, from_user=request.user)
-        if transac.is_processed:
-            return Response({
-                "error": True,
-                "message": "این آیتم قبلا به فروش رفته است",
-                "code": "POST_SOLD"}, status=status.HTTP_410_GONE)
+        # استفاده از transaction.atomic به عنوان context manager
+        with transaction.atomic():
+            transac = Transaction.objects.select_for_update().get(authority=authority, from_user=request.user)
+            if transac.is_processed:
+                return Response({
+                    "error": True,
+                    "message": "این آیتم قبلا به فروش رفته است",
+                    "code": "POST_SOLD"}, status=status.HTTP_410_GONE)
             
-        post = Post.objects.select_for_update().get(pk=transac.post.id)
-        if post.attributes.get('isSoldOut'):
-            return Response({
-                "error": True,
-                "message": "این آیتم قبلا به فروش رفته است",
-                "code": "POST_SOLD"}, status=status.HTTP_410_GONE)
+            post = Post.objects.select_for_update().get(pk=transac.post.id)
+            if post.attributes.get('isSoldOut'):
+                return Response({
+                    "error": True,
+                    "message": "این آیتم قبلا به فروش رفته است",
+                    "code": "POST_SOLD"}, status=status.HTTP_410_GONE)
 
-        payment_result = fake_payment_status_generator()
+            payment_result = fake_payment_status_generator()
 
-        if payment_result:
-            response = wallet_service_handler(
-                WalletService.purchase_or_transfer,
-                request.user,
-                transac.to_user,
-                transac.amount,
-                True,
-                transac.authority)
+            if payment_result:
+                response = wallet_service_handler(
+                    WalletService.purchase_or_transfer,
+                    request.user,
+                    transac.to_user,
+                    transac.amount,
+                    True,
+                    transac.authority)
 
-            if response.status_code == 200:
-                attrs = post.attributes.copy()
-                attrs["isSoldOut"] = True
-                post.attributes = attrs
-                post.save(update_fields=["attributes"])
+                if response.status_code == 200:
+                    attrs = post.attributes.copy()
+                    attrs["isSoldOut"] = True
+                    post.attributes = attrs
+                    post.save(update_fields=["attributes"])
 
-                log_audit("Post purchased successfully", request, {
-                    'post_id': post.id,
-                    'price': transac.amount,
-                    'seller': post.author.username
-                })
+                    log_audit("Post purchased successfully", request, {
+                        'post_id': post.id,
+                        'price': transac.amount,
+                        'seller': post.author.username
+                    })
 
-            return response
+                return response
 
-        else:
-            transac.status = "failed"
-            transac.authority = None
-            transac.save()
-            return Response({
-                "error": True,
-                "message": "پرداخت موفقیت آمیز نبود",
-                "code": "PAYMENT_FAILED"}, status=status.HTTP_200_OK)
+            else:
+                transac.status = "failed"
+                transac.authority = None
+                transac.save()
+                return Response({
+                    "error": True,
+                    "message": "پرداخت موفقیت آمیز نبود",
+                    "code": "PAYMENT_FAILED"}, status=status.HTTP_200_OK)
 
     except Transaction.DoesNotExist:
         return Response({
