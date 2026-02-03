@@ -363,6 +363,13 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
                                 )}
                             </div>
                         )}
+                        {isInFoodTopic && (
+                                <div className="search-filter-dropdown">
+                                    <FilterButtonConnected<K, V>
+                                        fields={fields}
+                                    />
+                                </div>
+                            )}
                     </form>
                     <button onClick={onHomeClick} className="mobile-logo-button">
                         {/* <div className="logo-container">

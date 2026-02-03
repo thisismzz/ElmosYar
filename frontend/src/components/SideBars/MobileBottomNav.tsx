@@ -1,7 +1,7 @@
 import React from 'react';
 import { PenSquare, User, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-
+import "./SideBars.css"
 interface MobileBottomNavProps {
   isLeftSidebarOpen: boolean;
   onLeftSidebarToggle: () => void;

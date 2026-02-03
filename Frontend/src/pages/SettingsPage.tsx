@@ -5,6 +5,7 @@ import {
     hasLinkedLocalFolder,
     loadNotesFromDisk,
     loadPlannerFromDisk,
+    getSavedDirHandle,
 } from '../services/localFileStorage';
 import { Folder, FolderOpen, AlertCircle, Check, Upload, Download } from 'lucide-react';
 
@@ -13,6 +14,7 @@ const SettingsPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
+    const [dir, setDir] = useState<string | null>(null);
     const [syncStatus, setSyncStatus] = useState<{
         notes: { count: number; hasData: boolean };
         planner: { count: number; hasData: boolean };
@@ -20,7 +22,13 @@ const SettingsPage: React.FC = () => {
 
     // Check if folder is already linked
     useEffect(() => {
+        const updateDir = async () => {
+            const result = await getSavedDirHandle();
+            console.log("dir", result)
+            setDir(result?.name ?? "");
+        }
         checkFolderStatus();
+        updateDir();
     }, []);
 
     const checkFolderStatus = async () => {
@@ -64,14 +72,14 @@ const SettingsPage: React.FC = () => {
             await linkLocalFolder();
             setHasFolder(true);
             await checkSyncStatus();
-            setSuccess('Folder successfully linked! Your notes and planner will sync to this location.');
+            setSuccess('فولدر با موفقیت وصل شد. اطلاعات یادداشت ها و پلنر شما اینجا ذخیره خواهد شد');
         } catch (err: any) {
             console.error('Error linking folder:', err);
 
             if (err.message.includes('File System Access API not supported')) {
-                setError('This feature is only supported in Chrome/Edge 86+ and Safari 15.4+. Please update your browser.');
+                setError('این ویژگی فقط در مرورگر های کروم/اج 86+ و سافاری 15.4+ قابل استفاده است. لطفامرورگر خود را آپدیت کنید.');
             } else if (err.message.includes('permission')) {
-                setError('Permission was denied. Please try again and grant the requested permissions.');
+                setError('مجوز داده نشد. اطفا دوباره امتحان کنید و مجوز دسترسی به فایل را بدهید.');
             } else {
                 setError(`Failed to link folder: ${err.message}`);
             }
@@ -108,7 +116,7 @@ const SettingsPage: React.FC = () => {
                             </div>
                         </div>
 
-                        {hasFolder && syncStatus && (
+                        {/* {hasFolder && syncStatus && (
                             <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                                 <div className="flex items-center mb-3">
                                     <Check className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
@@ -139,25 +147,9 @@ const SettingsPage: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        )} */}
 
-                        {error && (
-                            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                                <div className="flex items-center">
-                                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
-                                    <span className="text-red-800 dark:text-red-300">{error}</span>
-                                </div>
-                            </div>
-                        )}
-
-                        {success && (
-                            <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                                <div className="flex items-center">
-                                    <Check className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
-                                    <span className="text-green-800 dark:text-green-300">{success}</span>
-                                </div>
-                            </div>
-                        )}
+                        
 
                         <div className="flex flex-col sm:flex-row gap-4">
                             <button
@@ -176,8 +168,8 @@ const SettingsPage: React.FC = () => {
                                     </>
                                 ) : hasFolder ? (
                                     <>
-                                        تغییر پوشه ذخیره‌سازی
-                                        <FolderOpen className="w-5 h-5 ml-3" />
+                                        <FolderOpen className="w-5 h-5 mr-3" />
+                                       {dir}
                                     </>
                                 ) : (
                                     <>
@@ -186,15 +178,31 @@ const SettingsPage: React.FC = () => {
                                     </>
                                 )}
                             </button>
+{error && (
+                            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                                <div className="flex items-center">
+                                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mr-2" />
+                                    <span className="text-red-800 dark:text-red-300">{error}</span>
+                                </div>
+                            </div>
+                        )}
 
-                            {hasFolder && (
+                        {success && (
+                            <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                <div className="flex items-center">
+                                    <Check className="w-5 h-5 text-green-600 dark:text-green-400 mr-2" />
+                                    <span className="text-green-800 dark:text-green-300">{success}</span>
+                                </div>
+                            </div>
+                        )}
+                            {/* {hasFolder && (
                                 <button
                                     onClick={handleClearFolder}
                                     className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                 >
                                     قطع اتصال پوشه
                                 </button>
-                            )}
+                            )} */}
                         </div>
 
 

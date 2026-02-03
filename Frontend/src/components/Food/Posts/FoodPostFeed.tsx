@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FoodItem } from "../../../types/food_posts";
 import { Sun, Moon, Plus } from 'lucide-react';
-import PaymentModal from '../../Transaction/PaymentModal';
+import {PaymentModal} from '../../Transaction/PaymentModal';
 import './FoodPostFeed.css';
 import { getCurrentUserProfile } from '../../../services/userProfileService';
 import DateObject from "react-date-object";

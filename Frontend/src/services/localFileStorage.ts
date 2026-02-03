@@ -19,7 +19,7 @@ function isFsAccessSupported() {
   return typeof window !== "undefined" && "showDirectoryPicker" in window;
 }
 
-async function getSavedDirHandle(): Promise<FileSystemDirectoryHandle | null> {
+export async function getSavedDirHandle(): Promise<FileSystemDirectoryHandle | null> {
   return (await get(DIR_HANDLE_KEY)) ?? null;
 }
 
