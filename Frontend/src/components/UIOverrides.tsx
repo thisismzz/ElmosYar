@@ -186,6 +186,7 @@ export function SegmentedControl<T extends string>(props: {
   value: T;
   onChange: (v: T) => void;
   options: Array<{ value: T; label: string; hint?: string }>;
+  disabled?: boolean;
 }) {
   return (
     <div className="flex w-full flex-col gap-2">
@@ -197,9 +198,11 @@ export function SegmentedControl<T extends string>(props: {
               key={opt.value}
               type="button"
               onClick={() => props.onChange(opt.value)}
+              disabled={props.disabled}
               className={cn(
                 "relative flex-1 rounded-xl px-3 py-2 text-sm transition",
                 "focus:outline-none focus:ring-4",
+                "disabled:cursor-not-allowed disabled:opacity-60",
                 active
                   ? cn("text-white shadow-sm", ACCENT.bg, "focus:ring-[#16519F]/20")
                   : cn("text-neutral-700 hover:bg-white", "focus:ring-neutral-200")

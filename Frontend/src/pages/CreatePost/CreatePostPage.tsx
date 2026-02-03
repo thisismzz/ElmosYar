@@ -12,6 +12,27 @@ export type CreateCategory = "food" | "review" | "discussion";
 export function CreatePostPage(props: { starting_category?: CreateCategory }) {
 	const navigate = useNavigate();
 	const [category, setCategory] = useState<CreateCategory>(props.starting_category ?? "review");
+	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	const handleSubmitStart = () => {
+		setIsSubmitting(true);
+	};
+
+	const handleSubmitSuccess = () => {
+		setIsSubmitting(false);
+		// Navigate to the corresponding topic page
+		if (category === "food") {
+			navigate("/topic/food");
+		} else if (category === "discussion") {
+			navigate("/topic/discussion");
+		} else if (category === "review") {
+			navigate("/topic/professor-review");
+		}
+	};
+
+	const handleSubmitError = () => {
+		setIsSubmitting(false);
+	};
 
 	return (
 		<PageShell title="ایجاد پست جدید">
@@ -25,6 +46,7 @@ export function CreatePostPage(props: { starting_category?: CreateCategory }) {
 								{ value: "review", label: "استاد" },
 								{ value: "discussion", label: "گفتگو" },
 							]}
+							disabled={isSubmitting}
 						/>
 					</CardBody>
 
@@ -32,9 +54,30 @@ export function CreatePostPage(props: { starting_category?: CreateCategory }) {
 					<Card className="overflow-hidden bg-neutral-50">
 						{/* <CardHeader title={header.title} subtitle={header.desc} /> */}
 						<CardBody>
-							{category === "food" && <CreateFoodPostForm />}
-							{category === "review" && <CreateProfessorReviewPostForm />}
-							{category === "discussion" && <CreateDiscussionPostForm />}
+							{category === "food" && (
+								<CreateFoodPostForm
+									isSubmitting={isSubmitting}
+									onSubmitStart={handleSubmitStart}
+									onSubmitSuccess={handleSubmitSuccess}
+									onSubmitError={handleSubmitError}
+								/>
+							)}
+							{category === "review" && (
+								<CreateProfessorReviewPostForm
+									isSubmitting={isSubmitting}
+									onSubmitStart={handleSubmitStart}
+									onSubmitSuccess={handleSubmitSuccess}
+									onSubmitError={handleSubmitError}
+								/>
+							)}
+							{category === "discussion" && (
+								<CreateDiscussionPostForm
+									isSubmitting={isSubmitting}
+									onSubmitStart={handleSubmitStart}
+									onSubmitSuccess={handleSubmitSuccess}
+									onSubmitError={handleSubmitError}
+								/>
+							)}
 							{category === null &&
 								<CardHeader
 									title="دسته‌بندی را انتخاب کنید و فرم مربوطه را تکمیل کنید." />
