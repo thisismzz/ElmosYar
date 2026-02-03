@@ -463,7 +463,6 @@ const Comments: React.FC<CommentsProps> = ({
     initialComments = [],
     comments: externalComments,
     setComments: externalSetComments,
-    title = "نظرات",
     currentUserName = "اسب",
     post,
     postId,
@@ -562,7 +561,6 @@ const Comments: React.FC<CommentsProps> = ({
                 /> : null}
 
                 <div className="comments-header simple">
-                    <h2 className="comments-title">{title}</h2>
                 </div>
 
                 {showComposer ? <CommentComposer onSubmit={addComment} /> : null}
