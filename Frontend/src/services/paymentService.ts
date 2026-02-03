@@ -27,16 +27,17 @@ interface TransactionCardDetails {
 	from: string,
 	to: string,
 	type: string,
-	postId: string,
+    registered_in: string,
+    status: string,
 }
 
 interface BackendTransaction {
 	amount: number,
 	status: string,
 	type: string,
-	from: string,
-	to: string,
-	postId: string,
+	from_user: string,
+	to_user: string,
+	registered_in: string,
 }
 
 
@@ -51,10 +52,11 @@ export const getUserTransactions = async (): Promise<TransactionCardDetails[]> =
 			result.push({
 				title: "",
 				amount: t.amount,
-				from: t.from,
-				to: t.to,
+				from: t.from_user,
+				to: t.to_user,
 				type: t.type,
-				postId: t.postId,
+                registered_in: t.registered_in,
+                status: t.status
 			})
 		}
 	}
@@ -62,30 +64,16 @@ export const getUserTransactions = async (): Promise<TransactionCardDetails[]> =
 	return result
 }
 
-// export const walletPurchase = async (postId: number) => {
-// 	const response = await api.post(`/wallet/purchase/${postId}/`);
-    
-// 	console.log(response.data.message)
-// 	return {
-//         successful: !response.data.error,
-// 		message: response.data.message
-// 	}
-// }
 
-// Add these to your paymentService.ts
-
-// Step 1: Create payment (creates pending transaction with authority)
 export const createPayment = async (postId: number) => {
   const response = await api.post(`/wallet/payment/create/${postId}/`);
   
   if (!response.data.error) {
-    // This returns a payment_url with authority
     return response.data.data;
   }
   throw new Error(response.data.message || "خطا در ایجاد پرداخت");
 };
 
-// Step 2: Verify payment (uses the authority to complete purchase)
 export const verifyPayment = async (authority: string) => {
   const response = await api.post('/wallet/payment/verify/', { authority });
   

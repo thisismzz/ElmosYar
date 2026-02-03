@@ -492,9 +492,9 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="login-container">
-      {/* <div className="login-logo-container">
-        <img src={logo} alt="Logo" className="logo" />
-      </div> */}
+      <div className="login-logo-container">
+        <Logo size={255}></Logo>
+      </div>
       <div className="login-card">
         <h1 className="welcome-title">به علموص‌یار خوش آمدید!</h1>
         <div className="tabs-container">
