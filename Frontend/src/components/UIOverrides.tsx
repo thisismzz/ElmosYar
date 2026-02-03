@@ -227,3 +227,19 @@ export function HelperText(props: { children?: React.ReactNode; className?: stri
   if (!props.children) return null;
   return <div className={cn("mt-2 text-xs text-neutral-500", props.className)}>{props.children}</div>;
 }
+
+export function LoadingSpinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
+  const sizeClasses = {
+    sm: "h-4 w-4",
+    md: "h-6 w-6",
+    lg: "h-8 w-8",
+  };
+
+  return (
+    <div className="flex items-center justify-center">
+      <div
+        className={`${sizeClasses[size]} animate-spin rounded-full border-2 border-neutral-300 border-t-[#16519F]`}
+      />
+    </div>
+  );
+}

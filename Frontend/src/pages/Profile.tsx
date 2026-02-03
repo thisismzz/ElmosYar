@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage, Badge } from "../components/UILib";
 import { Button } from "../components/UILib";
 import { Card, CardContent } from "../components/UILib";
-import { Wallet, HelpCircle, Edit, ChevronLeft } from "lucide-react";
+import { Wallet, HelpCircle, Edit, ChevronLeft, ForkKnife } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { getCurrentUserProfile, UserProfile } from "../services/userProfileService";
 import { useNavigate } from "react-router-dom";
@@ -127,6 +127,26 @@ export function ProfilePage() {
                                 <div className="md:text-right">
                                     <h3 className="mb-1">کیف پول</h3>
                                     <p className="text-gray-500">مشاهده موجودی و تراکنش ها</p>
+                                </div>
+                            </div>
+                            <ChevronLeft className="w-5 h-5 text-gray-400" />
+                        </CardContent>
+                    </Card>
+                    <Card
+                        className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md bg-gray-50"
+                        onClick={() => navigate("/profile/food-posts")}
+                    >
+                        <CardContent className="flex items-center justify-between p-6 flex-row-reverse">
+                            <div className="flex items-center gap-4 flex-row-reverse">
+                                <div
+                                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                                    style={{ backgroundColor: "#16519F20" }}
+                                >
+                                    <ForkKnife className="w-6 h-6" style={{ color: "#169f1d" }} />
+                                </div>
+                                <div className="md:text-right">
+                                    <h3 className="mb-1">تبادلات غذا</h3>
+                                    <p className="text-gray-500">مشاهده غذا های خریداری شده و فروخته شده</p>
                                 </div>
                             </div>
                             <ChevronLeft className="w-5 h-5 text-gray-400" />

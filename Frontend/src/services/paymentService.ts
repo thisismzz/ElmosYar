@@ -97,11 +97,12 @@ export const verifyPayment = async (authority: string) => {
 
 export const getSoldPosts = async () => {
     const response = await api.get(`/wallet/sales`);
-    console.log("sales", response)
+    return response;
 }
+
 export const getPurchasedPosts = async () => {
     const response = await api.get(`/wallet/purchases`);
-    console.log("purchases", response)
+    return response;
 }
 
 export const getUserInfo = async (username: string) => {
