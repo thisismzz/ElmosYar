@@ -85,7 +85,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => {
             type="text"
             placeholder=" "
             {...register("username")}
-            className={`form-input ${errors.username ? 'error' : ''}`}
+            className={`auth-form-input ${errors.username ? 'error' : ''}`}
             disabled={isLoading}
           />
           <label className="floating-label">نام کاربری یا پست الکترونیک</label>
@@ -101,7 +101,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit, isLoading }) => {
             type="password"
             placeholder=" "
             {...register("password")}
-            className={`form-input ${errors.password ? 'error' : ''}`}
+            className={`auth-form-input ${errors.password ? 'error' : ''}`}
             disabled={isLoading}
           />
           <label className="floating-label">رمز عبور</label>
@@ -174,7 +174,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             type="email"
             placeholder=" "
             {...customRegister("email")}
-            className={`form-input ${errors.email || apiErrors.email ? 'error' : ''}`}
+            className={`auth-form-input ${errors.email || apiErrors.email ? 'error' : ''}`}
             disabled={isLoading}
           />
           <label className="floating-label">پست الکترونیک</label>
@@ -193,7 +193,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             type="text"
             placeholder=" "
             {...customRegister("username")}
-            className={`form-input ${errors.username || apiErrors.username ? 'error' : ''}`}
+            className={`auth-form-input ${errors.username || apiErrors.username ? 'error' : ''}`}
             disabled={isLoading}
           />
           <label className="floating-label">نام کاربری</label>
@@ -212,7 +212,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             type="password"
             placeholder=" "
             {...customRegister("password")}
-            className={`form-input ${errors.password ? 'error' : ''}`}
+            className={`auth-form-input ${errors.password ? 'error' : ''}`}
             disabled={isLoading}
           />
           <label className="floating-label">رمز عبور</label>
@@ -228,7 +228,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
             type="password"
             placeholder=" "
             {...customRegister("repeatPassword")}
-            className={`form-input ${errors.repeatPassword ? 'error' : ''}`}
+            className={`auth-form-input ${errors.repeatPassword ? 'error' : ''}`}
             disabled={isLoading}
           />
           <label className="floating-label">تکرار رمز عبور</label>
