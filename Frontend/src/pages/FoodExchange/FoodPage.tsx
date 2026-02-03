@@ -5,7 +5,6 @@ import { FoodPostFeed } from '../../components/Food/Posts/FoodPostFeed';
 import FoodFilters from '../../components/Food/Filter/FoodFilters';
 import { usePosts } from '../../hooks/usePosts';
 import type { Post } from '../../types/discussion_posts';
-import { FilterButtonConnected } from '../../components/FilterButtonConnected';
 type FilterKey = "day" | "cafeteria" | "meal";
 type FilterVal = string;
 
@@ -69,7 +68,9 @@ type K = (typeof fields)[number]["key"];
 type V = (typeof fields)[number]["options"][number]["value"];
 
 
-const mapPostToFoodItem = (post: Post): FoodItem => ({
+const mapPostToFoodItem = (post: Post): FoodItem => {
+    console.log("mapping to foosd", post);
+    return {
     id: post.id,
     name: post.attributes.name,
     mealType: post.attributes.mealType,
@@ -77,8 +78,9 @@ const mapPostToFoodItem = (post: Post): FoodItem => ({
     date: post.attributes.date,
     day: post.attributes.day,
     price: post.attributes.price,
-    isSoldOut: post.attributes.isSoldOut === "true",
-});
+    isSoldOut: post.attributes.isSoldOut === "true" || post.attributes.isSoldOut === true,
+    sellerUsername: post.user.username,
+};};
 
 const FoodPage: React.FC = () => {
     const { posts, loading, error } = usePosts({
@@ -111,13 +113,7 @@ const FoodPage: React.FC = () => {
     }
 
     return (
-        <div className="food-page-container">
-            {/* <FilterButton fields={filterFields} values={filters} onChange={setFilters} /> */}
-            <FilterButtonConnected<K, V>
-                fields={fields}
-                className="ml-2 flex align-right pr-12 transform scale-200 "
-            // allowedKeys={["day", "meal"]} // optional
-            />
+        <div className="food-page-container"> 
             <FoodPostFeed items={foodItems} />
         </div>
     );

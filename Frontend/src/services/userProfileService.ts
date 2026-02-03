@@ -17,6 +17,7 @@ export interface UserProfile {
   isFollowing: boolean;
   isMe: boolean;
   createdAt: string;
+  info: string;
 }
 
 export interface UpdateProfilePayload {
@@ -24,6 +25,7 @@ export interface UpdateProfilePayload {
   lastName?: string;
   bio?: string;
   studentId?: string;
+  info?: string;
 }
 
 export const getCurrentUserProfile = async (): Promise<UserProfile> => {
@@ -46,6 +48,7 @@ export const getCurrentUserProfile = async (): Promise<UserProfile> => {
     isFollowing: user.is_following,
     isMe: user.is_me,
     createdAt: user.created_at,
+    info: user.info,
   };
 };
 
@@ -57,6 +60,7 @@ export const updateUserProfile = async (
     last_name: data.lastName,
     bio: data.bio,
     student_id: data.studentId,
+    info: data.info,
   };
 
   const response = await api.put('/profile/update/', payload);
@@ -78,6 +82,7 @@ export const updateUserProfile = async (
     isFollowing: user.is_following,
     isMe: user.is_me,
     createdAt: user.created_at,
+    info: user.info,
   };
 };
 

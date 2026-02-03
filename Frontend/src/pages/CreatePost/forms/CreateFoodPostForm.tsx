@@ -12,7 +12,7 @@ import { createPost } from "../../../services/PostService";
 // import { createPost } from "../../../services/PostService"; // if you want to submit via backend
 
 type MealType = "ناهار" | "شام";
-type LocationType = "مرکزی" | "یاس" | "مقتدایی" | "خوابگاه خواهران" | "خوابگاه برادران";
+type LocationType = "یاس" | "خوابگاه خواهران" | "مرکزی برادران" | "رشید" | "حکیمیه" | "سراج" | "باقری" | "فرجام" | "مجیدیه" | "بسیج";
 type DayType = 'شنبه' | 'یکشنبه' | 'دوشنبه' | 'سه‌شنبه' | 'چهارشنبه' | 'پنج‌شنبه' | 'جمعه';
 
 type FoodFormState = {
@@ -28,11 +28,16 @@ const mealTypeMap: Record<MealType, string> = {
 };
 
 const locationMap: Record<LocationType, string> = {
-    'مرکزی': 'central_m',
-    'یاس': 'yas',
-    'مقتدایی': 'moghaddayi',
-    'خوابگاه خواهران': 'dormitory_f',
-    'خوابگاه برادران': 'dormitory_m'
+    "یاس": "yas",
+    "خوابگاه خواهران": "dormitory_f",
+    "مرکزی برادران": "central_m",
+    "رشید": "rashid",
+    "حکیمیه": "hakimieh",
+    "سراج": "seraj",
+    "باقری": "bagheri",
+    "فرجام": "farjam",
+    "مجیدیه": "majidieh",
+    "بسیج": "basij",
 };
 
 const dayMap: Record<DayType, string> = {
@@ -45,13 +50,13 @@ const dayMap: Record<DayType, string> = {
     'جمعه': 'friday'
 };
 
-const getPersianDayFromDate = (date: DateObject): DayType => {
+export const getPersianDayFromDate = (date: DateObject): DayType => {
     const dayIndex = date.weekDay.index; // 0 = Saturday in Persian calendar
     const persianDays: DayType[] = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
     return persianDays[dayIndex];
 };
 
-function formatPersianDate(date: DateObject): string {
+export function formatPersianDate(date: DateObject): string {
     const year = date.year;
     const month = String(date.month).padStart(2, "0");
     const day = String(date.day).padStart(2, "0");
@@ -81,14 +86,14 @@ export function CreateFoodPostForm(props: {
         name: "",
         price: "",
         mealType: "ناهار",
-        location: "مرکزی",
+        location: "مرکزی برادران",
     });
 
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | undefined>(undefined);
 
     const locations: LocationType[] = useMemo(
-        () => ["مرکزی", "یاس", "مقتدایی", "خوابگاه خواهران", "خوابگاه برادران"],
+        () => ["یاس", "خوابگاه خواهران", "مرکزی برادران", "رشید", "حکیمیه", "سراج", "باقری", "فرجام", "مجیدیه", "بسیج"],
         []
     );
     const mealTypes: MealType[] = useMemo(() => ["ناهار", "شام"], []);
@@ -128,7 +133,7 @@ export function CreateFoodPostForm(props: {
             // If you want to wire to your backend yourself, do it here.
             // Example: createPost(payload.name, "food-exchange", "idk", payload)
 
-            setForm({ name: "", price: "", mealType: "ناهار", location: "مرکزی" });
+            setForm({ name: "", price: "", mealType: "ناهار", location: "مرکزی برادران" });
             setSelectedDate(todayPersian());
         } catch (err) {
             setError(err instanceof Error ? err.message : "خطایی در ثبت پست رخ داد.");

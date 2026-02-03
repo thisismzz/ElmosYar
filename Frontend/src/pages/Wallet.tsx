@@ -2,7 +2,7 @@ import { Card, CardContent } from '../components/UILib';
 import { Button } from '../components/UILib';
 import { ArrowLeft, ArrowDownToLine, History, Plus, Wallet } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getWalletData } from '../services/paymentService';
+import { getPurchasedPosts, getSoldPosts, getWalletData } from '../services/paymentService';
 import { useEffect, useState } from 'react';
 import { WithdrawModal } from "../components/Wallet/WithdrawModal";
 import { DepositModal } from "../components/Wallet/DepositModal";
@@ -31,6 +31,9 @@ export function WalletPage() {
     };
 
     useEffect(() => {
+        getSoldPosts();
+        getPurchasedPosts();
+        
         fetchCredit();
 
         const st: any = location.state;

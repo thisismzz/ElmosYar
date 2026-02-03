@@ -361,6 +361,11 @@
   box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
 }
 
+.buy-button:disabled {
+  transform: translateY(0);
+  box-shadow: 0 6px 20px rgba(92, 147, 184, 0.3);
+}
+
 .buy-button:active {
   transform: translateY(0);
 }

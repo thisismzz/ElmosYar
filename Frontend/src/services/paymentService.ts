@@ -62,13 +62,49 @@ export const getUserTransactions = async (): Promise<TransactionCardDetails[]> =
 	return result
 }
 
-export const walletPurchase = async (postId: number) => {
-	const response = await api.post(`/wallet/purchase/${postId}/`);
+// export const walletPurchase = async (postId: number) => {
+// 	const response = await api.post(`/wallet/purchase/${postId}/`);
+    
+// 	console.log(response.data.message)
+// 	return {
+//         successful: !response.data.error,
+// 		message: response.data.message
+// 	}
+// }
 
-	//TODO: change so it returns the message and things
-	console.log(response.data.message)
-	return {
-		successful: !response.data.error,
-		message: response.data.message
-	}
+// Add these to your paymentService.ts
+
+// Step 1: Create payment (creates pending transaction with authority)
+export const createPayment = async (postId: number) => {
+  const response = await api.post(`/wallet/payment/create/${postId}/`);
+  
+  if (!response.data.error) {
+    // This returns a payment_url with authority
+    return response.data.data;
+  }
+  throw new Error(response.data.message || "خطا در ایجاد پرداخت");
+};
+
+// Step 2: Verify payment (uses the authority to complete purchase)
+export const verifyPayment = async (authority: string) => {
+  const response = await api.post('/wallet/payment/verify/', { authority });
+  
+  return {
+    successful: !response.data.error,
+    message: response.data.message
+  };
+};
+
+export const getSoldPosts = async () => {
+    const response = await api.get(`/wallet/sales`);
+    console.log("sales", response)
+}
+export const getPurchasedPosts = async () => {
+    const response = await api.get(`/wallet/purchases`);
+    console.log("purchases", response)
+}
+
+export const getUserInfo = async (username: string) => {
+    const response = await api.get(`/users/${username}/profile/`);
+    return response.data.user;
 }

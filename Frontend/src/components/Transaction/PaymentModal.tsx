@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './PaymentModal.css';
 import { PaymentModalProps, PaymentMethod, FoodItem } from '../../types/food_posts';
-import { getWalletData, depositToWallet, withdrawFromWallet, walletPurchase } from '../../services/paymentService';
+import { getWalletData, depositToWallet, withdrawFromWallet, createPayment, verifyPayment, getUserInfo } from '../../services/paymentService';
 import { WalletGatewayPage } from '../../pages/WalletGatewayPage';
 import { useNavigate } from 'react-router-dom';
 
@@ -70,26 +70,44 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
         try {
             if (selectedMethod === 'wallet') {
-                const purchaseResult = await walletPurchase(foodItem.id);
-                console.log(purchaseResult);
-                if (purchaseResult.successful) {
+                // const purchaseResult = await walletPurchase(foodItem.id);
+
+                // console.log(purchaseResult);
+                
+                const createPaymentResult = await createPayment(foodItem.id);
+                console.log("created payment", createPaymentResult);
+                const paymentUrl = createPaymentResult.payment_url; // "/fake-gateway/c12a8e9f-7d8c-4b8a-9e5b-7c6d8e9f0a1b123/"
+                const authority = paymentUrl.split('/')[2];
+                const verificationResult = await verifyPayment(authority);
+                console.log("verification", verificationResult);
+                if (verificationResult.successful) {
                     // نمایش صفحه موفقیت آمیز
+                    const sellerInfo = await getUserInfo(foodItem.sellerUsername);
+                    console.log("seller", sellerInfo)
+                    setStudentCredentials({studentId: sellerInfo.student_id, password: sellerInfo.info});
+
                     setShowSuccessScreen(true);
                     if (onPaymentSuccess) {
                         onPaymentSuccess(selectedMethod, foodItem);
                     }
                 } else {
-                    alert(purchaseResult.message);
+                    alert(verificationResult.message);
                     setIsProcessing(false);
                 }
             } else {
                 alert('به صفحه پرداخت آنلاین منتقل می‌شوید...');
+                const createPaymentResult = await createPayment(foodItem.id);
+                console.log("created payment", createPaymentResult);
+                const paymentUrl = createPaymentResult.payment_url; // "/fake-gateway/c12a8e9f-7d8c-4b8a-9e5b-7c6d8e9f0a1b123/"
+                const authority = paymentUrl.split('/')[2];
                 navigate(`/wallet/buy-food-gateway/${foodItem.id}`, {
-            state: {
-                amount: foodItem.price,
-                gateway: { id: "mockpay", name: "باثز" },
-            }, 
-        });
+                    state: {
+                        amount: foodItem.price,
+                        gateway: { id: "mockpay", name: "باقرپی" },
+                        auth: authority
+                    },
+                });
+                console.log("something")
                 onClose();
             }
         } catch (error) {

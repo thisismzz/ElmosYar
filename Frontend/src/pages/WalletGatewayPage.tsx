@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button, Card, CardContent, Input, Label } from "../components/UILib";
-import { depositToWallet } from "../services/paymentService";
+import { depositToWallet, verifyPayment } from "../services/paymentService";
 import { formatCardNumber, onlyDigits, validateCard } from "../components/Wallet/cardUtils";
 import { CreditCard, ShieldCheck } from "lucide-react";
 
@@ -27,11 +27,11 @@ function makeCaptchaToken() {
 }
 
 export function WalletGatewayPage() {
-    const {gatewayType} = useParams();
+    const { gatewayType } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const state = location.state as GatewayState | null;
-    
+    const state = location.state as any | null;
+
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +52,7 @@ export function WalletGatewayPage() {
         [state?.amount]
     );
 
-    useEffect(() => {console.log(location.state)})
+    useEffect(() => { console.log(location.state) })
 
     if (!state) {
         return (
@@ -73,47 +73,70 @@ export function WalletGatewayPage() {
             </div>
         );
     }
-    
+
     const validate = () => {
         setError(null);
-        
+
         const cardErr = validateCard(form);
         if (cardErr) return cardErr;
-        
+
         const otpDigits = onlyDigits(otp);
         if (otpDigits.length < 4) return "کد تأیید را به‌درستی وارد کنید.";
-        
+
         if (captchaValue.trim().toUpperCase() !== captchaToken) {
             return "کپچا صحیح نیست.";
         }
         return null;
     };
-    
+
     const pay = async () => {
         const v = validate();
         if (v) return setError(v);
-        
-        try {
-            setSubmitting(true);
-            
-            await depositToWallet(state.amount); //!
-            
-            navigate("/profile/wallet", {
-                replace: true,
-                state: { walletUpdated: true, toast: "واریز موفق انجام شد." }
-            });
-            
-        } catch (e: any) {
-            const msg =
-            e?.response?.data?.message ||
-            e?.message ||
-            "پرداخت ناموفق بود. لطفاً دوباره تلاش کنید.";
-            setError(msg);
-        } finally {
-            setSubmitting(false);
+
+        if (state.auth) {
+            try {
+                setSubmitting(true);
+
+                const result = await verifyPayment(state.auth);
+                console.log("vef", result);
+                navigate("/profile/wallet", {
+                    replace: true,
+                    state: { walletUpdated: true, toast: result.message }
+                });
+
+            } catch (e: any) {
+                const msg =
+                    e?.response?.data?.message ||
+                    e?.message ||
+                    "پرداخت ناموفق بود. لطفاً دوباره تلاش کنید.";
+                setError(msg);
+            } finally {
+                setSubmitting(false);
+            }
+        }
+        else {
+            try {
+                setSubmitting(true);
+
+                await depositToWallet(state.amount); //!
+
+                navigate("/profile/wallet", {
+                    replace: true,
+                    state: { walletUpdated: true, toast: "واریز موفق انجام شد." }
+                });
+
+            } catch (e: any) {
+                const msg =
+                    e?.response?.data?.message ||
+                    e?.message ||
+                    "پرداخت ناموفق بود. لطفاً دوباره تلاش کنید.";
+                setError(msg);
+            } finally {
+                setSubmitting(false);
+            }
         }
     };
-    
+
     return (
         <div className="min-h-screen pb-20 lg:pb-8" dir="rtl">
             <div className="max-w-3xl mx-auto px-4 py-8 md:px-6 md:py-12">

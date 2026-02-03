@@ -5,6 +5,7 @@ import Logo from '../LogoComponent';
 import './Header.css';
 import { useFilters } from '../../contexts/FilterContext';
 import { useLocation } from 'react-router-dom';
+import { FilterButtonConnected } from '../FilterButtonConnected';
 
 interface HeaderProps {
     onHomeClick: () => void;
@@ -15,6 +16,67 @@ type SidebarToggleButtonProps = {
     isOpen: boolean;
     onClick: () => void;
 };
+
+
+const translateLocation = {
+    "yas": "یاس",
+    "dormitory_f": "خوابگاه خواهران",
+    "central_m": "مرکزی برادران",
+    "rashid": "رشید",
+    "hakimieh": "حکیمیه",
+    "seraj": "سراج",
+    "bagheri": "باقری",
+    "farjam": "فرجام",
+    "majidieh": "مجیدیه",
+    "basij": "بسیج",
+}
+
+const fields = [
+    {
+        key: "day",
+        label: "روز",
+        placeholder: "همه",
+        options: [
+            { value: "saturday", label: "شنبه" },
+            { value: "sunday", label: "یکشنبه" },
+            { value: "monday", label: "دوشنبه" },
+            { value: "tuesday", label: "سه شنبه" },
+            { value: "wednesday", label: "چهارشنبه" },
+            { value: "thursday", label: "پنح شنبه" },
+            { value: "friday", label: "جمعه" },
+        ],
+    },
+    {
+        key: "location",
+        label: "سلف",
+        placeholder: "همه",
+        options: [
+            { value: "yas", label: translateLocation["yas"] },
+            { value: "basij", label: translateLocation["basij"] },
+            { value: "majidieh", label: translateLocation["majidieh"] },
+            { value: "farjam", label: translateLocation["farjam"] },
+            { value: "bagheri", label: translateLocation["bagheri"] },
+            { value: "seraj", label: translateLocation["seraj"] },
+            { value: "hakimieh", label: translateLocation["hakimieh"] },
+            { value: "rashid", label: translateLocation["rashid"] },
+            { value: "central_m", label: translateLocation["central_m"] },
+            { value: "dormitory_f", label: translateLocation["dormitory_f"] },
+        ],
+    },
+    {
+        key: "mealType",
+        label: "وعده",
+        placeholder: "همه",
+        options: [
+            { value: "lunch", label: "ناهار" },
+            { value: "dinner", label: "شام" },
+        ],
+    },
+];
+
+type K = (typeof fields)[number]["key"];
+type V = (typeof fields)[number]["options"][number]["value"];
+
 
 export function SidebarToggleButton({
     isOpen,
@@ -100,16 +162,17 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
 
     // Check if we're in a topic route
     const isInTopicRoute = location.pathname.startsWith('/topic');
-    
+
     // Check if we're in the discussion topic specifically
     const isInDiscussionTopic = location.pathname.startsWith('/topic/discussion');
+    const isInFoodTopic = location.pathname.startsWith('/topic/food');
 
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const clickedOutsideDesktop = desktopDropdownRef.current && !desktopDropdownRef.current.contains(event.target as Node);
             const clickedOutsideMobile = mobileDropdownRef.current && !mobileDropdownRef.current.contains(event.target as Node);
-            
+
             if (clickedOutsideDesktop && clickedOutsideMobile) {
                 setIsDropdownOpen(false);
             }
@@ -133,7 +196,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
         try {
             // Build complete filter object with all changes at once
             let newFilters = { ...filters };
-            
+
             if (searchFilter === 'general') {
                 newFilters.username = '';
                 newFilters.tags = '';
@@ -147,7 +210,7 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
                 newFilters.username = '';
                 newFilters.tags = inputValue;
             }
-            
+
             // Update all filters at once
             setFilters(newFilters);
         } catch (err) {
@@ -218,6 +281,13 @@ const Header: React.FC<HeaderProps> = ({ onHomeClick, onToggleSidebar }) => {
                                             ))}
                                         </div>
                                     )}
+                                </div>
+                            )}
+                            {isInFoodTopic && (
+                                <div className="search-filter-dropdown">
+                                    <FilterButtonConnected<K, V>
+                                        fields={fields}
+                                    />
                                 </div>
                             )}
                         </form>

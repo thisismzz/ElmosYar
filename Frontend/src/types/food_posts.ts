@@ -11,6 +11,7 @@ export interface FoodItem {
   day: string;
   price: number;
   isSoldOut: boolean | string;
+  sellerUsername: string;
 }
 
 export interface PaymentModalProps {

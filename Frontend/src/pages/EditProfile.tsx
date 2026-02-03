@@ -20,6 +20,7 @@ export function EditProfilePage() {
 		lastName: "",
 		studentId: "",
 		bio: "",
+        info: "",
 	});
 
 	const [profilePicture, setProfilePicture] = useState<string | null>(null);
@@ -54,7 +55,8 @@ export function EditProfilePage() {
 					firstName: data.firstName || "",
 					lastName: data.lastName || "",
 					studentId: data.studentId || "",
-					bio: data.bio || "",
+					bio: data.bio || "", 
+                    info: data.info || "",
 				});
 				setProfilePicture(data.profilePicture);
 			} catch (err) {
@@ -315,6 +317,31 @@ export function EditProfilePage() {
 											value={form.studentId}
 											onChange={(e) => setForm({ ...form, studentId: e.target.value })}
 											placeholder="شماره دانشجویی خود را وارد کنید"
+											className="mt-1.5 rounded-xl text-right"
+										/>
+									</div>
+									<div
+										className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+										style={{ backgroundColor: '#4FCBE920' }}
+									>
+										<FileText className="w-5 h-5" style={{ color: '#4FCBE9' }} />
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+
+						{/* Student password */}
+						<Card className="rounded-2xl border-0 shadow-md bg-gray-50">
+							<CardContent className="p-6">
+								<div className="flex items-center gap-4">
+									<div className="flex-1">
+										<Label htmlFor="info" className="text-right block">رمز دوم</Label>
+										<Input
+											id="info"
+											type="text"
+											value={form.info}
+											onChange={(e) => setForm({ ...form, info: e.target.value })}
+											placeholder="رمز دوم خود را (جهت فروش غذا) وارد کنید."
 											className="mt-1.5 rounded-xl text-right"
 										/>
 									</div>
