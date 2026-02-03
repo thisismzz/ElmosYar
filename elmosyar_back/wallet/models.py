@@ -41,7 +41,7 @@ class Transaction(models.Model):
     to_user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='received_transactions')
     is_processed = models.BooleanField(default=False)
     authority = models.CharField(max_length=100, null=True, blank=True)
-    post = models.OneToOneField(Post, on_delete=models.SET_NULL, blank=True, null=True, related_name='transaction')
+    post = models.ForeignKey(Post, on_delete=models.SET_NULL, blank=True, null=True, related_name='transactions')
     
     def __str__(self):
         return str(self.id)
@@ -76,7 +76,8 @@ class WalletService:
         except UserWallet.DoesNotExist :
            raise WalletError("کیف پول یافت نشد")
         except Exception as e:
-            raise WalletError("مشکلی پیش آمده لطفا دوباره سعی کنید") from e
+            print("in deposit", flush=True)
+            raise WalletError(e) from e
         
     
     
@@ -107,7 +108,8 @@ class WalletService:
         except InsufficientBalance:
             raise
         except Exception as e:
-            raise WalletError("مشکلی پیش آمده لطفا دوباره سعی کنید") from e
+            print("in withdraw", flush=True)
+            raise WalletError(e) from e
         
 
     
@@ -158,6 +160,7 @@ class WalletService:
                 to_user=to_user,
                 post=post
             )
+            
             if is_purchase:
                 return f"خرید با موفقیت انجام شد", "PURCHASE_SUCCESS", {"balance" : sender_wallet.balance}
             
@@ -166,4 +169,6 @@ class WalletService:
         except InsufficientBalance:
             raise
         except Exception as e:
-            raise WalletError("مشکلی پیش آمده لطفا دوباره سعی کنید") from e
+            print(f"from:{from_user}, to user:{to_user}, amount:{amount}, is_purchase:{is_purchase}, autority:{authority}, post:{post}")
+            print("in transfer", flush=True)
+            raise WalletError(e) from e

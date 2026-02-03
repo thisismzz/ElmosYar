@@ -204,7 +204,7 @@ def purchase(request, post_id):
                          "message": "امکان خرید توسط فروشنده وجود ندارد",
                          "code": "POST_PURCHASE_NOT_ALLOWED"}, status=status.HTTP_409_CONFLICT)
         
-    if post.attributes.get('isSoldOut') == True:
+    if post.attributes.get('isSoldOut') == "true":
         log_warning(f"Purchase attempt for sold out post", request, {'post_id': post_id})
         return Response({"error": True,
                          "message": "این آیتم قبلا به فروش رفته است",
@@ -230,12 +230,13 @@ def purchase(request, post_id):
         post.author,
         price,
         True,
+        None,
         post
     )
 
     if response.status_code == 200:
         attrs = post.attributes.copy()
-        attrs["isSoldOut"] = True
+        attrs["isSoldOut"] = "true"
 
         post.attributes = attrs
         post.save(update_fields=["attributes"])
@@ -266,7 +267,7 @@ def create_payment(request, post_id):
                          "message": "امکان خرید توسط فروشنده وجود ندارد",
                          "code": "POST_PURCHASE_NOT_ALLOWED"}, status=status.HTTP_409_CONFLICT)
         
-    if post.attributes.get('isSoldOut') == True:
+    if post.attributes.get('isSoldOut') == "true":
         log_warning(f"Purchase attempt for sold out post", request, {'post_id': post_id})
         return Response({"error": True,
                          "message": "این آیتم قبلا به فروش رفته است",
@@ -331,7 +332,7 @@ def verify_payment(request):
                     "code": "POST_SOLD"}, status=status.HTTP_410_GONE)
             
             post = Post.objects.select_for_update().get(pk=transac.post.id)
-            if post.attributes.get('isSoldOut'):
+            if post.attributes.get('isSoldOut') == "true":
                 return Response({
                     "error": True,
                     "message": "این آیتم قبلا به فروش رفته است",
@@ -350,7 +351,7 @@ def verify_payment(request):
 
                 if response.status_code == 200:
                     attrs = post.attributes.copy()
-                    attrs["isSoldOut"] = True
+                    attrs["isSoldOut"] = "true"
                     post.attributes = attrs
                     post.save(update_fields=["attributes"])
 
@@ -390,19 +391,29 @@ def get_purchased_posts(request):
                          "message": "کیف پول یافت نشد",
                          "code": "USER_WALLET_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
         
-    posts = Post.objects.filter(transaction__wallet=wallet, transaction__type="payment")
-    if not posts.exists():
+    # تغییر از transaction__type="payment" به فیلتر کردن تراکنش‌های payment کاربر
+    transactions = Transaction.objects.filter(
+        wallet=wallet, 
+        type="payment",
+        status="success"
+    ).select_related('post')
+    
+    posts = [trans.post for trans in transactions if trans.post]
+    
+    if not posts:
         log_info(f"No payment transactions found for user", request)
         return Response({"error": True,
                          "message": "تراکنش خریدی وجود ندارد",
                          "code": "USER_TRANSACTION_NOT_EXIST"}, status=status.HTTP_200_OK)
-    log_info(f"User viewed purchased transactions history ({posts.count()} transactions)", request)
+    
+    log_info(f"User viewed purchased transactions history ({len(posts)} transactions)", request)
     
     serializer = PostSerializer(posts, many=True)
     return Response({"error": False,
                      "message": "پست های خریداری شده کاربر یافت شد",
                      "code": "USER_TRANSACTION_FETCHED",
                      "data": serializer.data}, status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -416,17 +427,25 @@ def get_sold_posts(request):
                          "message": "کیف پول یافت نشد",
                          "code": "USER_WALLET_NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
         
-    posts = Post.objects.filter(transaction__wallet=wallet, transaction__type="recieve")
+    # تصحیح typo: "recieve" -> "receive"
+    transactions = Transaction.objects.filter(
+        wallet=wallet, 
+        type="receive",  # تصحیح شده
+        status="success"
+    ).select_related('post')
+    
+    posts = [trans.post for trans in transactions if trans.post]
+    
     if not posts.exists():
-        log_info(f"No recieved transactions found for user", request)
+        log_info(f"No received transactions found for user", request)
         return Response({"error": True,
                          "message": "تراکنش فروشی وجود ندارد",
                          "code": "USER_TRANSACTION_NOT_EXIST"}, status=status.HTTP_200_OK)
-    log_info(f"User viewed recieved transactions history ({posts.count()} transactions)", request)
+    
+    log_info(f"User viewed received transactions history ({len(posts)} transactions)", request)
     
     serializer = PostSerializer(posts, many=True)
     return Response({"error": False,
                      "message": "پست های فروخته شده کاربر یافت شد",
                      "code": "USER_TRANSACTION_FETCHED",
                      "data": serializer.data}, status=status.HTTP_200_OK)
-
