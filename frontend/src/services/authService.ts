@@ -7,6 +7,11 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://89.106.206.11
 // The browser automatically sends the refresh cookie with requests to the API
 // We cannot and should not access the refresh token from JavaScript for security reasons
 
+// Note: Access token is stored in localStorage for persistence
+// Refresh token is managed by the backend via HttpOnly cookies
+// The browser automatically sends the refresh cookie with requests to the API
+// We cannot and should not access the refresh token from JavaScript for security reasons
+
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: API_BASE_URL,

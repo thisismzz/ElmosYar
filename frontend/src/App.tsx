@@ -196,7 +196,8 @@ const ProtectedRoutes: React.FC = () => {
             <Route path='/create' element={<CreatePostPage />} />
             <Route path="/post/:postId/comments" element={<PostCommentsPage />} />
             <Route path="/reviews/:reviewId/comments" element={<ReviewCommentsPage />} />
-            <Route path="/wallet/gateway" element={<WalletGatewayPage />} />
+            <Route path="/wallet/:gatewayType" element={<WalletGatewayPage />} />
+            <Route path="/wallet/buy-food-gateway/:foodPostId" element={<WalletGatewayPage />} />
             <Route path='/settings' element={<SettingsPage />} />
         </Routes>
     );

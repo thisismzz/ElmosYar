@@ -57,11 +57,11 @@ export function DepositModal({ open, onClose }: Props) {
         // navigate to mock payment page; pass non-sensitive state only
         const g = gateways.find((x) => x.id === gatewayId)!;
 
-        navigate("/wallet/gateway", {
+        navigate("/wallet/add-balance-gateway", {
             state: {
                 amount: amt.amount,
                 gateway: { id: g.id, name: g.name },
-            },
+            }, 
         });
 
         close();

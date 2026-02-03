@@ -10,7 +10,7 @@ const FoodFilters: React.FC = () => {
 
 
 	const dropdownRefs = {
-		meal: useRef<HTMLDivElement>(null),
+		mealType: useRef<HTMLDivElement>(null),
 		day: useRef<HTMLDivElement>(null),
 		location: useRef<HTMLDivElement>(null),
 	};
@@ -67,7 +67,7 @@ const FoodFilters: React.FC = () => {
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (
-				(dropdownRefs.meal.current && !dropdownRefs.meal.current.contains(event.target as Node)) &&
+				(dropdownRefs.mealType.current && !dropdownRefs.mealType.current.contains(event.target as Node)) &&
 				(dropdownRefs.day.current && !dropdownRefs.day.current.contains(event.target as Node)) &&
 				(dropdownRefs.location.current && !dropdownRefs.location.current.contains(event.target as Node))
 			) {
@@ -85,7 +85,7 @@ const FoodFilters: React.FC = () => {
 		<div className="food-filters-dropdown-container">
 			<div className="filters-row">
 				{/* filter meal */}
-				<div className="filter-dropdown-wrapper" ref={dropdownRefs.meal}>
+				<div className="filter-dropdown-wrapper" ref={dropdownRefs.mealType}>
 					<button
 						className="filter-dropdown-button"
 						onClick={() => toggleDropdown('meal')}
