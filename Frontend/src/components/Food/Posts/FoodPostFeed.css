@@ -69,6 +69,8 @@
   align-items: center;
   gap: 20px;
   z-index: 10;
+  margin-top: 100px;
+  overflow: auto;
   background: rgba(255, 255, 255, 0.95);
   padding: 40px;
   border-radius: 20px;
@@ -1065,6 +1067,7 @@
   
   .skeleton-food-grid {
     grid-template-columns: 1fr;
+    overflow: auto;
     gap: 18px;
   }
   
@@ -1074,7 +1077,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 700px) {
   .food-loading-overlay {
     padding: 25px 15px;
   }

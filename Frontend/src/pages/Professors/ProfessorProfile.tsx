@@ -136,35 +136,6 @@ export function ProfessorProfilePage() {
 		  
         </Card>
 
-        {/* Sort Controls */}
-        <div className="flex items-center gap-5 mb-6 flex-row-reverse">
-          <h2 className="text-[#16519F]">همه نظر ها</h2>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-48 rounded-xl shadow-sm">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="جدید">
-                <div className="flex items-center">
-                  <Clock className="w-4 h-4 mr-2" />
-                  جدید ترین
-                </div>
-              </SelectItem>
-              <SelectItem value="بالاترین">
-                <div className="flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  بیشترین امتیاز
-                </div>
-              </SelectItem>
-              <SelectItem value="پایین ترین">
-                <div className="flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-2 rotate-180" />
-                  کمترین امتیاز
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Reviews List */}
         <div className="space-y-6">

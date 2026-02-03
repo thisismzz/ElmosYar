@@ -92,15 +92,85 @@ const FoodPage: React.FC = () => {
         [posts]
     );
 
+    // if (loading) {
+    //     return (
+    //         <div className="food-page-container">
+    //             <div className="loading-state">
+    //                 <p>در حال دریافت اطلاعات غذاها...</p>
+    //             </div>
+    //         </div>
+    //     );
+    // }
+
     if (loading) {
-        return (
-            <div className="food-page-container">
-                <div className="loading-state">
-                    <p>در حال دریافت اطلاعات غذاها...</p>
+    return (
+      <div className="food-order-container loading-container">
+        {/* اسکلت هدر */}
+        <div className="skeleton-header">
+          <div className="skeleton-title"></div>
+          <div className="skeleton-subtitle"></div>
+        </div>
+
+        {/* اسکلت گرید غذاها */}
+        <div className="skeleton-food-grid">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="skeleton-food-card">
+              {/* هدر کارت */}
+              <div className="skeleton-card-header">
+                <div className="skeleton-meal-type">
+                  <div className="skeleton-icon"></div>
+                  <div className="skeleton-text small"></div>
                 </div>
+                <div className="skeleton-price">
+                  <div className="skeleton-text medium"></div>
+                </div>
+              </div>
+
+              {/* بدنه کارت */}
+              <div className="skeleton-card-body">
+                <div className="skeleton-food-name">
+                  <div className="skeleton-text large"></div>
+                  <div className="skeleton-text large half"></div>
+                </div>
+
+                {/* جزئیات */}
+                <div className="skeleton-details">
+                  <div className="skeleton-detail-item">
+                    <div className="skeleton-icon small"></div>
+                    <div className="skeleton-detail-content">
+                      <div className="skeleton-text xsmall"></div>
+                      <div className="skeleton-text small"></div>
+                    </div>
+                  </div>
+                  <div className="skeleton-detail-item">
+                    <div className="skeleton-icon small"></div>
+                    <div className="skeleton-detail-content">
+                      <div className="skeleton-text xsmall"></div>
+                      <div className="skeleton-text small"></div>
+                    </div>
+                  </div>
+                  <div className="skeleton-detail-item">
+                    <div className="skeleton-icon small"></div>
+                    <div className="skeleton-detail-content">
+                      <div className="skeleton-text xsmall"></div>
+                      <div className="skeleton-text small"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* فوتر کارت */}
+              <div className="skeleton-card-footer">
+                <div className="skeleton-buy-button"></div>
+              </div>
             </div>
-        );
-    }
+          ))}
+        </div>
+
+        {/* انیمیشن لودینگ */}
+      </div>
+    );
+  }
 
     if (error) {
         return (

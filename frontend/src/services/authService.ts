@@ -1,11 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://10.129.145.10:8081/api';
-
-// Note: Access token is stored in localStorage for persistence
-// Refresh token is managed by the backend via HttpOnly cookies
-// The browser automatically sends the refresh cookie with requests to the API
-// We cannot and should not access the refresh token from JavaScript for security reasons
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://89.106.206.119:8000/api';
 
 // Note: Access token is stored in localStorage for persistence
 // Refresh token is managed by the backend via HttpOnly cookies

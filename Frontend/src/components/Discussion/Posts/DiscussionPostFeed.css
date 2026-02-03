@@ -69,11 +69,32 @@
   }
 }
 
-.loading-text {
-  font-size: 1.1rem;
-  color: #16519f;
-  font-weight: 500;
-  animation: pulse 1.5s ease-in-out infinite;
+.post-feed.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+  direction: rtl;
+  text-align: right;
+  font-family: 'Vazir', sans-serif;
+}
+
+.loading-animation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 50px;
+}
+
+.loading-spinner {
+  position: relative;
+  width: 80px;
+  height: 80px;
 }
 
 @keyframes pulse {
@@ -375,6 +396,8 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
 }
 
 
@@ -406,6 +429,7 @@
   color: white;
   font-weight: 700;
   font-size: 22px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   border: 3px solid white;
   box-shadow:
     0 0 15px rgba(102, 126, 234, 0.25),
@@ -482,7 +506,7 @@
   padding-top: 8px;
   direction: ltr;
   vertical-align: bottom;
-  
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   align-items: center;
   gap: 8px;
   /* padding: 5px 12px;
@@ -502,6 +526,7 @@
 
 .post-time {
   font-size: 13px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -666,6 +691,8 @@
   font-weight: 600;
   position: relative;
   overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
 }
 
 .action-btn::before {
