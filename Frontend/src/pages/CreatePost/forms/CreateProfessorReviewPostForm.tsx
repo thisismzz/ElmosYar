@@ -53,9 +53,12 @@ function makeSemesterCanonical(season: SeasonValue, year: string) {
 	return `${season}-${year}`;
 }
 
-export function CreateProfessorReviewPostForm() {
-	const navigate = useNavigate();
-
+export function CreateProfessorReviewPostForm(props?: {
+	isSubmitting?: boolean;
+	onSubmitStart?: () => void;
+	onSubmitSuccess?: () => void;
+	onSubmitError?: () => void;
+}) {
 	const [formData, setFormData] = useState({
 		professorName: "",
 		faculty: "",
@@ -77,7 +80,7 @@ export function CreateProfessorReviewPostForm() {
 		year: "" | string;
 	}>({ season: "", year: "" });
 
-	const [submitting, setSubmitting] = useState(false);
+	const submitting = props?.isSubmitting ?? false;
 	const [error, setError] = useState<string | undefined>(undefined);
 
 	const ratingsArray = useMemo(() => Object.values(formData.ratings), [formData.ratings]);
@@ -117,7 +120,7 @@ export function CreateProfessorReviewPostForm() {
 		}
 
 		try {
-			setSubmitting(true);
+			props?.onSubmitStart?.();
 
 			await createPost("professor-review", {
 				professorName: formData.professorName,
@@ -133,12 +136,11 @@ export function CreateProfessorReviewPostForm() {
 				body: formData.comment,
 			});
 
-			// Exit page after post is created successfully
-			navigate(-1);
+			// Navigate to professors page via parent callback
+			props?.onSubmitSuccess?.();
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "خطایی در ارسال نظر رخ داد.");
-		} finally {
-			setSubmitting(false);
+			props?.onSubmitError?.();
 		}
 	};
 

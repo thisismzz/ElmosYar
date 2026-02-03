@@ -110,6 +110,22 @@ class UltimatePostService {
 		}
 	}
 
+	async updatePost(postId: number, attributes: any): Promise<Post> {
+		try {
+			console.log(`📡 در حال به‌روزرسانی پست ${postId}...`, attributes);
+			const response = await api.put(`/posts/${postId}/update/`, {
+				attributes
+			}, {
+				headers: { "Content-Type": "application/json" },
+			});
+
+			return this.mapBackendPostToFrontend(response.data.post || response.data);
+		} catch (error: any) {
+			console.error("❌ خطا در به‌روزرسانی پست:", error);
+			throw error;
+		}
+	}
+
 	async getPostById(postId: number): Promise<Post> {
 		try {
 			const response = await api.get(`/posts/${postId}/`);
@@ -265,6 +281,7 @@ export const createPost = (category: string, attributes?: any) =>
 		category,
 		attributes,
 	});
+export const updatePost = (postId: number, attributes: any) => postService.updatePost(postId, attributes);
 export const getPostById = (postId: number) => postService.getPostById(postId);
 export const getComments = (postId: number, params?: GetPostsParams) => postService.getComments(postId, params);
 export const createComment = (postId: number, content: string) => postService.createComment(postId, content);

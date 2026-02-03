@@ -10,6 +10,10 @@ type FormErrors = { content?: string; tags?: string; general?: string };
 
 export function CreateDiscussionPostForm(props: {
   availableTags?: string[];
+  isSubmitting?: boolean;
+  onSubmitStart?: () => void;
+  onSubmitSuccess?: () => void;
+  onSubmitError?: () => void;
   onSubmit?: (payload: {
     content: string;
     tags: string[]; // with "#"
@@ -21,7 +25,7 @@ export function CreateDiscussionPostForm(props: {
 }) {
   const [content, setContent] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [isSubmitting, setSubmitting] = useState(false);
+  const isSubmitting = props.isSubmitting ?? false;
   const [errors, setErrors] = useState<FormErrors>({});
   const [showTags, setShowTags] = useState(false);
 
@@ -100,7 +104,7 @@ export function CreateDiscussionPostForm(props: {
     }
 
     try {
-      setSubmitting(true);
+      props.onSubmitStart?.();
       setErrors({});
 
       const payload = {
@@ -112,16 +116,22 @@ export function CreateDiscussionPostForm(props: {
         title: "",
       };
 
+      await createPost('discussion', {
+        body: content,
+        tags: tags.join(','),
+      });
+
       await props.onSubmit?.(payload);
 
       setContent("");
       setTags([]);
       setTagQuery("");
       setShowTags(false);
+      
+      props.onSubmitSuccess?.();
     } catch (err) {
       setErrors({ general: err instanceof Error ? err.message : "خطایی در ارسال پست رخ داد" });
-    } finally {
-      setSubmitting(false);
+      props.onSubmitError?.();
     }
   };
 
@@ -298,11 +308,6 @@ export function CreateDiscussionPostForm(props: {
           type="submit"
           disabled={isSubmitting || !content.trim()}
           className="h-11"
-          onClick={() => {createPost('discussion', {
-            body: content,
-            tags: tags.join(','),
-          });
-		      console.log(content)}}
         >
           {isSubmitting ? (
             <>

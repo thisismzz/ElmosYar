@@ -71,6 +71,10 @@ const todayPersian = () =>
     });
 
 export function CreateFoodPostForm(props: {
+    isSubmitting?: boolean;
+    onSubmitStart?: () => void;
+    onSubmitSuccess?: () => void;
+    onSubmitError?: () => void;
     onSubmit?: (payload: {
         name: string;
         price: number;
@@ -89,7 +93,7 @@ export function CreateFoodPostForm(props: {
         location: "مرکزی برادران",
     });
 
-    const [submitting, setSubmitting] = useState(false);
+    const submitting = props.isSubmitting ?? false;
     const [error, setError] = useState<string | undefined>(undefined);
 
     const locations: LocationType[] = useMemo(
@@ -127,18 +131,37 @@ export function CreateFoodPostForm(props: {
         };
 
         try {
-            setSubmitting(true);
-            await props.onSubmit?.(payload);
+            props.onSubmitStart?.();
+            
+            // Convert Persian date to Gregorian YYYY-MM-DD format
+            const gregorianDate = selectedDate.convert(undefined, undefined).format('YYYY-MM-DD');
 
-            // If you want to wire to your backend yourself, do it here.
-            // Example: createPost(payload.name, "food-exchange", "idk", payload)
+            // Calculate day of week from selected date
+            const persianDay = getPersianDayFromDate(selectedDate);
+            const englishDay = dayMap[persianDay];
+            
+            await createPost(
+                'food',
+                {
+                    name: form.name.trim(),
+                    price: form.price.toString(),
+                    mealType: mealTypeMap[form.mealType],
+                    location: locationMap[form.location],
+                    date: gregorianDate,
+                    day: englishDay,
+                    isSoldOut: 'false'
+                }
+            );
+
+            await props.onSubmit?.(payload);
 
             setForm({ name: "", price: "", mealType: "ناهار", location: "مرکزی برادران" });
             setSelectedDate(todayPersian());
+            
+            props.onSubmitSuccess?.();
         } catch (err) {
             setError(err instanceof Error ? err.message : "خطایی در ثبت پست رخ داد.");
-        } finally {
-            setSubmitting(false);
+            props.onSubmitError?.();
         }
     };
 
@@ -265,26 +288,6 @@ export function CreateFoodPostForm(props: {
                     type="submit"
                     disabled={submitting || !isValid()}
                     className="flex h-11"
-                    onClick={async () => {
-                        // Convert Persian date to Gregorian YYYY-MM-DD format
-                        const gregorianDate = selectedDate.convert(undefined, undefined).format('YYYY-MM-DD');
-
-                        // Calculate day of week from selected date
-                        const persianDay = getPersianDayFromDate(selectedDate);
-                        const englishDay = dayMap[persianDay];
-                        await createPost(
-                            'food',
-                            {
-                                name: form.name.trim(),
-                                price: form.price.toString(),
-                                mealType: mealTypeMap[form.mealType],
-                                location: locationMap[form.location],
-                                date: gregorianDate,
-                                day: englishDay,
-                                isSoldOut: 'false'
-                            }
-                        );
-                    }}
                 >
                     {submitting ? (
                         <>
