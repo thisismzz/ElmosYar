@@ -11,6 +11,7 @@ import {
 	loadPayloadFromDrive,
 } from "../../services/driveSync";
 import { DriveSyncButton } from '../../components/Notes/DriveSyncButton';
+
 import {
 	linkLocalFolder,
 	hasLinkedLocalFolder,
@@ -257,14 +258,15 @@ const NotesPage: React.FC = () => {
 						{/* <div className='rtl'>{driveStatus}</div> */}
 						{/* <div /> */}
 
-						{/* <DriveSyncButton
+						<DriveSyncButton
 							onSave={async () => {
 								onSaveToDrive();
 							}}
 							onLoad={async () => {
 								onLoadFromDrive();
 							}}
-						/> */}
+						/>
+
 						<button
 							onClick={() => {
 								setIsCreating(true);

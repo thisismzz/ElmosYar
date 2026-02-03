@@ -108,12 +108,12 @@ export function PurchasedFoodPosts() {
               {posts.length} پست خریداری‌شده
             </p>
           </div>
-          <button
+          {/* <button
             onClick={fetchPurchasedPosts}
             className="rounded-lg px-3 py-1.5 text-sm font-medium text-[#16519F] hover:bg-[#16519F]/5"
           >
             بروزرسانی
-          </button>
+          </button> */}
         </div>
 
         <div className="space-y-3">
