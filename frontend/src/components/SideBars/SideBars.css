@@ -1,6 +1,6 @@
 /* Common Sidebar Styles */
 .sidebar-header {
-  background: #f5f5f5;
+  background: var(--background-light);
   padding: 12px 16px;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
@@ -15,17 +15,16 @@
 }
 
 .sidebar-title {
-  color: white;
+  color: var(--text-primary);
   font-size: 16px;
   font-weight: 500;
-  color: #16519f;
   text-align: right;
   margin: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar-subtitle {
-  color: #757575;
+  color: var(--text-secondary);
   font-size: 12px;
   margin: 0.25rem 0 0 0;
   font-weight: 400;
@@ -80,23 +79,23 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #424242;
+  color: var(--text-primary);
   font-size: 0.875rem;
 }
 
 .nav-item:hover {
-  background-color: #4fcae940;
-  color: #16519F;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
 }
 
 .nav-item-active {
-  background-color: #16519F;
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--primary-color);
+  color: var(--white);
+  box-shadow: var(--shadow);
 }
 
 .nav-item-logout:hover {
-  color: #dc2626;
+  color: var(--danger-color);
 }
 
 .nav-active-indicator {
@@ -126,15 +125,15 @@
 
 .nav-divider {
   height: 1px;
-  background-color: #f8f8f8;
+  background-color: var(--border-color);
   margin: 0.5rem 0;
 }
 
 /* Right Sidebar*/
 .sidebar {
   width: 240px;
-  background-color: #fafafa;
-  border-left: 1px solid #f0f0f0;
+  background-color: var(--background-light);
+  border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   height: calc(100vh - 70px);
@@ -153,10 +152,10 @@
 
 .sidebar-panel {
   margin: 1rem;
-  background-color: white;
-  border: 1px solid #f0f0f0;
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   height: calc(100% - 2rem);
@@ -175,12 +174,12 @@
 
 .sidebar-footer {
   padding: 0.75rem;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--border-color);
 }
 
 .left-sidebar {
-  background-color: #fafafa;
-  border-right: 1px solid #f0f0f0;
+  background-color: var(--background-light);
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   height: calc(100vh - 70px);
@@ -199,10 +198,10 @@
 
 .left-sidebar-panel {
   margin: 1rem;
-  background-color: white;
-  border: 1px solid #f0f0f0;
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   min-width: 200px;
@@ -228,7 +227,7 @@
 }
 
 .left-sidebar-title {
-  color: #16519f;
+  color: var(--primary-color);
   font-size: 16px;
   font-weight: 700;
   margin: 0;
@@ -236,7 +235,7 @@
 }
 
 .left-sidebar-subtitle {
-  color: #757575;
+  color: var(--text-secondary);
   font-size: 12px;
   margin: 0.25rem 0 0 0;
   font-weight: 500;
@@ -293,19 +292,19 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #424242;
+  color: var(--text-primary);
   font-size: 0.875rem;
 }
 
 .topic-item:hover {
-  background-color: #4fcae940;
-  color: #16519F;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
 }
 
 .topic-item-active {
-  background-color: #16519F;
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--primary-color);
+  color: var(--white);
+  box-shadow: var(--shadow);
 }
 
 .topic-active-indicator {
@@ -328,12 +327,12 @@
 
 .expand-icon {
   font-size: 0.75rem;
-  color: #757575;
+  color: var(--text-light);
   margin-right: 0.5rem;
 }
 
 .topic-item-active .expand-icon {
-  color: white;
+  color: var(--white);
 }
 
 .child-topics {
@@ -346,7 +345,7 @@
 
 .topic-divider {
   height: 1px;
-  background-color: #f0f0f0;
+  background-color: var(--border-color);
   margin: 0.25rem 0;
 }
 
@@ -358,46 +357,46 @@
 
 .section-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+  background: var(--border-color);
   margin: 1rem 0;
 }
 
 /* Logout item specific styling */
 .topic-item-logout {
-  color: #dc2626;
+  color: var(--danger-color);
 }
 
 .topic-item-logout:hover {
   background-color: rgba(220, 38, 38, 0.08);
-  color: #dc2626;
+  color: var(--danger-color);
 }
 
 .topic-item-logout .nav-icon {
-  color: #dc2626;
+  color: var(--danger-color);
 }
 
 .topic-item-active.topic-item-logout {
-  background-color: #dc2626;
-  color: white;
+  background-color: var(--danger-color);
+  color: var(--white);
 }
 
 .topic-item-active.topic-item-logout .nav-icon {
-  color: white;
+  color: var(--white);
 }
 
 /* Contact item specific styling */
 .topic-item-contact {
-  color: #424242;
+  color: var(--text-primary);
 }
 
 .topic-item-contact:hover {
-  background-color: #f5f5f5;
-  color: #16519F;
+  background-color: var(--background-light);
+  color: var(--primary-color);
 }
 
 .topic-item-active.topic-item-contact {
-  background-color: #16519F;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--white);
 }
 
 /* Ensure proper spacing and layout */
@@ -413,13 +412,13 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: white;
-  border-top: 1px solid #f0f0f0;
+  background-color: var(--white);
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: space-around;
   padding: 0.5rem 0;
   z-index: 80;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
 }
@@ -437,17 +436,17 @@
   transition: all 0.2s;
   flex: 1;
   max-width: 33.333%;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .mobile-nav-item:hover {
-  background-color: #f5f5f5;
-  color: #16519F;
+  background-color: var(--background-light);
+  color: var(--primary-color);
 }
 
 .mobile-nav-item-active {
-  color: #16519F;
-  background-color: #e8f0fe;
+  color: var(--primary-color);
+  background-color: var(--primary-light);
 }
 
 .mobile-nav-icon {
@@ -544,7 +543,7 @@
     right: 0;
     left: auto;
     border-right: none;
-    border-left: 1px solid #f0f0f0;
+    border-left: 1px solid var(--border-color);
   }
 
   .left-sidebar-open {

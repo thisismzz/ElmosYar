@@ -1,10 +1,10 @@
 /* Task Form */
 .planner-task-form {
-  background: #f7f9fa;
+  background: var(--background-light);
   padding: 1.25rem;
   border-radius: 10px;
   margin-bottom: 1.5rem;
-  border: 1px solid #e1e8ed;
+  border: 1px solid var(--border-color);
 }
 
 .planner-form-header {
@@ -17,7 +17,7 @@
 
 .planner-form-header h4 {
   margin: 0;
-  color: #14171a;
+  color: var(--text-primary);
 }
 
 .planner-form-group {
@@ -28,7 +28,7 @@
   display: block;
   margin-bottom: 0.4rem;
   font-size: 0.875rem;
-  color: #657786;
+  color: var(--text-secondary);
   text-align: right;
 }
 
@@ -37,18 +37,20 @@
 .planner-form-group select {
   width: 100%;
   padding: 0.625rem;
-  border: 1px solid #ccd6dd;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.938rem;
   direction: rtl;
   text-align: right;
+  background: var(--white);
+  color: var(--text-primary);
 }
 
 .planner-form-group input:focus,
 .planner-form-group textarea:focus,
 .planner-form-group select:focus {
   outline: none;
-  border-color: #1da1f2;
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.1);
 }
 
@@ -86,17 +88,17 @@
 }
 
 .planner-form-btn-primary {
-  background: #1da1f2;
-  color: white;
+  background: var(--primary-color);
+  color: var(--white);
 }
 
 .planner-form-btn-primary:hover {
-  background: #1a91da;
+  background: var(--primary-dark);
 }
 
 .planner-form-btn-secondary {
-  background: #e1e8ed;
-  color: #14171a;
+  background: var(--background-light);
+  color: var(--text-primary);
 }
 
 .planner-form-btn-secondary:hover {

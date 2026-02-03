@@ -1,11 +1,11 @@
 .note-card {
   width: 320px;
-  background: white;
-  border: 1px solid #e1e8ed;
+  background: var(--white);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 1rem;
   transition: all 0.2s;
-  border-right: 4px solid #4fcbe9;
+  border-right: 4px solid var(--primary-color);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -14,7 +14,7 @@
 
 .note-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  box-shadow: var(--shadow-lg);
 }
 
 .note-card-header {
@@ -29,7 +29,7 @@
 .note-card-title {
   font-size: 1.05rem;
   margin: 0;
-  color: #0f172a;
+  color: var(--text-primary);
   flex: 1 1 auto;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -38,7 +38,7 @@
 }
 
 .note-card-content {
-  color: #475569;
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
   white-space: pre-wrap;
   text-align: right;
@@ -65,24 +65,24 @@
 }
 
 .note-card-actions .note-icon-btn:hover {
-  background: #f1f5f9;
+  background: var(--background-light);
 }
 
 .note-card-pin {
-  color: #f59e0b;
+  color: var(--warning-color);
 }
 
 .note-card-meta-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: #6b7280;
+  color: var(--text-light);
   font-size: 0.8rem;
 }
 
 .note-card-folder {
   display: flex;
-  color: #374151;
+  color: var(--text-secondary);
   overflow-wrap: anywhere;
   word-break: break-word;
   max-width: 70%;
@@ -91,7 +91,7 @@
 }
 
 .note-card-date {
-  color: #6b7280;
+  color: var(--text-light);
 }
 
 @media (min-width: 768px) {

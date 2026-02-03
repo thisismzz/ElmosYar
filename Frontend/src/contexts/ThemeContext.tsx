@@ -18,9 +18,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     const root = document.documentElement;
+    
+    // Add smooth transition for theme changes
+    root.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+    
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
     localStorage.setItem('theme', theme);
+    
+    // Apply theme to body as well for better coverage
+    document.body.className = theme;
   }, [theme]);
 
   const toggleTheme = () => {

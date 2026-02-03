@@ -1,5 +1,5 @@
 .food-page-container {
-	background: #f8f9fa
+	background: var(--background-light)
 }
 
 .food-order-container {
@@ -7,7 +7,7 @@
   margin: 60px auto 0 auto;
   padding: 40px 30px 30px 30px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8f9fa;
+  background-color: var(--background-light);
   border-radius: 20px;
   direction: rtl;
   flex-direction: column;
@@ -21,9 +21,9 @@
 .page-title {
   font-size: 36px;
   font-weight: 800;
-  color: #2c3e50;
+  color: var(--text-primary);
   margin: 0 0 15px 0;
-  background: linear-gradient(135deg, #2c3e50, #3498db);
+  background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -31,7 +31,7 @@
 
 .page-subtitle {
   font-size: 20px;
-  color: #7f8c8d;
+  color: var(--text-secondary);
   margin: 0;
   font-weight: 500;
 }
@@ -44,11 +44,11 @@
 }
 
 .food-card {
-  background: white;
+  background: var(--white);
   border-radius: 20px;
   padding: 0;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e1e5e9;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -60,7 +60,7 @@
 
 .food-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-lg);
 }
 
 .food-card.sold-out {
@@ -72,7 +72,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 30px 15px;
-  border-bottom: 2px solid #f8f9fa;
+  border-bottom: 2px solid var(--border-color);
   flex-wrap: nowrap;
   gap: 15px;
 }

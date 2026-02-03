@@ -107,10 +107,10 @@ const SettingsPage: React.FC = () => {
                 {/* Main Settings Container */}
                 <div className="space-y-6">
                     {/* Folder Settings Card */}
-                    <div className="bg-grey-100 dark:bg-gray-800 rounded-xl p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-lg p-6 transition-colors duration-200">
                         <div className="flex justify-center items-center mb-6">
                             <div>
-                                <h2 className="text-xl font-semibold text-gray-700 dark:text-white">
+                                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                                     محل نگهداری نوت ها و پلنر
                                 </h2>
                             </div>
@@ -126,7 +126,7 @@ const SettingsPage: React.FC = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                    <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                    <div className="flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
                                         <Upload className="w-5 h-5 text-gray-400 mr-3" />
                                         <div>
                                             <p className="text-sm text-gray-600 dark:text-gray-400">یادداشت‌ها</p>
@@ -136,7 +136,7 @@ const SettingsPage: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg">
+                                    <div className="flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
                                         <Download className="w-5 h-5 text-gray-400 mr-3" />
                                         <div>
                                             <p className="text-sm text-gray-600 dark:text-gray-400">برنامه‌ریزی</p>
@@ -208,7 +208,13 @@ const SettingsPage: React.FC = () => {
 
                     </div>
 
-                    <div className="">
+                    {/* Theme Settings Card */}
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md dark:shadow-lg p-6 transition-colors duration-200">
+                        <div className="flex justify-center items-center mb-6">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                                تنظیمات ظاهری
+                            </h2>
+                        </div>
                         <ThemeToggle />
                     </div>
                 </div>

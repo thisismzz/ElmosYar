@@ -14,9 +14,9 @@
 }
 
 .planner-modal-content {
-  background: white;
+  background: var(--white);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
@@ -37,7 +37,7 @@
 
 .planner-modal-header {
   padding: 1.5rem;
-  border-bottom: 1px solid #e1e8ed;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -47,7 +47,7 @@
 .planner-modal-header h3 {
   margin: 0;
   font-size: 1.25rem;
-  color: #14171a;
+  color: var(--text-primary);
 }
 
 .planner-modal-header-actions {
@@ -88,14 +88,14 @@
   margin: 0 0 0.5rem 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #657786;
+  color: var(--text-secondary);
   text-align: right;
 }
 
 .planner-modal-body .planner-detail-value {
   margin: 0;
   font-size: 1rem;
-  color: #14171a;
+  color: var(--text-primary);
   text-align: right;
   line-height: 1.6;
   white-space: pre-wrap;

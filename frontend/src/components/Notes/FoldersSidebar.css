@@ -4,11 +4,11 @@
 }
 
 .note-folders-box {
-  background: white;
+  background: var(--white);
   padding: 1rem;
   border-radius: 12px;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.06);
-  border: 1px solid #e1e8ed;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .note-folders-box h3 {
@@ -37,7 +37,7 @@
 }
 
 .note-folders-add-btn:hover {
-  background: #f1f5f9;
+  background: var(--background-light);
 }
 
 .note-folders-new-row {
@@ -52,14 +52,16 @@
   flex: 1 1 auto;
   min-width: 0;
   padding: 0.45rem 0.5rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 0.9rem;
+  background: var(--white);
+  color: var(--text-primary);
 }
 
 .note-folders-input:focus {
   outline: none;
-  border-color: #4FCBE9;
+  border-color: var(--primary-color);
 }
 
 .note-folders-submit-btn {
@@ -74,12 +76,12 @@
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  background: #4FCBE9;
-  color: #fff;
+  background: var(--primary-color);
+  color: var(--white);
 }
 
 .note-folders-submit-btn:hover {
-  background: #4FCBE9;
+  background: var(--primary-dark);
 }
 
 .note-folders-all-btn {
@@ -92,10 +94,11 @@
   background: transparent;
   border: none;
   cursor: pointer;
+  color: var(--text-primary);
 }
 
 .note-folders-all-btn:hover {
-  background: #f1f5f9;
+  background: var(--background-light);
 }
 
 .note-folders-all-btn.note-folders-active {

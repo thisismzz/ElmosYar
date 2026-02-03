@@ -253,7 +253,7 @@ const additionalItems: NavItem[] = [
                     isActive={activeTopic === item.id}
                     onClick={handleTopicClick}
                     activeIndicatorClass="topic-active-indicator"
-                    itemClass={`topic-item ${item.id === 'logout' ? 'topic-item-logout' : ''}`}
+                    itemClass={`topic-item${item.id === 'logout' ? ' topic-item-logout' : ''}`}
                   />
                 </div>
                 {item.id !== 'logout' && <div className="topic-divider" />}
