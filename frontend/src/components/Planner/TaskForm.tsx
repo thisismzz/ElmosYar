@@ -82,21 +82,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
 
       <div className="planner-form-row">
         <div className="planner-form-group">
-          <label>زمان پایان</label>
-          <select
-            value={formData.endTime}
-            onChange={(e) => onChange('endTime', e.target.value)}
-            required
-          >
-            <option value="">انتخاب کنید</option>
-            {getEndTimeOptions().map((time) => (
-              <option key={time} value={time}>
-                {time}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="planner-form-group">
           <label>زمان شروع</label>
           <select
             value={formData.startTime}
@@ -105,6 +90,21 @@ const TaskForm: React.FC<TaskFormProps> = ({
           >
             <option value="">انتخاب کنید</option>
             {timeOptions.map((time) => (
+              <option key={time} value={time}>
+                {time}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="planner-form-group">
+          <label>زمان پایان</label>
+          <select
+            value={formData.endTime}
+            onChange={(e) => onChange('endTime', e.target.value)}
+            required
+          >
+            <option value="">انتخاب کنید</option>
+            {getEndTimeOptions().map((time) => (
               <option key={time} value={time}>
                 {time}
               </option>

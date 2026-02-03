@@ -8,64 +8,64 @@ import { dislikePost, likePost } from "../../services/PostService";
 import { useEffect, useState } from "react";
 
 interface ReviewCardProps {
-	review: Review;
-	onLike?: (id: number) => void;
-	onDislike?: (id: number) => void;
-	onOpenComments?: (id: number) => void;     // clicking post -> comments
-	onOpenProfessor?: (professorName: string) => void; // clicking identity -> profile
-	showDetailedRatings?: boolean;
+    review: Review;
+    onLike?: (id: number) => void;
+    onDislike?: (id: number) => void;
+    onOpenComments?: (id: number) => void;     // clicking post -> comments
+    onOpenProfessor?: (professorName: string) => void; // clicking identity -> profile
+    showDetailedRatings?: boolean;
 }
 
 export function ReviewCard({
     review,
-	onLike,
-	onDislike,
-	onOpenComments,
-	onOpenProfessor,
-	showDetailedRatings = false,
+    onLike,
+    onDislike,
+    onOpenComments,
+    onOpenProfessor,
+    showDetailedRatings = false,
 }: ReviewCardProps) {
 
     const [reviewState, setReviewState] = useState(review);
 
-	const ratingLabels = [
-		{ key: "teaching", label: "کیفیت تدریس" },
-		{ key: "grading", label: "نمره دهی عادلانه" },
-		{ key: "clarity", label: "شفافیت جزوه" },
-		{ key: "helpfulness", label: "جواب دادن به سوالات" },
-		{ key: "satisfaction", label: "نظم و ثبات" },
-	];
+    const ratingLabels = [
+        { key: "teaching", label: "کیفیت تدریس" },
+        { key: "grading", label: "نمره دهی عادلانه" },
+        { key: "clarity", label: "شفافیت جزوه" },
+        { key: "helpfulness", label: "جواب دادن به سوالات" },
+        { key: "satisfaction", label: "نظم و ثبات" },
+    ];
 
     const handleLike = async (postId: number) => {
-            const r = await likePost(postId);
-            setReviewState(
-                {
-                    ...reviewState,
-                    isLiked: r.isLiked,
-                    isDisliked: r.isDisliked,
-                    likes: r.likes,
-                    dislikes: r.dislikes,
-                }
-            )
-        };
-    
-    
-        const handleDislike = async (postId: number) => {
-            const r = await dislikePost(postId);
-            setReviewState(
-                {
-                    ...reviewState,
-                    isLiked: r.isLiked,
-                    isDisliked: r.isDisliked,
-                    likes: r.likes,
-                    dislikes: r.dislikes,
-                }
-            )
-        };
+        const r = await likePost(postId);
+        setReviewState(
+            {
+                ...reviewState,
+                isLiked: r.isLiked,
+                isDisliked: r.isDisliked,
+                likes: r.likes,
+                dislikes: r.dislikes,
+            }
+        )
+    };
 
-	return (
-		<Card
-			onClick={() => onOpenComments?.(review.id)}
-			className="
+
+    const handleDislike = async (postId: number) => {
+        const r = await dislikePost(postId);
+        setReviewState(
+            {
+                ...reviewState,
+                isLiked: r.isLiked,
+                isDisliked: r.isDisliked,
+                likes: r.likes,
+                dislikes: r.dislikes,
+            }
+        )
+    };
+
+    return (
+        <Card
+            onClick={() => onOpenComments?.(review.id)}
+            className="
         overflow-hidden cursor-pointer bg-white
         border border-gray-100
         transition-all
@@ -74,22 +74,22 @@ export function ReviewCard({
         hover:scale-[1.005]
         rounded-[20px]
       "
-		>
-			{/* Header */}
-			<div className="p-6 border-b border-gray-100 bg-gradient-to-r from-white to-[#4FCBE9]/5">
-				<div className="flex items-start justify-between gap-4 flex-row-reverse">
-					{/* Professor Identity (only this highlights + navigates to profile) */}
-					<div
-						className="flex items-start gap-4 flex-row-reverse group"
-						onClick={(e) => {
-							e.stopPropagation();
-							onOpenProfessor?.(review.professorName);
-						}}
-						role="button"
-						tabIndex={0}
-					>
-						<div
-							className="
+        >
+            {/* Header */}
+            <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-white to-[#4FCBE9]/5">
+                <div className="flex items-start justify-between gap-4 flex-row-reverse">
+                    {/* Professor Identity (only this highlights + navigates to profile) */}
+                    <div
+                        className="flex items-start gap-4 flex-row-reverse group"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenProfessor?.(review.professorName);
+                        }}
+                        role="button"
+                        tabIndex={0}
+                    >
+                        <div
+                            className="
                 w-12 h-12 rounded-full
                 bg-gradient-to-br from-[#16519F] to-[#4FCBE9]
                 flex items-center justify-center text-white shadow-md
@@ -97,86 +97,86 @@ export function ReviewCard({
                 group-hover:scale-105
                 transition-all
               "
-						>
-							<User className="w-6 h-6" />
-						</div>
+                        >
+                            <User className="w-6 h-6" />
+                        </div>
 
-						<div className="flex-1">
-							<h3 className="text-xl text-[#16519F] mb-2 text-right group-hover:underline">
-								{review.professorName}
-							</h3>
+                        <div className="flex-1">
+                            <h3 className="text-xl text-[#16519F] mb-2 text-right group-hover:underline">
+                                {review.professorName}
+                            </h3>
 
-							<div className="flex flex-wrap gap-2 mb-2 justify-end">
-								<Badge className="bg-[#16519F] text-white hover:bg-[#16519F]/90">{review.faculty}</Badge>
-								<Badge variant="outline" className="border-[#4FCBE9] text-[#4FCBE9]">
-									{review.courseName}
-								</Badge>
-								<Badge variant="secondary" className="bg-gray-100 text-gray-600">
-									{review.semester}
-								</Badge>
-							</div>
-						</div>
-					</div>
+                            <div className="flex flex-wrap gap-2 mb-2 justify-end">
+                                <Badge className="bg-[#16519F] text-white hover:bg-[#16519F]/90">{review.faculty}</Badge>
+                                <Badge variant="outline" className="border-[#4FCBE9] text-[#4FCBE9]">
+                                    {review.courseName}
+                                </Badge>
+                                <Badge variant="secondary" className="bg-gray-100 text-gray-600">
+                                    {review.semester}
+                                </Badge>
+                            </div>
+                        </div>
+                    </div>
 
-					{/* Overall */}
-					<div className="flex flex-col items-end">
-						<div className="bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100">
-							<StarRating rating={review.overallRating} readonly size="sm" />
-							<span className="block text-center text-sm text-[#16519F] mt-1">
-								{review.overallRating.toFixed(1)}
-							</span>
-						</div>
-					</div>
-				</div>
-			</div>
+                    {/* Overall */}
+                    <div className="flex flex-col items-end">
+                        <div className="bg-white rounded-xl px-3 py-2 shadow-sm border border-gray-100">
+                            <StarRating rating={review.overallRating} readonly size="sm" />
+                            <span className="block text-center text-sm text-[#16519F] mt-1">
+                                {review.overallRating.toFixed(1)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-			{/* Body */}
-			{review.comment ? (
-				<div className="p-6">
-					<p className="text-gray-700 leading-relaxed whitespace-pre-line line-clamp-6">{review.comment}</p>
-				</div>
-			) : null}
+            {/* Body */}
+            {review.comment ? (
+                <div className="p-6">
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line line-clamp-6">{review.comment}</p>
+                </div>
+            ) : null}
 
-			{/* Detailed Ratings */}
-			{showDetailedRatings && review.ratings ? (
-				<div className="px-6 pb-6">
-					<div className="border-t border-gray-100 pt-4">
-						<div className="grid grid-cols-1 md:grid-cols-5 gap-1">
-							{ratingLabels.map((rating) => (
-								<Card
-									key={rating.key}
-									className="flex relative h-16 flex-col justify-begin rounded-xl border border-neutral-200 bg-white pt-2 gap-0 shadow-sm"
-								>
-									<span className="text-xs font-medium text-neutral-700 text-center">{rating.label}</span>
-									<div className="absolute bottom-2 left-1/2 right-1/2 flex justify-center">
-										<StarRating
-											rating={review.ratings?.[rating.key as keyof typeof review.ratings] || 0}
-											readonly
-											size="sm"
-										/>
-									</div>
-								</Card>
-							))}
-						</div>
-					</div>
-				</div>
-			) : null}
+            {/* Detailed Ratings */}
+            {showDetailedRatings && review.ratings ? (
+                <div className="px-6 pb-6">
+                    <div className="border-t border-gray-100 pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-1">
+                            {ratingLabels.map((rating) => (
+                                <Card
+                                    key={rating.key}
+                                    className="flex relative h-16 flex-col justify-begin rounded-xl border border-neutral-200 bg-white pt-2 gap-0 shadow-sm"
+                                >
+                                    <span className="text-xs font-medium text-neutral-700 text-center">{rating.label}</span>
+                                    <div className="absolute bottom-2 left-1/2 right-1/2 flex justify-center">
+                                        <StarRating
+                                            rating={review.ratings?.[rating.key as keyof typeof review.ratings] || 0}
+                                            readonly
+                                            size="sm"
+                                        />
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            ) : null}
 
-			{/* Actions */}
-			<div className="flex gap-2 px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex-row-reverse">
+            {/* Actions */}
+            <div className="flex gap-2 px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex-row-reverse">
                 <PostActions
-                                postId={reviewState.id}
-                                likes={reviewState.likes}
-                                dislikes={reviewState.dislikes}
-                                comments={reviewState.comments}
-                                isLiked={reviewState.isLiked ?? false}
-                                isDisliked={reviewState.isDisliked ?? false}
-                                onLike={handleLike}
-                                onDislike={handleDislike}
-                                onComment={() => { }}
-                                onOpenComments={() => { }}
-                            />
-			</div>
-		</Card>
-	);
+                    postId={reviewState.id}
+                    likes={reviewState.likes}
+                    dislikes={reviewState.dislikes}
+                    comments={reviewState.comments}
+                    isLiked={reviewState.isLiked ?? false}
+                    isDisliked={reviewState.isDisliked ?? false}
+                    onLike={handleLike}
+                    onDislike={handleDislike}
+                    onComment={() => { }}
+                    onOpenComments={() => { }}
+                />
+            </div>
+        </Card>
+    );
 }

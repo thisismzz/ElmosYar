@@ -31,6 +31,8 @@ import PostCommentsPage from "./pages/Discussion/PostCommentsPage";
 import { WalletGatewayPage } from "./pages/WalletGatewayPage";
 import ReviewCommentsPage from './pages/Professors/ReviewComments';
 import SettingsPage from './pages/SettingsPage';
+import { UserFoodPostsPage } from './pages/UserFoodPosts/UserFoodPostsPage';
+
 
 // PostFeed wrapper components for different routes
 const TopicDiscussion: React.FC = () => {
@@ -199,6 +201,7 @@ const ProtectedRoutes: React.FC = () => {
             <Route path="/wallet/:gatewayType" element={<WalletGatewayPage />} />
             <Route path="/wallet/buy-food-gateway/:foodPostId" element={<WalletGatewayPage />} />
             <Route path='/settings' element={<SettingsPage />} />
+            <Route path='/profile/food-posts' element={<UserFoodPostsPage />} />
         </Routes>
     );
 };
