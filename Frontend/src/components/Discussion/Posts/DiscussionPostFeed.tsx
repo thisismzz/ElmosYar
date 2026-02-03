@@ -208,7 +208,45 @@ export default function DiscussionPostFeed({ category, username, initialPosts }:
 
     const openComments = (postId: number) => navigate(`/post/${postId}/comments`);
 
-    if (loading) return <div className="post-feed">در حال بارگذاری...</div>;
+    if (loading) return (
+        <div className="post-feed loading-container">
+        <div className="loading-animation">
+        <div className="loading-spinner">
+            <div className="spinner-circle"></div>
+            <div className="spinner-circle"></div>
+            <div className="spinner-circle"></div>
+            <div className="spinner-circle"></div>
+        </div>
+      <div className="loading-text">در حال بارگذاری ...</div>
+    </div>
+    
+    {/* شبیه‌ساز اسکلت پست‌ها */}
+    <div className="skeleton-posts">
+      {[...Array(3)].map((_, index) => (
+        <div key={index} className="skeleton-post">
+          <div className="skeleton-header">
+            <div className="skeleton-avatar"></div>
+            <div className="skeleton-user-info">
+              <div className="skeleton-line short"></div>
+              <div className="skeleton-line shorter"></div>
+            </div>
+          </div>
+          <div className="skeleton-content">
+            <div className="skeleton-line"></div>
+            <div className="skeleton-line"></div>
+            <div className="skeleton-line half"></div>
+          </div>
+          <div className="skeleton-image"></div>
+          <div className="skeleton-actions">
+            <div className="skeleton-button"></div>
+            <div className="skeleton-button"></div>
+            <div className="skeleton-button"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
     return (
         <div className="post-feed">
