@@ -3,7 +3,7 @@ import './PlannerPage.css';
 import Calendar from 'react-multi-date-picker';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
-import { Plus } from 'lucide-react';
+import { Plus, AlertCircle } from 'lucide-react';
 import type { Value } from 'react-multi-date-picker';
 import TaskForm from '../../components/Planner/TaskForm';
 import TaskCard from '../../components/Planner/TaskCard';
@@ -11,13 +11,15 @@ import TaskDetailModal from '../../components/Planner/TaskDetailModal';
 import AllTasksSidebar from '../../components/Planner/AllTasksSidebar';
 import {
 	hasLinkedLocalFolder,
-	linkLocalFolder,
 	loadPlannerFromDisk,
 	savePlannerToDisk,
 } from "../../services/localFileStorage";
 import { DriveSyncButton } from '../../components/Notes/DriveSyncButton';
-import { loadAllFromDrive, saveAllToDrive } from '../../services/appBackup';
-import { loadPayloadFromDrive, savePayloadToDrive } from '../../services/driveSync';
+import {
+	initGoogleTokenClient,
+	loadPayloadFromDrive,
+	savePayloadToDrive,
+} from '../../services/driveSync';
 
 type Task = {
 	id: string;
@@ -29,7 +31,9 @@ type Task = {
 	completed: boolean;
 };
 
+const GOOGLE_CLIENT_ID = "288963586582-tc0mhbp0te272ghsvl0or8l775oii4rp.apps.googleusercontent.com";
 const STORAGE_KEY = 'elmosyar_planner_v1';
+const DRIVE_FILENAME = 'elmosyar-planner-backup.json';
 
 const PlannerPage: React.FC = () => {
 	const [tasks, setTasks] = useState<Task[]>([]);
@@ -37,6 +41,10 @@ const PlannerPage: React.FC = () => {
 	const [isCreating, setIsCreating] = useState(false);
 	const [editingTask, setEditingTask] = useState<string | null>(null);
 	const [viewingTask, setViewingTask] = useState<Task | null>(null);
+	const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+	const [errorMessage, setErrorMessage] = useState<string>('');
+	const [isGoogleReady, setIsGoogleReady] = useState(false);
+
 	const [formData, setFormData] = useState({
 		title: '',
 		startTime: '',
@@ -44,30 +52,160 @@ const PlannerPage: React.FC = () => {
 		description: '',
 	});
 
-	// Load from folder (or localstorge if fallback)
+	// Initialize Google Drive
 	useEffect(() => {
-		(async () => {
-			if (await hasLinkedLocalFolder()) {
-				const disk = await loadPlannerFromDisk();
-				if (disk) setTasks(disk.tasks || []);
-				return;
+		const initGoogleDrive = async () => {
+			try {
+				if (typeof window.google === 'undefined') {
+					const script = document.createElement('script');
+					script.src = 'https://accounts.google.com/gsi/client';
+					script.async = true;
+					script.defer = true;
+					
+					script.onload = () => {
+						try {
+							initGoogleTokenClient(GOOGLE_CLIENT_ID);
+							setIsGoogleReady(true);
+						} catch (error) {
+							console.error('Failed to initialize Google client:', error);
+							setErrorMessage('خطا در راه‌اندازی سرویس Google Drive');
+						}
+					};
+					
+					script.onerror = () => {
+						setErrorMessage('خطا در بارگذاری سرویس Google Drive');
+					};
+					
+					document.head.appendChild(script);
+				} else {
+					try {
+						initGoogleTokenClient(GOOGLE_CLIENT_ID);
+						setIsGoogleReady(true);
+					} catch (error) {
+						console.error('Failed to initialize Google client:', error);
+						setErrorMessage('خطا در راه‌اندازی سرویس Google Drive');
+					}
+				}
+			} catch (error) {
+				console.error('Error initializing Google Drive:', error);
+				setErrorMessage('خطا در راه‌اندازی سرویس Google Drive');
 			}
-			// optional fallback
-			const raw = localStorage.getItem(STORAGE_KEY);
-			if (raw) setTasks(JSON.parse(raw).tasks || []);
-		})();
+		};
+
+		initGoogleDrive();
 	}, []);
 
-	// Save
+	// Load from local storage
 	useEffect(() => {
-		(async () => {
-			if (await hasLinkedLocalFolder()) {
-				await savePlannerToDisk({ tasks });
-			} else {
-				localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks }));
+		const loadData = async () => {
+			try {
+				if (await hasLinkedLocalFolder()) {
+					const disk = await loadPlannerFromDisk();
+					if (disk) setTasks(disk.tasks || []);
+					return;
+				}
+				// Fallback to localStorage
+				const raw = localStorage.getItem(STORAGE_KEY);
+				if (raw) setTasks(JSON.parse(raw).tasks || []);
+			} catch (error) {
+				console.error('Error loading planner:', error);
+				setErrorMessage('خطا در بارگذاری برنامه‌ریزی');
 			}
-		})();
+		};
+
+		loadData();
+	}, []);
+
+	// Save to local storage
+	useEffect(() => {
+		const saveData = async () => {
+			try {
+				if (await hasLinkedLocalFolder()) {
+					await savePlannerToDisk({ tasks });
+				} else {
+					localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks }));
+				}
+			} catch (error) {
+				console.error('Error saving planner:', error);
+				setErrorMessage('خطا در ذخیره برنامه‌ریزی');
+			}
+		};
+
+		saveData();
 	}, [tasks]);
+
+	// Drive sync functions
+	const handleSaveToDrive = async () => {
+		if (!isGoogleReady) {
+			setErrorMessage('سرویس Google Drive آماده نیست. لطفا صفحه را بازخوانی کنید.');
+			return;
+		}
+
+		setSyncStatus('loading');
+		try {
+			const payload = { 
+				tasks,
+				syncedAt: new Date().toISOString(),
+				version: '1.0'
+			};
+			
+			await savePayloadToDrive(payload);
+			setSyncStatus('success');
+			setErrorMessage('');
+			
+			setTimeout(() => setSyncStatus('idle'), 3000);
+		} catch (error: any) {
+			console.error('Error saving to Drive:', error);
+			setSyncStatus('error');
+			setErrorMessage(`خطا در ذخیره در Google Drive: ${error.message || 'خطای ناشناخته'}`);
+		}
+	};
+
+	const handleLoadFromDrive = async () => {
+		if (!isGoogleReady) {
+			setErrorMessage('سرویس Google Drive آماده نیست. لطفا صفحه را بازخوانی کنید.');
+			return;
+		}
+
+		setSyncStatus('loading');
+		try {
+			const remote = await loadPayloadFromDrive<{ 
+				tasks: Task[],
+				syncedAt?: string,
+				version?: string
+			}>();
+			
+			if (!remote || !remote.tasks) {
+				throw new Error('داده‌ای در Google Drive یافت نشد');
+			}
+
+			// Ask for confirmation if there are local tasks
+			if (tasks.length > 0) {
+				if (!window.confirm('آیا می‌خواهید وظایف فعلی با نسخه Google Drive جایگزین شوند؟')) {
+					setSyncStatus('idle');
+					return;
+				}
+			}
+
+			setTasks(remote.tasks || []);
+			setSyncStatus('success');
+			setErrorMessage('');
+			
+			// Show success message with sync time if available
+			if (remote.syncedAt) {
+				const syncTime = new Date(remote.syncedAt).toLocaleDateString('fa-IR');
+				alert(`برنامه‌ریزی با موفقیت بارگذاری شد (آخرین همگام‌سازی: ${syncTime})`);
+			} else {
+				alert('برنامه‌ریزی با موفقیت بارگذاری شد');
+			}
+			
+			setTimeout(() => setSyncStatus('idle'), 3000);
+		} catch (error: any) {
+			console.error('Error loading from Drive:', error);
+			setSyncStatus('error');
+			setErrorMessage(`خطا در بارگذاری از Google Drive: ${error.message || 'خطای ناشناخته'}`);
+		}
+	};
 
 	const getSelectedDateString = (): string => {
 		if (!selectedDate) return '';
@@ -88,10 +226,27 @@ const PlannerPage: React.FC = () => {
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		if (!formData.title.trim() || !formData.startTime || !formData.endTime) return;
+		
+		if (!formData.title.trim()) {
+			alert('عنوان وظیفه نمی‌تواند خالی باشد');
+			return;
+		}
+		
+		if (!formData.startTime) {
+			alert('زمان شروع را انتخاب کنید');
+			return;
+		}
+		
+		if (!formData.endTime) {
+			alert('زمان پایان را انتخاب کنید');
+			return;
+		}
 
 		const dateStr = getSelectedDateString();
-		if (!dateStr) return;
+		if (!dateStr) {
+			alert('لطفا یک تاریخ انتخاب کنید');
+			return;
+		}
 
 		if (editingTask) {
 			setTasks(prev => prev.map(t =>
@@ -163,35 +318,48 @@ const PlannerPage: React.FC = () => {
 		return a.startTime.localeCompare(b.startTime);
 	});
 
-	async function onSaveToDrive() {
-			await savePayloadToDrive({ tasks });
-		}
-
-	async function onLoadFromDrive() {
-		const remote = await loadPayloadFromDrive<{ tasks: any[]}>();
-		if (!remote) {
-			return;
-		}
-		setTasks(remote.tasks || []);
-
-	}
-
 	return (
 		<div className="planner-page">
+			{/* Error Alert */}
+			{errorMessage && (
+				<div className="error-alert">
+					<AlertCircle size={20} />
+					<span>{errorMessage}</span>
+					<button 
+						onClick={() => setErrorMessage('')}
+						className="error-alert-close"
+					>
+						×
+					</button>
+				</div>
+			)}
+
 			<div className="planner-container">
 				<div className="planner-layout">
 					<div className="planner-main">
 						<div className="planner-header">
-							<h2>برنامه‌ریز</h2>
+							<div className="planner-header-top">
+								<h2>برنامه‌ریز</h2>
+								<div className="planner-stats">
+									<span className="task-count">
+										{tasks.length} وظیفه
+									</span>
+									<span className="completed-count">
+										{tasks.filter(t => t.completed).length} انجام شده
+									</span>
+								</div>
+							</div>
+							
+							<div className="planner-actions">
+								<DriveSyncButton
+									onSave={handleSaveToDrive}
+									onLoad={handleLoadFromDrive}
+									// isLoading={syncStatus === 'loading'}
+									// isDisabled={!isGoogleReady}
+									// lastSyncTime={tasks.length > 0 ? tasks[tasks.length - 1]?.date : undefined}
+								/>
+							</div>
 						</div>
-						<DriveSyncButton
-							onSave={async () => {
-								onSaveToDrive();
-							}}
-							onLoad={async () => {
-								onLoadFromDrive();
-							}}
-						/>
 
 						<div className="planner-calendar-section">
 							<Calendar
@@ -208,11 +376,19 @@ const PlannerPage: React.FC = () => {
 								<button
 									onClick={() => setIsCreating(true)}
 									className="planner-page-btn planner-page-btn-primary"
+									disabled={!getSelectedDateString()}
 								>
 									<Plus size={18} />
 									وظیفه جدید
 								</button>
-								<h3>برنامه روز</h3>
+								<h3>
+									برنامه روز
+									{getSelectedDateString() && (
+										<span className="selected-date">
+											{new Date(getSelectedDateString()).toLocaleDateString('fa-IR')}
+										</span>
+									)}
+								</h3>
 							</div>
 
 							{(isCreating || editingTask) && (
@@ -228,7 +404,11 @@ const PlannerPage: React.FC = () => {
 							<div className="planner-tasks-timeline">
 								{dayTasks.length === 0 && !isCreating && !editingTask ? (
 									<div className="planner-empty-task-state">
-										<p>هیچ وظیفه‌ای برای این روز ثبت نشده است</p>
+										<div className="empty-state-icon">
+											📅
+										</div>
+										<h3>هیچ وظیفه‌ای برای این روز ثبت نشده است</h3>
+										<p>برای افزودن وظیفه، روی دکمه "وظیفه جدید" کلیک کنید</p>
 									</div>
 								) : (
 									dayTasks.map(task => (

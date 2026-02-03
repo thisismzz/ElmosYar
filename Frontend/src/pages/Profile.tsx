@@ -48,7 +48,7 @@ export function ProfilePage() {
     if (!userProfile) return <div className="flex justify-center items-center min-h-screen">No profile data found</div>;
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-white dark:bg-gray-900">
             <div className="max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
                 <div className="flex flex-col md:flex-row items-center gap-6 mb-8 md:flex-row-reverse">
 
@@ -81,14 +81,14 @@ export function ProfilePage() {
                     <div className="flex-1 text-center md:text-right">
                         <div className="flex justify-center gap-2 md:justify-end">
 
-                            <h1 className="mb-1" style={{ color: "hsl(212, 99%, 39%)" }}>
+                            <h1 className="mb-1 text-[#16519F] dark:text-[#60a5fa]">
                                 @{userProfile.username}
                             </h1>
-                            <p style={{ color: "hsl(236, 87%, 18%)", fontWeight: "bolder"}}>
+                            <p className="text-[#1c1a66] dark:text-gray-200 font-bold">
                                 {userProfile.firstName} {userProfile.lastName}
                             </p>
                         </div>
-                        <p className="text-gray-500 mt-2 mb-2 max-w-2xl" dir="rtl">"{userProfile.bio}"</p>
+                        <p className="text-gray-500 dark:text-gray-400 mt-2 mb-2 max-w-2xl" dir="rtl">"{userProfile.bio}"</p>
                         
                             <div className="flex gap-2 mt-4 justify-center md:justify-end">
                                 <Badge variant="outline" className="border-[#4FCBE9] text-[#4FCBE9]" style={{
@@ -113,7 +113,7 @@ export function ProfilePage() {
 
                 <div className="space-y-4">
                     <Card
-                        className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md bg-gray-50"
+                        className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md bg-gray-50 dark:bg-gray-800"
                         onClick={() => navigate("/profile/wallet")}
                     >
                         <CardContent className="flex items-center justify-between p-6 flex-row-reverse">
@@ -125,15 +125,15 @@ export function ProfilePage() {
                                     <Wallet className="w-6 h-6" style={{ color: "#16519F" }} />
                                 </div>
                                 <div className="md:text-right">
-                                    <h3 className="mb-1">کیف پول</h3>
-                                    <p className="text-gray-500">مشاهده موجودی و تراکنش ها</p>
+                                    <h3 className="mb-1 dark:text-white">کیف پول</h3>
+                                    <p className="text-gray-500 dark:text-gray-400">مشاهده موجودی و تراکنش ها</p>
                                 </div>
                             </div>
                             <ChevronLeft className="w-5 h-5 text-gray-400" />
                         </CardContent>
                     </Card>
                     <Card
-                        className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md bg-gray-50"
+                        className="cursor-pointer hover:shadow-lg transition-all rounded-2xl border-0 shadow-md bg-gray-50 dark:bg-gray-800"
                         onClick={() => navigate("/profile/food-posts")}
                     >
                         <CardContent className="flex items-center justify-between p-6 flex-row-reverse">
@@ -145,8 +145,8 @@ export function ProfilePage() {
                                     <ForkKnife className="w-6 h-6" style={{ color: "#169f1d" }} />
                                 </div>
                                 <div className="md:text-right">
-                                    <h3 className="mb-1">تبادلات غذا</h3>
-                                    <p className="text-gray-500">مشاهده غذا های خریداری شده و فروخته شده</p>
+                                    <h3 className="mb-1 dark:text-white">تبادلات غذا</h3>
+                                    <p className="text-gray-500 dark:text-gray-400">مشاهده غذا های خریداری شده و فروخته شده</p>
                                 </div>
                             </div>
                             <ChevronLeft className="w-5 h-5 text-gray-400" />

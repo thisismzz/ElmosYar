@@ -56,11 +56,11 @@ export function WalletGatewayPage() {
 
     if (!state) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
-                <Card className="max-w-lg w-full rounded-2xl border-0 shadow-lg bg-white">
+            <div className="min-h-screen flex items-center justify-center p-4 bg-white dark:bg-gray-900" dir="rtl">
+                <Card className="max-w-lg w-full rounded-2xl border-0 shadow-lg bg-white dark:bg-gray-800">
                     <CardContent className="p-6 space-y-3">
-                        <h1 className="text-lg font-semibold text-gray-900">درگاه پرداخت</h1>
-                        <p className="text-sm text-gray-600">
+                        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">درگاه پرداخت</h1>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                             اطلاعات پرداخت یافت نشد. لطفاً از صفحه کیف پول مجدداً اقدام کنید.
                         </p>
                         <div className="flex justify-end">
@@ -138,9 +138,9 @@ export function WalletGatewayPage() {
     };
 
     return (
-        <div className="min-h-screen pb-20 lg:pb-8" dir="rtl">
+        <div className="min-h-screen pb-20 lg:pb-8 bg-white dark:bg-gray-900" dir="rtl">
             <div className="max-w-3xl mx-auto px-4 py-8 md:px-6 md:py-12">
-                <Card className="rounded-3xl border-0 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.45)] overflow-hidden bg-white">
+                <Card className="rounded-3xl border-0 shadow-[0_25px_60px_-30px_rgba(0,0,0,0.45)] overflow-hidden bg-white dark:bg-gray-800">
                     {/* Header shell */}
                     <div
                         className="px-6 py-6"
@@ -177,14 +177,14 @@ export function WalletGatewayPage() {
 
                     <CardContent className="p-6 md:p-8 space-y-5">
                         {error ? (
-                            <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                            <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-700 dark:text-red-400">
                                 {error}
                             </div>
                         ) : null}
 
                         {/* Card form */}
-                        <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 md:p-5">
-                            <div className="flex items-center gap-2 text-gray-900 font-semibold mb-3">
+                        <div className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 p-4 md:p-5">
+                            <div className="flex items-center gap-2 text-gray-900 dark:text-white font-semibold mb-3">
                                 <ShieldCheck className="w-5 h-5 text-[#16599f]" />
                                 اطلاعات کارت
                             </div>
@@ -288,12 +288,12 @@ export function WalletGatewayPage() {
                                     placeholder="مثال: 123456"
                                     disabled={submitting}
                                 />
-                                <p className="mt-2 text-xs text-gray-500">
+                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                     در حالت واقعی، این کد برای شما ارسال می‌شود (این صفحه فقط تست است).
                                 </p>
                             </div>
 
-                            <div className="rounded-2xl border border-gray-100 bg-white p-4">
+                            <div className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
                                 <div className="flex items-center justify-between">
                                     <Label className="block pb-2" htmlFor="p-captcha">
                                         کپچا
@@ -304,14 +304,14 @@ export function WalletGatewayPage() {
                                             setCaptchaToken(makeCaptchaToken());
                                             setCaptchaValue("");
                                         }}
-                                        className="text-xs text-[#16599f] hover:text-[#0f4f90] transition"
+                                        className="text-xs text-[#16599f] dark:text-[#60a5fa] hover:text-[#0f4f90] dark:hover:text-[#3b82f6] transition"
                                         disabled={submitting}
                                     >
                                         تغییر کپچا
                                     </button>
                                 </div>
 
-                                <div className="mb-3 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-lg tracking-widest text-gray-700 select-none">
+                                <div className="mb-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2 font-mono text-lg tracking-widest text-gray-700 dark:text-gray-300 select-none">
                                     {captchaToken}
                                 </div>
 

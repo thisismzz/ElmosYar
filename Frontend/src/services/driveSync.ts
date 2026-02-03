@@ -23,7 +23,7 @@ export function initGoogleTokenClient(clientId: string) {
   if (!window.google?.accounts?.oauth2) {
     throw new Error("Google Identity Services not loaded yet.");
   }
-
+  
   tokenClient = window.google.accounts.oauth2.initTokenClient({
     client_id: clientId,
     scope: DRIVE_SCOPE,

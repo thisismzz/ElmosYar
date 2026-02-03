@@ -159,12 +159,20 @@
   transform: translateY(-1px);
 }
 
+.dark .action-btn:hover {
+  background-color: #374151;
+}
+
 .action-count {
   font-size: 14px;
   color: #65676b;
   font-weight: 600;
   transition: color 0.2s ease;
   font-family: 'Vazir', sans-serif;
+}
+
+.dark .action-count {
+  color: #9ca3af;
 }
 
 .action-icon {
@@ -260,6 +268,10 @@
   font-family: 'Vazir', sans-serif;
 }
 
+.dark .post-feed.loading-container {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+}
+
 .loading-animation {
   display: flex;
   flex-direction: column;
@@ -293,6 +305,10 @@
   font-family: 'Vazir', sans-serif;
 }
 
+.dark .loading-text {
+  color: #60a5fa;
+}
+
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
@@ -319,6 +335,11 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   animation: skeleton-pulse 1.5s ease-in-out infinite;
   direction: rtl;
+}
+
+.dark .skeleton-post {
+  background: #1f2937;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes skeleton-pulse {
@@ -348,6 +369,10 @@
   margin-left: 15px;
 }
 
+.dark .skeleton-avatar {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+}
+
 .skeleton-user-info {
   flex: 1;
   display: flex;
@@ -362,6 +387,10 @@
   background-size: 200% 100%;
   border-radius: 6px;
   animation: skeleton-loading 1.5s infinite;
+}
+
+.dark .skeleton-line {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
 }
 
 .skeleton-line.short {
@@ -395,6 +424,10 @@
   animation: skeleton-loading 1.5s infinite;
 }
 
+.dark .skeleton-image {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+}
+
 .skeleton-actions {
   display: flex;
   gap: 15px;
@@ -409,6 +442,10 @@
   background-size: 200% 100%;
   border-radius: 18px;
   animation: skeleton-loading 1.5s infinite;
+}
+
+.dark .skeleton-button {
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
 }
 
 @keyframes skeleton-loading {
@@ -434,6 +471,10 @@
   font-family: 'Vazir', sans-serif;
 }
 
+.dark .error-state {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+}
+
 .error-icon {
   margin-bottom: 20px;
   animation: shake 0.5s ease-in-out;
@@ -453,12 +494,20 @@
   font-family: 'Vazir', sans-serif;
 }
 
+.dark .error-title {
+  color: #f87171;
+}
+
 .error-message {
   color: #495057;
   margin-bottom: 25px;
   max-width: 400px;
   line-height: 1.6;
   font-family: 'Vazir', sans-serif;
+}
+
+.dark .error-message {
+  color: #9ca3af;
 }
 
 .retry-btn {
@@ -484,6 +533,15 @@
   box-shadow: 0 4px 12px rgba(22, 81, 159, 0.2);
 }
 
+.dark .retry-btn {
+  background: #60a5fa;
+}
+
+.dark .retry-btn:hover {
+  background: #3b82f6;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
+}
+
 .retry-btn:active {
   transform: translateY(0);
 }
@@ -502,6 +560,10 @@
   font-family: 'Vazir', sans-serif;
 }
 
+.dark .no-posts-state {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+}
+
 .no-posts-icon {
   margin-bottom: 20px;
   opacity: 0.7;
@@ -515,10 +577,18 @@
   font-family: 'Vazir', sans-serif;
 }
 
+.dark .no-posts-title {
+  color: #e5e7eb;
+}
+
 .no-posts-message {
   color: #868e96;
   font-size: 1rem;
   font-family: 'Vazir', sans-serif;
+}
+
+.dark .no-posts-message {
+  color: #9ca3af;
 }
 
 /* لودینگ پست‌های بیشتر - RTL */
@@ -534,6 +604,10 @@
   border-radius: 12px;
   direction: rtl;
   font-family: 'Vazir', sans-serif;
+}
+
+.dark .more-posts-loading {
+  background: #1f2937;
 }
 
 .dots-loading {
@@ -579,6 +653,14 @@
   font-family: 'Vazir', sans-serif;
 }
 
+.dark .more-posts-loading span {
+  color: #e5e7eb;
+}
+
+.dark .dot {
+  background-color: #60a5fa;
+}
+
 /* مودال کامنت‌ها - RTL */
 .comments-modal-overlay {
   position: fixed;
@@ -618,6 +700,11 @@
   direction: rtl;
 }
 
+.dark .comments-modal-content {
+  background: #1f2937;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
 @keyframes modalAppear {
   from {
     opacity: 0;
@@ -640,12 +727,21 @@
   font-family: 'Vazir', sans-serif;
 }
 
+.dark .comments-modal-header {
+  background: #111827;
+  border-bottom-color: #374151;
+}
+
 .comments-modal-header h3 {
   margin: 0;
   color: #2d3748;
   font-size: 18px;
   font-weight: 700;
   font-family: 'Vazir', sans-serif;
+}
+
+.dark .comments-modal-header h3 {
+  color: #e5e7eb;
 }
 
 .close-comments-btn {
@@ -666,6 +762,15 @@
 .close-comments-btn:hover {
   background: #e2e8f0;
   color: #e53e3e;
+}
+
+.dark .close-comments-btn {
+  color: #9ca3af;
+}
+
+.dark .close-comments-btn:hover {
+  background: #374151;
+  color: #f87171;
 }
 
 .comments-modal-body {
@@ -726,6 +831,10 @@
 .comments-modal-loading .loading-text {
   color: #495057;
   font-family: 'Vazir', sans-serif;
+}
+
+.dark .comments-modal-loading .loading-text {
+  color: #e5e7eb;
 }
 
 /* رسپانسیو - RTL */

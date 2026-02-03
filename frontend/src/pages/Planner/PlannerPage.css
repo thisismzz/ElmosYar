@@ -225,3 +225,158 @@
     width: 100%;
   }
 }
+/* Error Alert - Same as NotesPage */
+.error-alert {
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.dark .error-alert {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.error-alert-close {
+  margin-right: auto;
+  background: none;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.error-alert-close:hover {
+  opacity: 1;
+}
+
+/* Planner Header */
+.planner-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.planner-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.task-count {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dark .task-count {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+.completed-count {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.dark .completed-count {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.planner-actions {
+  margin-bottom: 24px;
+}
+
+/* Selected Date */
+.selected-date {
+  display: block;
+  font-size: 14px;
+  color: #64748b;
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+.dark .selected-date {
+  color: #94a3b8;
+}
+
+/* Empty State */
+.planner-empty-task-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 2px dashed #e2e8f0;
+}
+
+.dark .planner-empty-task-state {
+  background: #1e293b;
+  border-color: #475569;
+}
+
+.planner-empty-task-state h3 {
+  font-size: 18px;
+  color: #334155;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.dark .planner-empty-task-state h3 {
+  color: #e2e8f0;
+}
+
+.planner-empty-task-state p {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.dark .planner-empty-task-state p {
+  color: #94a3b8;
+}
+
+/* Disabled button */
+.planner-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.planner-page-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Calendar adjustments */
+.planner-custom-calendar {
+  width: 100% !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+
+.dark .planner-custom-calendar {
+  border-color: #475569 !important;
+  background: #1e293b !important;
+}
+
+.planner-custom-calendar .rmdp-day-picker > div {
+  padding: 12px !important;
+}

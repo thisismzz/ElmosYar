@@ -146,10 +146,10 @@ export function CreateProfessorReviewPostForm(props?: {
 
 	return (
 		<form onSubmit={handleSubmit} className="space-y-5">
-			<Card className="overflow-hidden border border-neutral-200 bg-white/95 shadow-sm hover:shadow-md transition-shadow">
+			<Card className="overflow-hidden border border-neutral-200 dark:border-gray-700 bg-white/95 dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow">
 				<CardBody className="space-y-4">
 					<div>
-						<Label htmlFor="profName" className="text-neutral-700">
+						<Label htmlFor="profName" className="text-neutral-700 dark:text-gray-300">
 							نام استاد
 						</Label>
 						<Input
@@ -164,7 +164,7 @@ export function CreateProfessorReviewPostForm(props?: {
 					</div>
 
 					<div>
-						<Label htmlFor="faculty" className="text-neutral-700">
+						<Label htmlFor="faculty" className="text-neutral-700 dark:text-gray-300">
 							دانشکده
 						</Label>
 						<Select
@@ -188,7 +188,7 @@ export function CreateProfessorReviewPostForm(props?: {
 
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
-							<Label htmlFor="course" className="text-neutral-700">
+							<Label htmlFor="course" className="text-neutral-700 dark:text-gray-300">
 								درس
 							</Label>
 							<Input
@@ -204,7 +204,7 @@ export function CreateProfessorReviewPostForm(props?: {
 
 						{/* Semester: two dropdowns (season + year) */}
 						<div>
-							<Label className="text-neutral-700">ترم</Label>
+							<Label className="text-neutral-700 dark:text-gray-300">ترم</Label>
 
 							<div className="mt-1 grid grid-cols-2 gap-2">
 								<div>
@@ -252,7 +252,7 @@ export function CreateProfessorReviewPostForm(props?: {
 			</Card>
 
 			<div className="space-y-3">
-				<div className="text-sm font-semibold text-neutral-700 flex items-center gap-2">
+				<div className="text-sm font-semibold text-neutral-700 dark:text-gray-300 flex items-center gap-2">
 					<span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: ACCENT }} />
 					امتیازدهی معیارها
 				</div>
@@ -261,10 +261,10 @@ export function CreateProfessorReviewPostForm(props?: {
 					{ratingCategories.map((cat) => (
 						<div
 							key={cat.id}
-							className="rounded-2xl border border-neutral-200 bg-white px-4 py-4 shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md"
+							className="rounded-2xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-4 shadow-sm transition-all hover:-translate-y-[1px] hover:shadow-md"
 						>
 							<div className="mb-3 flex items-center justify-center gap-3">
-								<Label className="mb-0 text-neutral-700">{cat.label}</Label>
+								<Label className="mb-0 text-neutral-700 dark:text-gray-300">{cat.label}</Label>
 							</div>
 
 							<div className="flex justify-center">
@@ -284,9 +284,9 @@ export function CreateProfessorReviewPostForm(props?: {
 				</div>
 			</div>
 
-			<Card className="overflow-hidden border border-neutral-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+			<Card className="overflow-hidden border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow">
 				<CardBody className="flex flex-col items-center gap-3">
-					<div className="flex items-center gap-2 text-sm text-neutral-800">
+					<div className="flex items-center gap-2 text-sm text-neutral-800 dark:text-gray-300">
 						<span className="inline-block h-2 w-2 rounded-full" style={{ backgroundColor: ACCENT }} />
 						امتیاز نهایی
 					</div>
@@ -298,8 +298,8 @@ export function CreateProfessorReviewPostForm(props?: {
 				</CardBody>
 			</Card>
 
-			<div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
-				<Label htmlFor="comment" className="text-neutral-700">
+			<div className="rounded-2xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm hover:shadow-md transition-shadow">
+				<Label htmlFor="comment" className="text-neutral-700 dark:text-gray-300">
 					توضیحات (اختیاری)
 				</Label>
 				<Textarea
@@ -311,7 +311,7 @@ export function CreateProfessorReviewPostForm(props?: {
 					className="shadow-sm hover:shadow transition-shadow focus:ring-2 focus:ring-[var(--accent)]"
 					style={{ ["--accent" as any]: ACCENT }}
 				/>
-				<div className="mt-2 text-xs text-neutral-500">{formData.comment.length}/300</div>
+				<div className="mt-2 text-xs text-neutral-500 dark:text-gray-400">{formData.comment.length}/300</div>
 			</div>
 
 			<InlineError>{error}</InlineError>
@@ -334,7 +334,7 @@ export function CreateProfessorReviewPostForm(props?: {
 				</Button>
 			</div>
 
-			<div className="text-center text-xs text-neutral-500">نظرسنجی به صورت کاملا نامحسوس انجام می شود، اطلاعات شما برای کاربران دیگر مخفی است.</div>
+			<div className="text-center text-xs text-neutral-500 dark:text-gray-400">نظرسنجی به صورت کاملا نامحسوس انجام می شود، اطلاعات شما برای کاربران دیگر مخفی است.</div>
 		</form>
 	);
 }

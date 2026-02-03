@@ -51,7 +51,7 @@ export function CreatePostPage(props: { starting_category?: CreateCategory }) {
 					</CardBody>
 
 				<div className="animate-[fadeIn_.18s_ease-out]">
-					<Card className="overflow-hidden bg-neutral-50">
+					<Card className="overflow-hidden bg-neutral-50 dark:bg-gray-900">
 						{/* <CardHeader title={header.title} subtitle={header.desc} /> */}
 						<CardBody>
 							{category === "food" && (

@@ -55,7 +55,7 @@ export function WalletPage() {
     };
 
     return (
-        <div className="min-h-screen pb-20 lg:pb-8">
+        <div className="min-h-screen pb-20 lg:pb-8 bg-white dark:bg-gray-900">
             <div className="max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
                 {/* Header with Back Button */}
                 <div className="flex items-center gap-4 mb-8 flex-row-reverse">
@@ -68,12 +68,12 @@ export function WalletPage() {
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </Button>
-                    <h1 style={{ color: '#16519F' }}>کیف پول</h1>
+                    <h1 className="text-[#16519F] dark:text-[#60a5fa]">کیف پول</h1>
                 </div>
 
                 {/* Balance Card */}
                 <Card
-                    className="mb-8 border-0 rounded-2xl shadow-lg bg-gray-50"
+                    className="mb-8 border-0 rounded-2xl shadow-lg"
                     style={{ background: 'linear-gradient(135deg, #16519F 0%, #4FCBE9 100%)' }}
                 >
                     <CardContent className="p-8 md:p-10 text-white">
@@ -100,7 +100,7 @@ export function WalletPage() {
                 {/* Action Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card
-                        className="cursor-pointer hover:shadow-lg transition-all rounded-2xl bg-gray-50 border-0 shadow-md"
+                        className="cursor-pointer hover:shadow-lg transition-all rounded-2xl bg-gray-50 dark:bg-gray-800 border-0 shadow-md"
                         onClick={() => setWithdrawOpen(true)}
                     >
                         <CardContent className="p-6 text-center">
@@ -110,13 +110,13 @@ export function WalletPage() {
                             >
                                 <ArrowDownToLine className="w-7 h-7" style={{ color: '#F07E74' }} />
                             </div>
-                            <h3 className="mb-2">برداشت</h3>
-                            <p className="text-gray-500">انتقال وجه به حساب بانکی</p>
+                            <h3 className="mb-2 dark:text-white">برداشت</h3>
+                            <p className="text-gray-500 dark:text-gray-400">انتقال وجه به حساب بانکی</p>
                         </CardContent>
                     </Card>
 
                     <Card
-                        className="cursor-pointer hover:shadow-lg transition-all rounded-2xl bg-gray-50 border-0 shadow-md"
+                        className="cursor-pointer hover:shadow-lg transition-all rounded-2xl bg-gray-50 dark:bg-gray-800 border-0 shadow-md"
                         onClick={() => navigate("/profile/transactions")}
                     >
                         <CardContent className="p-6 text-center">
@@ -126,13 +126,13 @@ export function WalletPage() {
                             >
                                 <History className="w-7 h-7" style={{ color: '#16519F' }} />
                             </div>
-                            <h3 className="mb-2">تاریخچه تراکنش‌ها</h3>
-                            <p className="text-gray-500">مشاهده همه تراکنش‌های شما</p>
+                            <h3 className="mb-2 dark:text-white">تاریخچه تراکنش‌ها</h3>
+                            <p className="text-gray-500 dark:text-gray-400">مشاهده همه تراکنش‌های شما</p>
                         </CardContent>
                     </Card>
 
                     <Card
-                        className="cursor-pointer hover:shadow-lg transition-all bg-gray-50 rounded-2xl border-0 shadow-md"
+                        className="cursor-pointer hover:shadow-lg transition-all bg-gray-50 dark:bg-gray-800 rounded-2xl border-0 shadow-md"
                         onClick={() => setDepositOpen(true)}
                     >
                         <CardContent className="p-6 text-center">
@@ -142,8 +142,8 @@ export function WalletPage() {
                             >
                                 <Plus className="w-7 h-7" style={{ color: '#4FCBE9' }} />
                             </div>
-                            <h3 className="mb-2">شارژ حساب</h3>
-                            <p className="text-gray-500">افزودن وجه به کیف پول</p>
+                            <h3 className="mb-2 dark:text-white">شارژ حساب</h3>
+                            <p className="text-gray-500 dark:text-gray-400">افزودن وجه به کیف پول</p>
                         </CardContent>
                     </Card>
                 </div>

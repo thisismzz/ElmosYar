@@ -59,23 +59,18 @@ export function ReviewCard({
         <Card
             onClick={() => onOpenComments?.(review.id)}
             className="
-                overflow-hidden cursor-pointer 
-                bg-white dark:bg-gray-800
-                border border-gray-100 dark:border-gray-700
-                transition-all duration-300
-                hover:shadow-[0_15px_35px_rgba(102,126,234,0.12),0_5px_15px_rgba(0,0,0,0.08)]
-                dark:hover:shadow-[0_15px_35px_rgba(0,0,0,0.3)]
-                hover:-translate-y-1
-                hover:scale-[1.005]
-                rounded-[20px]
-                animate-fadeInUp
-            "
-            style={{ animationDelay: `${review.id % 5 * 0.1}s` }}
+        overflow-hidden cursor-pointer bg-white dark:bg-gray-800
+        border border-gray-100 dark:border-gray-700
+        transition-all
+        hover:shadow-[0_15px_35px_rgba(102,126,234,0.12),0_5px_15px_rgba(0,0,0,0.08)]
+        dark:hover:shadow-[0_15px_35px_rgba(96,165,250,0.2),0_5px_15px_rgba(0,0,0,0.5)]
+        hover:-translate-y-1
+        hover:scale-[1.005]
+        rounded-[20px]
+      "
         >
             {/* Header */}
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700 
-                bg-gradient-to-r from-white to-[#4FCBE9]/5 
-                dark:from-gray-800 dark:to-[#4FCBE9]/10">
+            <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-white to-[#4FCBE9]/5 dark:from-gray-800 dark:to-[#4FCBE9]/10">
                 <div className="flex items-start justify-between gap-4 flex-row-reverse">
                     {/* Professor Identity */}
                     <div
@@ -89,18 +84,20 @@ export function ReviewCard({
                     >
                         <div
                             className="
-                                w-12 h-12 rounded-full
-                                bg-gradient-to-br from-[#16519F] to-[#4FCBE9]
-                                flex items-center justify-center text-white shadow-md
-                                group-hover:shadow-lg group-hover:scale-105
-                                transition-all duration-300
-                            "
+                w-12 h-12 rounded-full
+                bg-gradient-to-br from-[#16519F] to-[#4FCBE9]
+                dark:from-[#60a5fa] dark:to-[#34d399]
+                flex items-center justify-center text-white shadow-md
+                group-hover:shadow-lg
+                group-hover:scale-105
+                transition-all
+              "
                         >
                             <User className="w-6 h-6" />
                         </div>
 
                         <div className="flex-1">
-                            <h3 className="text-xl text-[#16519F] dark:text-[#4FCBE9] mb-2 text-right group-hover:underline">
+                            <h3 className="text-xl text-[#16519F] dark:text-[#60a5fa] mb-2 text-right group-hover:underline">
                                 {review.professorName}
                             </h3>
 
@@ -109,13 +106,11 @@ export function ReviewCard({
                                     dark:bg-[#4FCBE9] dark:hover:bg-[#4FCBE9]/90">
                                     {review.faculty}
                                 </Badge>
-                                <Badge variant="outline" className="border-[#4FCBE9] text-[#4FCBE9]
-                                    dark:border-[#16519F] dark:text-[#16519F]">
+                                <Badge className="bg-[#16519F] dark:bg-[#60a5fa] text-white hover:bg-[#16519F]/90 dark:hover:bg-[#60a5fa]/90">{review.faculty}</Badge>
+                                <Badge variant="outline" className="border-[#4FCBE9] dark:border-[#34d399] text-[#4FCBE9] dark:text-[#34d399] dark:bg-gray-800">
                                     {review.courseName}
                                 </Badge>
-                                <Badge variant="secondary" className="bg-gray-100 text-gray-600
-                                    dark:bg-gray-700 dark:text-gray-300">
-                                    {review.semester}
+                                <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">    {review.semester}
                                 </Badge>
                             </div>
                         </div>
@@ -123,16 +118,14 @@ export function ReviewCard({
 
                     {/* Overall Rating */}
                     <div className="flex flex-col items-end">
-                        <div className="bg-white dark:bg-gray-700 rounded-xl px-3 py-2 
-                            shadow-sm border border-gray-100 dark:border-gray-600">
+                        <div className="bg-white dark:bg-gray-700 rounded-xl px-3 py-2 shadow-sm border border-gray-100 dark:border-gray-600">
                             <StarRating 
                                 rating={review.overallRating} 
                                 readonly 
                                 size="sm" 
                                 // darkMode={false}
                             />
-                            <span className="block text-center text-sm text-[#16519F] 
-                                dark:text-[#4FCBE9] mt-1">
+                            <span className="block text-center text-sm text-[#16519F] dark:text-[#60a5fa] mt-1">
                                 {review.overallRating.toFixed(1)}
                             </span>
                         </div>
@@ -143,10 +136,7 @@ export function ReviewCard({
             {/* Body */}
             {review.comment ? (
                 <div className="p-6">
-                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed 
-                        whitespace-pre-line line-clamp-6">
-                        {review.comment}
-                    </p>
+                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line line-clamp-6">{review.comment}</p>
                 </div>
             ) : null}
 
