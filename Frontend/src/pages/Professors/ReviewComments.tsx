@@ -96,7 +96,7 @@ export default function ReviewCommentsPage() {
                 )}
 
                 {loading ? (
-                    <div className="text-center text-gray-500 py-10">در حال بارگذاری...</div>
+                    <div className="text-center text-gray-500 py-10"></div>
                 ) : (
                     <Comments
                         post={

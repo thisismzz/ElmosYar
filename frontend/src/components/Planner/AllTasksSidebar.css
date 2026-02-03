@@ -5,11 +5,11 @@
 }
 
 .planner-sidebar-box {
-  background: white;
+  background: var(--white);
   padding: 1rem;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  border: 1px solid #e1e8ed;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
   max-height: calc(100vh - 8rem);
   overflow-y: auto;
 }
@@ -17,7 +17,7 @@
 .planner-sidebar-box h3 {
   margin: 0 0 1rem 0;
   font-size: 1.125rem;
-  color: #14171a;
+  color: var(--text-primary);
   text-align: right;
 }
 
@@ -28,7 +28,7 @@
 }
 
 .planner-empty-text {
-  color: #657786;
+  color: var(--text-light);
   font-size: 0.875rem;
   text-align: center;
   padding: 2rem 0;
@@ -37,16 +37,16 @@
 
 .planner-task-item {
   padding: 0.75rem;
-  border: 1px solid #e1e8ed;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   transition: all 0.2s;
   cursor: pointer;
-  background: white;
+  background: var(--white);
 }
 
 .planner-task-item:hover {
-  background: #f7f9fa;
-  border-color: #1da1f2;
+  background: var(--background-light);
+  border-color: var(--primary-color);
 }
 
 .planner-task-item.planner-task-item-completed {
@@ -67,14 +67,14 @@
 .planner-task-item-title {
   margin: 0;
   font-size: 0.875rem;
-  color: #14171a;
+  color: var(--text-primary);
   font-weight: 500;
   text-align: right;
 }
 
 .planner-task-date {
   font-size: 0.75rem;
-  color: #657786;
+  color: var(--text-secondary);
   text-align: right;
 }
 
@@ -82,7 +82,7 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  color: #657786;
+  color: var(--text-secondary);
   font-size: 0.75rem;
   direction: ltr;
   justify-content: flex-end;

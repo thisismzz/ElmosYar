@@ -1,10 +1,27 @@
 /* Add these to the top of App.css */
 
 :root {
+  --primary-color: #1971c2;
+  --primary-light: #e7f5ff;
+  --primary-dark: #1864ab;
+  --secondary-color: #2f9e44;
+  --secondary-light: #d3f9d8;
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-light: #868e96;
+  --background-light: #f8f9fa;
+  --border-color: #dee2e6;
+  --white: #ffffff;
+  --success-color: #2f9e44;
+  --warning-color: #f76707;
+  --danger-color: #c92a2a;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
+  
+  /* Legacy variables for backwards compatibility */
   --background: #ffffff;
   --foreground: #171717;
   --card-bg: #f8f9fa;
-  --border-color: #e5e7eb;
   --header-bg: #ffffff;
   --sidebar-bg: #ffffff;
   --logo-primary: #2C333B;
@@ -15,17 +32,34 @@
 }
 
 .dark {
+  --primary-color: #60a5fa;
+  --primary-light: #1e3a5f;
+  --primary-dark: #3b82f6;
+  --secondary-color: #34d399;
+  --secondary-light: #1a4d3a;
+  --text-primary: #e5e7eb;
+  --text-secondary: #d1d5db;
+  --text-light: #9ca3af;
+  --background-light: #1f2937;
+  --border-color: #374151;
+  --white: #111827;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.6);
+  
+  /* Legacy variables for backwards compatibility */
   --background: #0f172a;
-  --foreground: #f8fafc;
+  --foreground: #f3f4f6;
   --card-bg: #1e293b;
-  --border-color: #334155;
   --header-bg: #1e293b;
   --sidebar-bg: #1e293b;
-  --logo-primary: #60a5fa; /* Blue-400 */
+  --logo-primary: #60a5fa;
   --logo-secondary: #1e293b;
-  --logo-red: #f87171; /* Red-400 */
-  --logo-dark-red: #ef4444; /* Red-500 */
-  --logo-bright-red: #fca5a5; /* Red-300 */
+  --logo-red: #f87171;
+  --logo-dark-red: #ef4444;
+  --logo-bright-red: #fca5a5;
 }
 
 * {

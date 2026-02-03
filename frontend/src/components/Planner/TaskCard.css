@@ -1,12 +1,12 @@
 /* Task Card */
 .planner-task-card {
   width: 3200px;
-  background: white;
-  border: 1px solid #e1e8ed;
+  background: var(--white);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 1rem;
   transition: all 0.2s;
-  border-right: 4px solid #1da1f2;
+  border-right: 4px solid var(--primary-color);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -14,13 +14,13 @@
 }
 
 .planner-task-card:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow);
   transform: translateY(-1px);
 }
 
 .planner-task-card.planner-task-completed {
   opacity: 0.6;
-  border-right-color: #657786;
+  border-right-color: var(--text-light);
 }
 
 .planner-task-card.planner-task-completed .planner-task-title {
@@ -48,17 +48,17 @@
 .planner-task-title {
   margin: 0;
   font-size: 1rem;
-  color: #14171a;
+  color: var(--text-primary);
   flex: 1;
   text-align: right;
-  border-bottom: 1px solid #e1e8ed;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .planner-task-time {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #657786;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
   direction: ltr;
@@ -67,7 +67,7 @@
 
 .planner-task-description {
   margin: 0;
-  color: #657786;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   line-height: 1.5;
   text-align: right;
@@ -85,18 +85,18 @@
   border: none;
   cursor: pointer;
   border-radius: 6px;
-  color: #657786;
+  color: var(--text-secondary);
   transition: all 0.2s;
 }
 
 .planner-card-icon-btn:hover {
-  background: #e1e8ed;
-  color: #14171a;
+  background: var(--background-light);
+  color: var(--text-primary);
 }
 
 .planner-checkbox-empty {
   width: 16px;
   height: 16px;
-  border: 2px solid #657786;
+  border: 2px solid var(--text-secondary);
   border-radius: 4px;
 }

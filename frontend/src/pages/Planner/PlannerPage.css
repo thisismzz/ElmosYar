@@ -3,7 +3,7 @@
   width: 100%;
   direction: rtl;
   min-height: 100vh;
-  background: #f5f8fa;
+  background: var(--background-light);
 }
 
 .planner-container {
@@ -33,16 +33,16 @@
 .planner-header h2 {
   margin: 0;
   font-size: 1.75rem;
-  color: #14171a;
+  color: var(--text-primary);
 }
 
 /* Calendar Section */
 .planner-calendar-section {
-  background: white;
+  background: var(--white);
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  border: 1px solid #e1e8ed;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
   margin-bottom: 1.5rem;
   display: flex;
   justify-content: center;
@@ -71,22 +71,22 @@
 }
 
 .planner-custom-calendar .rmdp-day.rmdp-selected span:not(.highlight) {
-  background-color: #1da1f2;
-  box-shadow: 0 0 3px #1da1f2;
+  background-color: var(--primary-color);
+  box-shadow: 0 0 3px var(--primary-color);
 }
 
 .planner-custom-calendar .rmdp-day.rmdp-today span {
-  background-color: #f0f8ff;
-  color: #1da1f2;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
 }
 
 /* Day Schedule Section */
 .planner-day-schedule {
-  background: white;
+  background: var(--white);
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  border: 1px solid #e1e8ed;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
 }
 
 .planner-day-schedule-header {

@@ -2,7 +2,7 @@
 .main-page {
   width: 100%;
   min-height: 100vh;
-  background: #f5f8fa;
+  background: var(--background-light);
   direction: rtl;
 }
 

@@ -32,12 +32,12 @@
   justify-content: space-between;
   gap: 12px; 
   padding: 14px 24px; 
-  background-color: white;
-  border: 2px solid #e0e0e0;
+  background-color: var(--white);
+  border: 2px solid var(--border-color);
   border-radius: 35px; 
   font-size: 15px;
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%; 
@@ -49,9 +49,9 @@
 }
 
 .filter-dropdown-button:hover {
-  border-color: #b0b0b0;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--text-light);
+  background-color: var(--background-light);
+  box-shadow: var(--shadow);
 }
 
 .filter-dropdown-button:active {
@@ -70,7 +70,7 @@
 .dropdown-icon {
   transition: transform 0.2s ease;
   flex-shrink: 0;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .dropdown-icon.rotate {
@@ -81,10 +81,10 @@
   position: absolute;
   top: calc(100% + 10px); 
   right: 0;
-  background-color: white;
-  border: 1px solid #e0e0e0;
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15); 
+  box-shadow: var(--shadow-lg);
   min-width: 220px; 
   max-height: 350px;
   overflow-y: auto;

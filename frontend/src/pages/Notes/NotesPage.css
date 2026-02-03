@@ -37,12 +37,12 @@
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  background: #0b6df0;
-  color: #fff;
+  background: var(--primary-color);
+  color: var(--white);
 }
 
 .notes-page-btn:hover {
-  background: #095ed1;
+  background: var(--primary-dark);
 }
 
 .notes-page-grid {
@@ -55,7 +55,7 @@
 .notes-page-empty {
   text-align: center;
   padding: 3rem 0;
-  color: #6c757d;
+  color: var(--text-light);
 }
 
 @media (max-width: 600px) {

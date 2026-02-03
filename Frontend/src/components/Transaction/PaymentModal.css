@@ -24,11 +24,11 @@
 
 /* Modal Container */
 .payment-modal {
-  background-color: #ffffff;
+  background-color: var(--white);
   border-radius: 20px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
   animation: slideUp 0.4s ease-out;
 }
@@ -47,7 +47,7 @@
 /* Header */
 .modal-header {
   padding: 25px 25px 20px 25px;
-  background: linear-gradient(135deg, #16519f 0%, #3a5ce5 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
 }
@@ -56,7 +56,7 @@
   margin: 0 0 8px 0;
   font-size: 20px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--white);
   text-align: center;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -77,7 +77,7 @@
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #ffffff;
+  color: var(--white);
   width: 36px;
   height: 36px;
   display: flex;
@@ -100,7 +100,7 @@
 
 .detail-label {
   font-size: 12px;
-  color: #666666;
+  color: var(--text-light);
   margin-bottom: 8px;
   font-weight: 600;
   text-align: right;
@@ -110,25 +110,25 @@
 .detail-value {
   font-size: 15px;
   font-weight: 700;
-  color: #333333;
+  color: var(--text-primary);
   text-align: right;
   padding-right: 30px;
   direction: rtl;
 }
 
 .detail-value.price {
-  color: #2e7d32;
+  color: var(--success-color);
   font-family: 'Vazirmatn', sans-serif;
   direction: ltr;
   text-align: left;
   padding-left: 30px;
   padding-right: 0;
-  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.05) 100%);
+  background: var(--secondary-light);
   padding: 8px 12px;
   border-radius: 8px;
   display: inline-block;
   margin-top: 5px;
-  border-right: 3px solid #4caf50;
+  border-right: 3px solid var(--success-color);
 }
 
 /* Payment Options */
@@ -138,8 +138,8 @@
 }
 
 .payment-option {
-  background-color: #ffffff;
-  border: 2px solid #e9ecef;
+  background-color: var(--white);
+  border: 2px solid var(--border-color);
   border-radius: 15px;
   padding: 20px;
   margin-bottom: 15px;
@@ -164,37 +164,37 @@
 }
 
 .payment-option:hover {
-  border-color: #16519f;
+  border-color: var(--primary-color);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(74, 108, 247, 0.15);
+  box-shadow: var(--shadow-lg);
 }
 
 .payment-option:hover::before {
-  background: linear-gradient(to left, #16519f, #3a5ce5);
+  background: linear-gradient(to left, var(--primary-color), var(--primary-dark));
 }
 
 .payment-option.selected {
-  border-color: #16519f;
-  background-color: rgba(74, 108, 247, 0.05);
-  box-shadow: 0 8px 25px rgba(74, 108, 247, 0.1);
+  border-color: var(--primary-color);
+  background-color: var(--primary-light);
+  box-shadow: var(--shadow);
 }
 
 .payment-option.selected::before {
-  background: linear-gradient(to left, #16519f, #3a5ce5);
+  background: linear-gradient(to left, var(--primary-color), var(--primary-dark));
 }
 
 .payment-option.insufficient {
-  border-color: #ff9800;
+  border-color: var(--warning-color);
   background-color: rgba(255, 152, 0, 0.05);
 }
 
 .payment-option.insufficient:hover {
-  border-color: #ff9800;
+  border-color: var(--warning-color);
   box-shadow: 0 8px 25px rgba(255, 152, 0, 0.15);
 }
 
 .payment-option.insufficient.selected {
-  border-color: #ff9800;
+  border-color: var(--warning-color);
   background-color: rgba(255, 152, 0, 0.1);
 }
 
