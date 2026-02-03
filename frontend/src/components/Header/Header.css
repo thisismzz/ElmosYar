@@ -397,6 +397,86 @@
   opacity: 0.5;
 }
 
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  position: relative;
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.dark .sidebar-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-toggle-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(22, 81, 159, 0.15);
+}
+
+.dark .sidebar-toggle-btn:focus {
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+}
+
+.sidebar-toggle-icon-container {
+  position: relative;
+  height: 1rem;
+  width: 1.25rem;
+}
+
+.sidebar-toggle-line {
+  position: absolute;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  border-radius: 9999px;
+  background-color: #171717;
+  transition: all 0.3s ease-in-out;
+}
+
+.dark .sidebar-toggle-line {
+  background-color: #e5e7eb;
+}
+
+.sidebar-toggle-line-top {
+  top: 0;
+}
+
+.sidebar-toggle-line-top.open {
+  top: 50%;
+  transform: rotate(45deg);
+}
+
+.sidebar-toggle-line-middle {
+  top: 50%;
+  transform: translateY(-50%);
+  transition: opacity 0.2s ease-in-out;
+}
+
+.sidebar-toggle-line-middle.open {
+  opacity: 0;
+}
+
+.sidebar-toggle-line-bottom {
+  bottom: 0;
+}
+
+.sidebar-toggle-line-bottom.open {
+  top: 50%;
+  transform: rotate(-45deg);
+}
+
 /* Responsive Design */
 @media (min-width: 769px) {
   .desktop-header {

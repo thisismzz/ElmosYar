@@ -39,7 +39,7 @@ export function StarRating({ rating, onRatingChange, readonly = false, size = "m
             className={`${sizeClasses[size]} ${
               star <= (hoverRating || rating)
                 ? 'fill-amber-400 text-amber-400'
-                : 'fill-none text-gray-300'
+                : 'fill-none text-gray-300 dark:text-gray-600'
             } transition-colors`}
           />
         </button>

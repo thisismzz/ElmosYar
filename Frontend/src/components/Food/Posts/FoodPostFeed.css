@@ -1047,30 +1047,6 @@
 
 /* رسپانسیو */
 @media (max-width: 768px) {
-  .food-loading-overlay {
-    padding: 30px 20px;
-    width: 90%;
-  }
-  
-  .loading-text {
-    font-size: 1.1rem;
-  }
-  
-  .loading-subtext {
-    font-size: 0.9rem;
-  }
-  
-  .food-loading-spinner {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .skeleton-food-grid {
-    grid-template-columns: 1fr;
-    overflow: auto;
-    gap: 18px;
-  }
-  
   .food-items-grid.double-item-grid {
     grid-template-columns: 1fr;
     max-width: 450px;
@@ -1078,14 +1054,6 @@
 }
 
 @media (max-width: 700px) {
-  .food-loading-overlay {
-    padding: 25px 15px;
-  }
-  
-  .loading-text {
-    font-size: 1rem;
-  }
-  
   .food-empty-state {
     padding: 60px 20px;
   }

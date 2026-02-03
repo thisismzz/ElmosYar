@@ -144,7 +144,7 @@ export function CreateDiscussionPostForm(props: {
           <span
             className={cn(
               "text-xs",
-              content.length > MAX_CONTENT_LENGTH * 0.9 ? "text-amber-300" : "text-neutral-500"
+              content.length > MAX_CONTENT_LENGTH * 0.9 ? "text-amber-300 dark:text-amber-400" : "text-neutral-500 dark:text-gray-400"
             )}
           >
             {content.length}/{MAX_CONTENT_LENGTH}
@@ -169,7 +169,7 @@ export function CreateDiscussionPostForm(props: {
       <div className="space-y-2">
         <div className="flex items-center justify-begin gap-3">
           <Label className="mb-0">هشتگ‌ها (اختیاری)</Label>
-          <span className="text-xs text-neutral-500">
+          <span className="text-xs text-neutral-500 dark:text-gray-400">
             {tags.length}/{MAX_TAGS}
           </span>
         </div>
@@ -179,14 +179,14 @@ export function CreateDiscussionPostForm(props: {
             {tags.map((t) => (
               <span
                 key={t}
-                className="inline-flex items-center gap-2 rounded-full border border-blue-400 bg-[#16519F] px-3 py-1 text-sm text-neutral-200"
+                className="inline-flex items-center gap-2 rounded-full border border-blue-400 dark:border-[#60a5fa] bg-[#16519F] dark:bg-[#60a5fa] px-3 py-1 text-sm text-neutral-200 dark:text-gray-900"
               >
                 #{t}
                 <button
                   type="button"
                   onClick={() => removeTag(t)}
                   disabled={isSubmitting}
-                  className="rounded-full p-1 text-neutral-400 hover:text-neutral-100"
+                  className="rounded-full p-1 text-neutral-400 dark:text-gray-700 hover:text-neutral-100 dark:hover:text-gray-900"
                   aria-label={`حذف هشتگ ${t}`}
                 >
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -249,12 +249,12 @@ export function CreateDiscussionPostForm(props: {
             </Button>
           </div>
 		  {showTags ? (
-            <div className="z-20 mt-2 w-full overflow-hidden rounded-2xl border align-bottom border-neutral-200 bg-white shadow-xl">
+            <div className="z-20 mt-2 w-full overflow-hidden rounded-2xl border align-bottom border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl">
               <div className="flex items-center justify-between  px-4 py-3">
-                <span className="text-sm font-semibold text-neutral-900">هشتگ‌های موجود</span>
+                <span className="text-sm font-semibold text-neutral-900 dark:text-gray-100">هشتگ‌های موجود</span>
                 <button
                   type="button"
-                  className="rounded-lg p-1 text-neutral-400 hover:text-neutral-100"
+                  className="rounded-lg p-1 text-neutral-400 dark:text-gray-500 hover:text-neutral-100 dark:hover:text-gray-300"
                   onClick={() => setShowTags(false)}
                   aria-label="بستن"
                 >
@@ -278,16 +278,16 @@ export function CreateDiscussionPostForm(props: {
                         key={t}
                         type="button"
                         onClick={() => addTag(t)}
-                        className="flex items-center justify-between rounded-xl px-3 py-2 text-right text-sm text-neutral-900 hover:bg-neutral-400"
+                        className="flex items-center justify-between rounded-xl px-3 py-2 text-right text-sm text-neutral-900 dark:text-gray-100 hover:bg-neutral-400 dark:hover:bg-gray-700"
                         disabled={isSubmitting}
                       >
                         <span className="font-medium">#{t}</span>
-                        <span className="text-xs text-neutral-500">افزودن</span>
+                        <span className="text-xs text-neutral-500 dark:text-gray-400">افزودن</span>
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <div className="px-3 py-6 text-center text-sm text-neutral-500">
+                  <div className="px-3 py-6 text-center text-sm text-neutral-500 dark:text-gray-400">
                     موردی یافت نشد
                   </div>
                 )}

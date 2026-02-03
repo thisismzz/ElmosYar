@@ -89,41 +89,20 @@ export function SidebarToggleButton({
                 onClick();
             }}
             aria-label="Toggle sidebar"
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl
-
-                 transition hover:bg-neutral-50
-                 focus:outline-none focus:ring-4 focus:ring-[#16519F]/15"
+            className="sidebar-toggle-btn"
         >
             <span className="sr-only">Toggle sidebar</span>
 
             {/* Middle container */}
-            <div className="relative h-4 w-5">
+            <div className="sidebar-toggle-icon-container">
                 {/* Top line */}
-                <span
-                    className={`
-            absolute left-0 top-0 h-[2px] w-full rounded-full bg-neutral-900
-            transition-all duration-300 ease-in-out
-            ${isOpen ? "top-1/2 rotate-45" : ""}
-          `}
-                />
+                <span className={`sidebar-toggle-line sidebar-toggle-line-top ${isOpen ? 'open' : ''}`} />
 
                 {/* Middle line */}
-                <span
-                    className={`
-            absolute left-0 top-1/2 h-[2px] w-full -translate-y-1/2 rounded-full bg-neutral-900
-            transition-all duration-200 ease-in-out
-            ${isOpen ? "opacity-0" : "opacity-100"}
-          `}
-                />
+                <span className={`sidebar-toggle-line sidebar-toggle-line-middle ${isOpen ? 'open' : ''}`} />
 
                 {/* Bottom line */}
-                <span
-                    className={`
-            absolute left-0 bottom-0 h-[2px] w-full rounded-full bg-neutral-900
-            transition-all duration-300 ease-in-out
-            ${isOpen ? "top-1/2 -rotate-45" : ""}
-          `}
-                />
+                <span className={`sidebar-toggle-line sidebar-toggle-line-bottom ${isOpen ? 'open' : ''}`} />
             </div>
         </button>
     );

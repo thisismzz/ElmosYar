@@ -237,16 +237,16 @@ export function CreateFoodPostForm(props: {
                         type="button"
                         onClick={openCalendar}
                         className={cn(
-                            "flex w-full items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3 text-right",
-                            "transition hover:bg-neutral-50 focus:outline-none focus:ring-4 focus:ring-[#16519F]/15 focus:border-[#16519F]/35"
+                            "flex w-full items-center justify-between gap-3 rounded-2xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-right",
+                            "transition hover:bg-neutral-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-[#16519F]/15 dark:focus:ring-[#60a5fa]/15 focus:border-[#16519F]/35 dark:focus:border-[#60a5fa]/35"
                         )}
                         disabled={submitting}
                     >
                         <div className="min-w-0">
-                            <div className="text-sm font-semibold text-neutral-700">
+                            <div className="text-sm font-semibold text-neutral-700 dark:text-gray-300">
                                 {selectedDate ? selectedDate.format("dddd، D MMMM YYYY") : "برای انتخاب تاریخ کلیک کنید"}
                             </div>
-                            <div className="mt-1 text-xs text-neutral-500">
+                            <div className="mt-1 text-xs text-neutral-500 dark:text-gray-400">
                                 {selectedDate ? formatPersianDate(selectedDate) : ""}
                             </div>
                         </div>

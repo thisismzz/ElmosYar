@@ -139,7 +139,7 @@ export function EditProfilePage() {
 	};
 
 	return (
-		<div className="min-h-screen pb-20 lg:pb-8">
+		<div className="min-h-screen pb-20 lg:pb-8 bg-white dark:bg-gray-900">
 			<div className="max-w-2xl mx-auto px-4 py-8 md:px-6 md:py-12">
 				<div className="flex items-center gap-4 mb-8">
 					<Button
@@ -151,17 +151,17 @@ export function EditProfilePage() {
 					>
 						<ArrowLeft className="w-5 h-5" />
 					</Button>
-					<h1 className="flex flex-row-reverse" style={{ color: '#16519F' }}>ویرایش پروفایل</h1>
+					<h1 className="flex flex-row-reverse text-[#16519F] dark:text-[#60a5fa]">ویرایش پروفایل</h1>
 				</div>
 
 				<form onSubmit={handleSubmit} className='flex-row-reverse'>
 					{/* Profile Photo Upload */}
-					<Card className="mb-6 rounded-2xl border-0 shadow-md bg-gray-50">
+					<Card className="mb-6 rounded-2xl border-0 shadow-md bg-gray-50 dark:bg-gray-800">
 						<CardContent className="p-6">
 							<div className="flex items-center gap-6">
 								<div className="flex-1 text-right">
-									<h3 className="mb-1">تغییر عکس پروفایل</h3>
-									<p className="text-gray-500 mb-3">آپلود عکس پروفایل جدید</p>
+									<h3 className="mb-1 dark:text-white">تغییر عکس پروفایل</h3>
+									<p className="text-gray-500 dark:text-gray-400 mb-3">آپلود عکس پروفایل جدید</p>
 									<div className="flex gap-3">
 										<label htmlFor="profile-picture">
 											<Button
@@ -232,7 +232,7 @@ export function EditProfilePage() {
 					{/* Form Fields */}
 					<div className="space-y-4">
 						{/* First Name */}
-						<Card className="rounded-2xl border-0 shadow-md bg-gray-50">
+						<Card className="rounded-2xl border-0 shadow-md bg-gray-50 dark:bg-gray-800">
 							<CardContent className="p-6">
 								<div className="flex items-center gap-4">
 									<div className="flex-1">
@@ -257,7 +257,7 @@ export function EditProfilePage() {
 						</Card>
 
 						{/* Last Name */}
-						<Card className="rounded-2xl border-0 shadow-md bg-gray-50">
+						<Card className="rounded-2xl border-0 shadow-md bg-gray-50 dark:bg-gray-800">
 							<CardContent className="p-6">
 								<div className="flex items-center gap-4">
 									<div className="flex-1">
@@ -282,7 +282,7 @@ export function EditProfilePage() {
 						</Card>
 
 						{/* Bio */}
-						<Card className="rounded-2xl border-0 shadow-md bg-gray-50">
+						<Card className="rounded-2xl border-0 shadow-md bg-gray-50 dark:bg-gray-800">
 							<CardContent className="p-6">
 								<div className="flex items-start gap-4">
 									<div className="flex-1">
@@ -306,7 +306,7 @@ export function EditProfilePage() {
 						</Card>
 
 						{/* Student ID */}
-						<Card className="rounded-2xl border-0 shadow-md bg-gray-50">
+						<Card className="rounded-2xl border-0 shadow-md bg-gray-50 dark:bg-gray-800">
 							<CardContent className="p-6">
 								<div className="flex items-center gap-4">
 									<div className="flex-1">
@@ -331,7 +331,7 @@ export function EditProfilePage() {
 						</Card>
 
 						{/* Student password */}
-						<Card className="rounded-2xl border-0 shadow-md bg-gray-50">
+						<Card className="rounded-2xl border-0 shadow-md bg-gray-50 dark:bg-gray-800">
 							<CardContent className="p-6">
 								<div className="flex items-center gap-4">
 									<div className="flex-1">
