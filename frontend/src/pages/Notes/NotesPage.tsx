@@ -258,14 +258,7 @@ const NotesPage: React.FC = () => {
 						{/* <div className='rtl'>{driveStatus}</div> */}
 						{/* <div /> */}
 
-						<DriveSyncButton
-							onSave={async () => {
-								onSaveToDrive();
-							}}
-							onLoad={async () => {
-								onLoadFromDrive();
-							}}
-						/>
+						
 
 						<button
 							onClick={() => {
