@@ -148,11 +148,32 @@ const ContactUs: React.FC = () => {
                 <h3 className="info-title">{info.title}</h3>
                 <p className="info-value">{info.value}</p>
                 <p className="info-description">{info.description}</p>
+                
               </div>
             ))}
+              {/* ساعات کاری */}
+            <div className="hours-section">
+              <h2 className="section-title">
+                <Clock size={20} />
+                <span>ساعات کاری</span>
+              </h2>
+              <div className="hours-card">
+                <div className="hours-item">
+                  <span className="day">شنبه تا چهارشنبه</span>
+                  <span className="time">۹:۰۰ - ۱۷:۰۰</span>
+                </div>
+                <div className="hours-item">
+                  <span className="day">پنجشنبه و جمعه</span>
+                  <span className="time closed">تعطیل</span>
+                </div>
+                <div className="hours-note">
+                  پشتیبانی آنلاین ۲۴ ساعته از طریق پیام‌رسان‌ها فعال است.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
+        
         <div className="contact-layout">
           {/* سمت چپ: فرم تماس + سوالات متداول */}
           <div className="left-column">
@@ -210,27 +231,6 @@ const ContactUs: React.FC = () => {
                     <span className="social-name">{social.name}</span>
                   </a>
                 ))}
-              </div>
-            </div>
-
-            {/* ساعات کاری */}
-            <div className="hours-section">
-              <h2 className="section-title">
-                <Clock size={20} />
-                <span>ساعات کاری</span>
-              </h2>
-              <div className="hours-card">
-                <div className="hours-item">
-                  <span className="day">شنبه تا چهارشنبه</span>
-                  <span className="time">۹:۰۰ - ۱۷:۰۰</span>
-                </div>
-                <div className="hours-item">
-                  <span className="day">پنجشنبه و جمعه</span>
-                  <span className="time closed">تعطیل</span>
-                </div>
-                <div className="hours-note">
-                  پشتیبانی آنلاین ۲۴ ساعته از طریق پیام‌رسان‌ها فعال است.
-                </div>
               </div>
             </div>
           </div>

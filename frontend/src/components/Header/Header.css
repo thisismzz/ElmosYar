@@ -54,6 +54,26 @@
 .logo-section {
   display: flex;
   justify-content: flex-end;
+  margin-top: 5px;
+}
+/* فقط این خطوط را به Header.css اضافه کنید */
+.logo-container svg {
+  width: 65px !important;
+  height: 65px !important;
+  min-width: 65px;
+  min-height: 65px;
+}
+
+@media (max-width: 768px) {
+  .logo-container svg {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  
+  .mobile-header .logo-container svg {
+    width: 45px !important;
+    height: 45px !important;
+  }
 }
 
 .logo-button {
