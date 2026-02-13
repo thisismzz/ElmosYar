@@ -136,7 +136,7 @@ export function PaymentModal({
       </div>
 
       <div className="space-y-3 rounded-2xl border border-gray-100 bg-gray-50 p-4">
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-sm ">
           <span className="text-gray-600">نام غذا:</span>
           <span className="font-semibold text-gray-900">{foodItem.name}</span>
         </div>
@@ -217,109 +217,144 @@ export function PaymentModal({
   // Payment Selection Screen Component
   const PaymentSelectionScreen = () => (
     <div className="space-y-4 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
-      <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+      <div
+        className="rounded-2xl border p-4"
+        style={{
+          backgroundColor: 'var(--background-light)',
+          borderColor: 'var(--border-color)',
+        }}
+      >
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">هزینه غذا</span>
-          <span className="font-semibold text-gray-900">{formatNumber(foodItem.price)} تومان</span>
+          <span style={{ color: 'var(--text-light)' }}>هزینه غذا</span>
+          <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+            {formatNumber(foodItem.price)} تومان
+          </span>
         </div>
         <div className="mt-2 flex items-center justify-between text-sm">
-          <span className="text-gray-600">موجودی فعلی</span>
-          <span className="font-semibold text-gray-900">{formatNumber(walletBalance)} تومان</span>
+          <span style={{ color: 'var(--text-light)' }}>موجودی فعلی</span>
+          <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+            {formatNumber(walletBalance)} تومان
+          </span>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div
+          className="rounded-xl border p-3 text-sm"
+          style={{
+            backgroundColor: 'var(--error-bg)',
+            borderColor: 'var(--error-border)',
+            color: 'var(--error-text)',
+          }}
+        >
           {error}
         </div>
       )}
 
       <div className="space-y-3">
+        {/* Wallet Method */}
         <div
           onClick={() => {
             setSelectedMethod('wallet');
             setError(null);
           }}
-          className={`rounded-xl border p-4 transition-all cursor-pointer ${
-            selectedMethod === 'wallet'
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-200 bg-white hover:border-gray-300'
-          }`}
+          className="rounded-xl border p-4 transition-all cursor-pointer"
+          style={{
+            backgroundColor:
+              selectedMethod === 'wallet' ? 'var(--primary-color-light)' : 'var(--background)',
+            borderColor:
+              selectedMethod === 'wallet' ? 'var(--primary-color)' : 'var(--border-color)',
+          }}
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${
-                  selectedMethod === 'wallet' 
-                    ? 'border-blue-500 bg-blue-500' 
-                    : 'border-gray-300'
-                }`}>
+                <div
+                  className="h-4 w-4 rounded-full border flex items-center justify-center"
+                  style={{
+                    backgroundColor:
+                      selectedMethod === 'wallet' ? 'var(--primary-color)' : 'var(--background)',
+                    borderColor:
+                      selectedMethod === 'wallet' ? 'var(--primary-color)' : 'var(--border-color)',
+                  }}
+                >
                   {selectedMethod === 'wallet' && (
                     <div className="h-2 w-2 rounded-full bg-white" />
                   )}
                 </div>
-                <span className="text-sm font-medium text-gray-900">استفاده از کیف پول</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+                  استفاده از کیف پول
+                </span>
               </div>
-              
+
               <div className="mt-3 space-y-2 pr-6">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-600">هزینه غذا:</span>
-                  <span className="font-medium text-gray-900">{formatNumber(foodItem.price)} تومان</span>
+                  <span style={{ color: 'var(--text-light)' }}>هزینه غذا:</span>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+                    {formatNumber(foodItem.price)} تومان
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-600">موجودی پس از پرداخت:</span>
-                  <span className={`font-medium ${
-                    hasSufficientBalance ? 'text-green-600' : 'text-amber-600'
-                  }`}>
+                  <span style={{ color: 'var(--text-light)' }}>موجودی پس از پرداخت:</span>
+                  <span
+                    style={{
+                      color: hasSufficientBalance
+                        ? 'var(--success-color)'
+                        : 'var(--warning-color)',
+                      fontWeight: 500,
+                    }}
+                  >
                     {formatNumber(afterPaymentBalance)} تومان
                   </span>
                 </div>
-                
-                {!hasSufficientBalance && (
-                  <div className="mt-2 flex items-center gap-1 text-xs text-amber-600">
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.856-.833-2.664 0L4.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                    </svg>
-                    <span>موجودی کیف پول کافی نیست</span>
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
 
+        {/* Online Method */}
         <div
           onClick={() => {
             setSelectedMethod('online');
             setError(null);
           }}
-          className={`rounded-xl border p-4 transition-all cursor-pointer ${
-            selectedMethod === 'online'
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-200 bg-white hover:border-gray-300'
-          }`}
+          className="rounded-xl border p-4 transition-all cursor-pointer"
+          style={{
+            backgroundColor:
+              selectedMethod === 'online' ? 'var(--primary-color-light)' : 'var(--background)',
+            borderColor:
+              selectedMethod === 'online' ? 'var(--primary-color)' : 'var(--border-color)',
+          }}
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <div className={`h-4 w-4 rounded-full border flex items-center justify-center ${
-                  selectedMethod === 'online' 
-                    ? 'border-blue-500 bg-blue-500' 
-                    : 'border-gray-300'
-                }`}>
+                <div
+                  className="h-4 w-4 rounded-full border flex items-center justify-center"
+                  style={{
+                    backgroundColor:
+                      selectedMethod === 'online' ? 'var(--primary-color)' : 'var(--background)',
+                    borderColor:
+                      selectedMethod === 'online' ? 'var(--primary-color)' : 'var(--border-color)',
+                  }}
+                >
                   {selectedMethod === 'online' && (
                     <div className="h-2 w-2 rounded-full bg-white" />
                   )}
                 </div>
-                <span className="text-sm font-medium text-gray-900">پرداخت آنلاین</span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+                  پرداخت آنلاین
+                </span>
               </div>
-              
+
               <div className="mt-3 pr-6">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-gray-600">هزینه غذا:</span>
-                  <span className="font-medium text-gray-900">{formatNumber(foodItem.price)} تومان</span>
+                  <span style={{ color: 'var(--text-light)' }}>هزینه غذا:</span>
+                  <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
+                    {formatNumber(foodItem.price)} تومان
+                  </span>
                 </div>
-                <div className="mt-2 text-xs text-gray-500">
+                <div style={{ color: 'var(--text-light)', fontSize: '0.75rem' }}>
                   پس از تأیید، به صفحه پرداخت آنلاین منتقل می‌شوید.
                 </div>
               </div>
@@ -328,20 +363,31 @@ export function PaymentModal({
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-3">
-        <div className="text-xs text-gray-600 mb-2">جزئیات سفارش</div>
+      {/* Order Details */}
+      <div
+        className="rounded-xl border p-3"
+        style={{
+          backgroundColor: 'var(--background-light)',
+          borderColor: 'var(--border-color)',
+          color: 'var(--text-primary)',
+        }}
+      >
+        <div style={{ color: 'var(--text-light)', fontSize: '0.75rem', marginBottom: '0.5rem' }}>
+          جزئیات سفارش
+        </div>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div>
-            <div className="text-gray-500">وعده:</div>
-            <div className="font-medium">{foodItem.mealType === 'lunch' ? 'ناهار' : 'شام'}</div>
+            <div style={{ color: 'var(--text-light)' }}>وعده:</div>
+            <div style={{ fontWeight: 500 }}>{foodItem.mealType === 'lunch' ? 'ناهار' : 'شام'}</div>
           </div>
           <div>
-            <div className="text-gray-500">تاریخ:</div>
-            <div className="font-medium">{foodItem.date}</div>
+            <div style={{ color: 'var(--text-light)' }}>تاریخ:</div>
+            <div style={{ fontWeight: 500 }}>{foodItem.date}</div>
           </div>
         </div>
       </div>
     </div>
+
   );
 
   // Modal Footer Buttons

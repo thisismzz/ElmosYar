@@ -111,7 +111,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems,
 
   return (
     <div className={`food-order-container ${items.length === 1 ? 'single-item' : 'double-item'}`}>
-      {/* {items.length === 0 ? (
+      {items.length === 0 ? (
         <div className="food-empty-state">
           <div className="empty-state-icon">🍽️</div>
           <h3>هیچ غذایی موجود نیست</h3>
@@ -132,7 +132,7 @@ export const FoodPostFeed: React.FC<FoodPostFeedProps> = ({ items: initialItems,
             ))}
           </div>
         </>
-      )} */}
+      )}
 
       {selectedItem && (
         <PaymentModal

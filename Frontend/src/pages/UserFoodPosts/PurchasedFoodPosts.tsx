@@ -1,7 +1,12 @@
 // src/components/Food/UserFoodPosts/PurchasedFoodPosts.tsx
 import React, { useEffect, useState } from "react";
-import { Card, CardBody, InlineError, LoadingSpinner } from  "../../components/UIOverrides";
-import { getPurchasedPosts } from "../../services/paymentService"; 
+import {
+  Card,
+  CardBody,
+  InlineError,
+  LoadingSpinner,
+} from "../../components/UIOverrides";
+import { getPurchasedPosts } from "../../services/paymentService";
 import { FoodPostItem, FoodPostData } from "./FoodPostItem";
 
 export function PurchasedFoodPosts() {
@@ -17,44 +22,58 @@ export function PurchasedFoodPosts() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await getPurchasedPosts();
-      
+
       if (!response.data.error) {
         setPosts(response.data.data || []);
       } else {
-        setError(response.data.message || "خطا در دریافت پست‌های خریداری‌شده");
+        setError(
+          response.data.message || "خطا در دریافت پست‌های خریداری‌شده"
+        );
       }
     } catch (err: any) {
-      setError(err.message || "خطا در ارتباط با سرور");
       console.error("Error fetching purchased posts:", err);
+      setError(err.message || "خطا در ارتباط با سرور");
     } finally {
       setLoading(false);
     }
   };
 
+  /* ---------------- Loading ---------------- */
   if (loading) {
     return (
-      <Card className="overflow-hidden border border-neutral-200 bg-white">
+      <Card>
         <CardBody className="py-12">
           <div className="flex flex-col items-center justify-center gap-3">
             <LoadingSpinner size="lg" />
-            <div className="text-sm text-neutral-500">در حال بارگذاری پست‌های خریداری‌شده...</div>
+            <div
+              className="text-sm"
+              style={{ color: "var(--text-light)" }}
+            >
+              در حال بارگذاری پست‌های خریداری‌شده...
+            </div>
           </div>
         </CardBody>
       </Card>
     );
   }
 
+  /* ---------------- Error ---------------- */
   if (error) {
     return (
-      <Card className="overflow-hidden border border-neutral-200 bg-white">
+      <Card>
         <CardBody>
           <InlineError>{error}</InlineError>
+
           <div className="mt-4 flex justify-center">
             <button
               onClick={fetchPurchasedPosts}
-              className="rounded-lg bg-[#16519F] px-4 py-2 text-sm font-medium text-white hover:bg-[#16519F]/90"
+              className="rounded-lg px-4 py-2 text-sm font-medium transition"
+              style={{
+                backgroundColor: "var(--primary-color)",
+                color: "#fff",
+              }}
             >
               تلاش مجدد
             </button>
@@ -64,17 +83,22 @@ export function PurchasedFoodPosts() {
     );
   }
 
+  /* ---------------- Empty State ---------------- */
   if (posts.length === 0) {
     return (
-      <Card className="overflow-hidden border border-neutral-200 bg-white">
+      <Card>
         <CardBody className="py-12">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-neutral-100 p-4">
+            <div
+              className="mx-auto mb-4 h-16 w-16 rounded-full p-4 flex items-center justify-center"
+              style={{ backgroundColor: "var(--background-light)" }}
+            >
               <svg
-                className="h-full w-full text-neutral-400"
+                className="h-full w-full"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                style={{ color: "var(--text-light)" }}
               >
                 <path
                   strokeLinecap="round"
@@ -84,10 +108,18 @@ export function PurchasedFoodPosts() {
                 />
               </svg>
             </div>
-            <h3 className="mb-2 text-lg font-semibold text-neutral-900">
+
+            <h3
+              className="mb-2 text-lg font-semibold"
+              style={{ color: "var(--text-primary)" }}
+            >
               هنوز خریدی انجام نداده‌اید
             </h3>
-            <p className="text-sm text-neutral-500">
+
+            <p
+              className="text-sm"
+              style={{ color: "var(--text-light)" }}
+            >
               پس از خرید پست‌های غذایی، آن‌ها در اینجا نمایش داده می‌شوند.
             </p>
           </div>
@@ -96,24 +128,25 @@ export function PurchasedFoodPosts() {
     );
   }
 
+  /* ---------------- Content ---------------- */
   return (
-    <Card className="overflow-hidden border border-neutral-200 bg-white shadow-sm">
+    <Card>
       <CardBody>
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-neutral-900">
+            <h3
+              className="text-lg font-semibold"
+              style={{ color: "var(--text-primary)" }}
+            >
               پست‌های خریداری‌شده
             </h3>
-            <p className="text-sm text-neutral-500">
+            <p
+              className="text-sm"
+              style={{ color: "var(--text-light)" }}
+            >
               {posts.length} پست خریداری‌شده
             </p>
           </div>
-          {/* <button
-            onClick={fetchPurchasedPosts}
-            className="rounded-lg px-3 py-1.5 text-sm font-medium text-[#16519F] hover:bg-[#16519F]/5"
-          >
-            بروزرسانی
-          </button> */}
         </div>
 
         <div className="space-y-3">

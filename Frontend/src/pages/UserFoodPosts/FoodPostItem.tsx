@@ -1,17 +1,14 @@
 // src/components/Food/UserFoodPosts/FoodPostItem.tsx
 import React, { useEffect, useState } from "react";
-import { 
-  Clock, 
-  MapPin, 
-  Calendar, 
+import {
+  Clock,
+  MapPin,
+  Calendar,
   DollarSign,
   ChevronDown,
   ChevronUp,
-  User,
-  IdCard 
 } from "lucide-react";
 import { formatGregorianToPersian } from "./utils/dateUtils";
-
 import { getUserInfo } from "../../services/paymentService";
 
 export interface FoodPostData {
@@ -20,7 +17,7 @@ export interface FoodPostData {
     name: string;
     price: string;
     location: string;
-    date: string; // Gregorian with Persian digits like "۲۰۲۶-۰۲-۰۳"
+    date: string;
     day: string;
     mealType: string;
     isSoldOut: boolean;
@@ -41,155 +38,200 @@ interface FoodPostItemProps {
 }
 
 const englishToPersianLocation: Record<string, string> = {
-  "yas": "یاس",
-  "dormitory_f": "خوابگاه خواهران",
-  "central_m": "مرکزی برادران",
-  "rashid": "رشید",
-  "hakimieh": "حکیمیه",
-  "seraj": "سراج",
-  "bagheri": "باقری",
-  "farjam": "فرجام",
-  "majidieh": "مجیدیه",
-  "basij": "بسیج",
+  yas: "یاس",
+  dormitory_f: "خوابگاه خواهران",
+  central_m: "مرکزی برادران",
+  rashid: "رشید",
+  hakimieh: "حکیمیه",
+  seraj: "سراج",
+  bagheri: "باقری",
+  farjam: "فرجام",
+  majidieh: "مجیدیه",
+  basij: "بسیج",
 };
 
 const englishToPersianMeal: Record<string, string> = {
-  "lunch": "ناهار",
-  "dinner": "شام",
+  lunch: "ناهار",
+  dinner: "شام",
 };
 
 export function FoodPostItem({ post, type }: FoodPostItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [pass, setPass] = useState("");
 
-  // Format date
   const formattedDate = formatGregorianToPersian(post.attributes.date);
-  
-  // Get Persian location and meal
-  const persianLocation = englishToPersianLocation[post.attributes.location] || post.attributes.location;
-  const persianMeal = englishToPersianMeal[post.attributes.mealType] || post.attributes.mealType;
+  const persianLocation =
+    englishToPersianLocation[post.attributes.location] ||
+    post.attributes.location;
+  const persianMeal =
+    englishToPersianMeal[post.attributes.mealType] ||
+    post.attributes.mealType;
 
-  // Format price with Persian digits and commas
   const formatPrice = (price: string) => {
-    const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
     const num = parseInt(price);
     if (isNaN(num)) return price;
-    
-    const formatted = num.toLocaleString('fa-IR');
-    return `${formatted} تومان`;
+    return `${num.toLocaleString("fa-IR")} تومان`;
   };
 
   useEffect(() => {
-    const updatePass = async () => {
-        const result = post.author_info ? await getUserInfo(post.author_info?.username) : null
-        
-        setPass(result.info ?? "");
+    const loadPass = async () => {
+      if (!post.author_info) return;
+      const result = await getUserInfo(post.author_info.username);
+      setPass(result?.info ?? "");
     };
+    loadPass();
+  }, [post.author_info]);
 
-    updatePass();
-  })
+  const cardStyle = {
+    backgroundColor: "var(--card-bg)",
+    border: "1px solid var(--border-color)",
+    boxShadow: "var(--shadow)",
+    borderRadius: "1rem",
+  };
+
+  const subtleBg = {
+    backgroundColor: "var(--background-light)",
+  };
+
   return (
-    <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm transition-all hover:shadow-md">
+    <div style={cardStyle} className="overflow-hidden transition-all">
+      {/* Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between p-4 text-right transition-colors hover:bg-neutral-50/50"
+        className="flex w-full items-center justify-between p-4 text-right"
+        style={{ color: "var(--text-primary)" }}
         aria-expanded={isExpanded}
       >
-        <div className="flex items-center">
+        <div>
           {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-neutral-400" />
+            <ChevronUp className="h-5 w-5" style={{ color: "var(--text-light)" }} />
           ) : (
-            <ChevronDown className="h-5 w-5 text-neutral-400" />
+            <ChevronDown
+              className="h-5 w-5"
+              style={{ color: "var(--text-light)" }}
+            />
           )}
         </div>
 
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-neutral-900">
+            <h3 className="text-lg font-semibold">
               {post.attributes.name}
             </h3>
+
             {type === "purchased" && (
-              <span className="rounded-full bg-[#16519F]/10 px-2 py-1 text-xs font-medium text-[#16519F]">
+              <span
+                className="rounded-full px-2 py-1 text-xs font-medium"
+                style={{
+                  backgroundColor: "var(--primary-light)",
+                  color: "var(--primary-color)",
+                }}
+              >
                 خریداری‌شده
               </span>
             )}
+
             {type === "sold" && (
-              <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-700">
+              <span
+                className="rounded-full px-2 py-1 text-xs font-medium"
+                style={{
+                  backgroundColor: "rgba(16,185,129,0.15)",
+                  color: "var(--success-color)",
+                }}
+              >
                 فروخته‌شده
               </span>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm text-neutral-600 sm:grid-cols-4">
+          <div
+            className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4"
+            style={{ color: "var(--text-secondary)" }}
+          >
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-neutral-400" />
-              <span className="font-medium text-neutral-900">
+              <DollarSign className="h-4 w-4" style={{ color: "var(--text-light)" }} />
+              <span style={{ color: "var(--text-primary)", fontWeight: 500 }}>
                 {formatPrice(post.attributes.price)}
               </span>
             </div>
 
             <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-neutral-400" />
+              <MapPin className="h-4 w-4" style={{ color: "var(--text-light)" }} />
               <span>{persianLocation}</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-neutral-400" />
+              <Calendar className="h-4 w-4" style={{ color: "var(--text-light)" }} />
               <span>{formattedDate}</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-neutral-400" />
+              <Clock className="h-4 w-4" style={{ color: "var(--text-light)" }} />
               <span>{persianMeal}</span>
             </div>
           </div>
         </div>
       </button>
 
+      {/* Purchased Details */}
       {isExpanded && type === "purchased" && post.author_info && (
-        <div className="border-t border-neutral-100 bg-neutral-50/50 p-4 animate-[slideDown_.2s_ease-out]">
+        <div
+          className="p-4 animate-[slideDown_.2s_ease-out]"
+          style={{
+            borderTop: "1px solid var(--border-color)",
+            ...subtleBg,
+          }}
+        >
           <div className="space-y-4">
-            
-
-            
-            <div className="grid grid-cols-1 gap-3 rounded-xl bg-white p-4 shadow-sm md:grid-cols-2">
-
-                {/* <div className="mb-1 flex items-center gap-1 text-xs text-neutral-500">
-                  
-                  <span>فروشنده:</span>
-                </div>
-                <div className="flex gap-2">
-                  <p className="font-medium text-neutral-900"> {post.author_info.first_name} {post.author_info.last_name} </p>
-                  <p className="font-medium text-neutral-400">  {post.author_info.username}@ </p>
-                  
-                </div>
-              </div>  */}
+            <div
+              className="grid grid-cols-1 gap-3 rounded-xl p-4 md:grid-cols-2"
+              style={cardStyle}
+            >
               <div>
-                <div className="mb-1 text-xs text-neutral-500">شماره دانشجویی</div>
-                <div className="font-medium text-neutral-900">
+                <div className="mb-1 text-xs" style={{ color: "var(--text-light)" }}>
+                  شماره دانشجویی
+                </div>
+                <div
+                  className="font-medium"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   {post.author_info.student_id}
                 </div>
               </div>
 
               <div>
-                <div className="mb-1 text-xs text-neutral-500">رمز دوم</div>
-                <div className="font-medium text-neutral-900">
+                <div className="mb-1 text-xs" style={{ color: "var(--text-light)" }}>
+                  رمز دوم
+                </div>
+                <div
+                  className="font-medium"
+                  style={{ color: "var(--text-primary)" }}
+                >
                   {pass}
                 </div>
               </div>
-
-              
             </div>
 
-            <div className="rounded-lg border border-neutral-200 bg-white p-3">
-              <div className="text-xs text-neutral-500">زمان خرید</div>
-              <div className="text-sm font-medium text-neutral-900">
-                {new Date(post.created_at).toLocaleDateString('fa-IR', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
+            <div
+              className="rounded-lg p-3"
+              style={{
+                backgroundColor: "var(--card-bg)",
+                border: "1px solid var(--border-color)",
+              }}
+            >
+              <div className="text-xs" style={{ color: "var(--text-light)" }}>
+                زمان خرید
+              </div>
+              <div
+                className="text-sm font-medium"
+                style={{ color: "var(--text-primary)" }}
+              >
+                {new Date(post.created_at).toLocaleDateString("fa-IR", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </div>
             </div>
@@ -197,12 +239,18 @@ export function FoodPostItem({ post, type }: FoodPostItemProps) {
         </div>
       )}
 
+      {/* Sold Placeholder */}
       {isExpanded && type === "sold" && (
-        <div className="border-t border-neutral-100 bg-neutral-50/50 p-4 animate-[slideDown_.2s_ease-out]">
-          <div className="text-center text-neutral-500 py-8">
-            <div className="mb-2">اطلاعات خریدار در آینده نمایش داده خواهد شد</div>
-            <div className="text-xs">این بخش در حال توسعه است</div>
-          </div>
+        <div
+          className="p-8 text-center animate-[slideDown_.2s_ease-out]"
+          style={{
+            borderTop: "1px solid var(--border-color)",
+            backgroundColor: "var(--background-light)",
+            color: "var(--text-light)",
+          }}
+        >
+          <div className="mb-2">اطلاعات خریدار در آینده نمایش داده خواهد شد</div>
+          <div className="text-xs">این بخش در حال توسعه است</div>
         </div>
       )}
 

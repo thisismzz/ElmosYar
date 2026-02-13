@@ -9,52 +9,60 @@ type Props = {
 };
 
 export function SuccessToast({ message, open, onClose, durationMs = 2200 }: Props) {
-  const [render, setRender] = useState(open);
+  const [visible, setVisible] = useState(open);
   const [closing, setClosing] = useState(false);
 
   useEffect(() => {
+    let closeTimer: ReturnType<typeof setTimeout>;
+    let removeTimer: ReturnType<typeof setTimeout>;
+
     if (open) {
-      setRender(true);
+      setVisible(true);
       setClosing(false);
-      const t = window.setTimeout(() => {
+
+      closeTimer = setTimeout(() => {
         setClosing(true);
-        window.setTimeout(() => {
-          setRender(false);
+        removeTimer = setTimeout(() => {
+          setVisible(false);
           onClose();
         }, 180);
       }, durationMs);
-      return () => window.clearTimeout(t);
-    } else if (render) {
+    } else if (visible) {
       setClosing(true);
-      const t = window.setTimeout(() => setRender(false), 180);
-      return () => window.clearTimeout(t);
+      removeTimer = setTimeout(() => setVisible(false), 180);
     }
-  }, [open, durationMs, onClose, render]);
 
-  if (!render) return null;
+    return () => {
+      clearTimeout(closeTimer);
+      clearTimeout(removeTimer);
+    };
+  }, [open, durationMs, onClose, visible]);
+
+  if (!visible) return null;
 
   return (
-    <div className="fixed z-[60] left-4 right-4 bottom-5 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[380px]" dir="rtl">
+    <div
+      className="fixed z-[60] left-4 right-4 bottom-5 sm:left-auto sm:right-6 sm:bottom-6 sm:w-[380px]"
+      dir="rtl"
+    >
       <div
-        className={[
-          "rounded-2xl border border-white/10 overflow-hidden",
-          "shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)]",
-          "transition-all duration-180 ease-out",
-          closing ? "opacity-0 translate-y-2 scale-[0.985]" : "opacity-100 translate-y-0 scale-100",
-        ].join(" ")}
+        className={`rounded-2xl border border-white/10 overflow-hidden
+          shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)]
+          transition-all duration-180 ease-out
+          ${closing ? "opacity-0 translate-y-2 scale-[0.985]" : "opacity-100 translate-y-0 scale-100"}`}
         style={{
           background:
             "radial-gradient(700px 260px at 90% 0%, rgba(79,203,233,0.35) 0%, rgba(22,89,159,1) 55%, rgba(13,55,110,1) 100%)",
         }}
       >
-        <div className="px-4 py-3 flex items-center gap-3">
+        <div className="flex items-center gap-3 px-4 py-3">
           <CheckCircle2 className="w-5 h-5 text-white" />
-          <div className="text-white text-sm font-medium flex-1">{message}</div>
+          <div className="flex-1 text-sm font-medium text-white">{message}</div>
           <button
             onClick={() => {
               setClosing(true);
-              window.setTimeout(() => {
-                setRender(false);
+              setTimeout(() => {
+                setVisible(false);
                 onClose();
               }, 180);
             }}

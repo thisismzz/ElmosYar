@@ -84,7 +84,7 @@ const RequestPasswordResetPage: React.FC = () => {
                     type="email"
                     placeholder=" "
                     {...register("email")}
-                    className={`form-input ${errors.email ? 'error' : ''}`}
+                    className={`auth-form-input ${errors.email ? 'error' : ''}`}
                     disabled={isLoading}
                   />
                   <label className="floating-label">پست الکترونیک</label>

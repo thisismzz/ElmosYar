@@ -43,7 +43,7 @@ export default function PostCommentsPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50/30">
+		<div className="min-h-screen bg-[#1f2937]">
 			<div className="max-w-5xl mx-auto py-6">
 				<button
 					onClick={() => navigate(-1)}

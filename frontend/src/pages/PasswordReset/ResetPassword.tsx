@@ -100,7 +100,7 @@ const ResetPasswordPage: React.FC = () => {
                     type="password"
                     placeholder=" "
                     {...register("password")}
-                    className={`form-input ${errors.password ? 'error' : ''}`}
+                    className={`auth-form-input ${errors.password ? 'error' : ''}`}
                     disabled={isLoading}
                     autoComplete="new-password"
                   />
@@ -117,7 +117,7 @@ const ResetPasswordPage: React.FC = () => {
                     type="password"
                     placeholder=" "
                     {...register("passwordConfirm")}
-                    className={`form-input ${errors.passwordConfirm ? 'error' : ''}`}
+                    className={`auth-form-input ${errors.passwordConfirm ? 'error' : ''}`}
                     disabled={isLoading}
                     autoComplete="new-password"
                   />

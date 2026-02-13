@@ -76,9 +76,14 @@ export function SelectTrigger({
 			data-slot="select-trigger"
 			onClick={() => setOpen(!open)}
 			className={twMerge(clsx(
-				"flex w-full items-center justify-between rounded-md border bg-input-background px-3 py-2 text-sm focus-visible:ring-[3px]",
+				"flex w-full items-center justify-between rounded-md border px-3 py-2 text-sm focus-visible:ring-[3px]",
 				className,
 			))}
+			style={{ 
+				borderColor: 'var(--border-color)', 
+				backgroundColor: 'var(--white)',
+				color: 'var(--text-primary)'
+			}}
 		>
 			{children}
 			<ChevronDownIcon className="size-4 opacity-50" />
@@ -98,8 +103,9 @@ export function SelectValue({
 		<span
 			data-slot="select-value"
 			className={twMerge(clsx(
-				!value && "text-muted-foreground",
+				!value && "",
 			))}
+			style={!value ? { color: 'var(--text-light)' } : undefined}
 		>
 			{value ?? placeholder}
 		</span>
@@ -119,9 +125,13 @@ export function SelectContent({
 		<div
 			data-slot="select-content"
 			className={twMerge(clsx(
-				"absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md",
+				"absolute z-50 mt-1 w-full rounded-md border shadow-md",
 				className,
 			))}
+			style={{ 
+				borderColor: 'var(--border-color)', 
+				backgroundColor: 'var(--white)' 
+			}}
 		>
 			{children}
 		</div>
@@ -154,10 +164,17 @@ export function SelectItem({
 				setOpen(false);
 			}}
 			className={twMerge(clsx(
-				"relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm hover:bg-accent",
-				isSelected && "bg-accent",
+				"relative flex cursor-pointer select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm",
 				className,
 			))}
+			style={{ 
+				color: 'var(--text-primary)',
+				...(isSelected ? { backgroundColor: 'var(--background-light)' } : {})
+			}}
+			onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--background-light)'}
+			onMouseLeave={(e) => {
+				if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent'
+			}}
 		>
 			{children}
 			{isSelected && (
@@ -177,9 +194,10 @@ export function SelectLabel({
 		<div
 			data-slot="select-label"
 			className={twMerge(clsx(
-				"px-2 py-1.5 text-xs text-muted-foreground",
+				"px-2 py-1.5 text-xs",
 				className,
 			))}
+			style={{ color: 'var(--text-light)' }}
 			{...props}
 		/>
 	);
@@ -192,9 +210,10 @@ export function SelectSeparator({
 		<div
 			data-slot="select-separator"
 			className={twMerge(clsx(
-				"my-1 h-px bg-border",
+				"my-1 h-px",
 				className,
 			))}
+			style={{ backgroundColor: 'var(--border-color)' }}
 		/>
 	);
 }

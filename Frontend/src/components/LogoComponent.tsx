@@ -22,8 +22,8 @@ const SvgComponent = (
       x={0}
       y={0}
       viewBox="0 0 2834.6 2834.6"
-      width={sizeString}
-      height={sizeString}
+      width="250px"
+      height="250px"
       ref={ref}
       className="logo-svg"
       {...svgProps}
